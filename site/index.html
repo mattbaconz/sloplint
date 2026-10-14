@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en" data-preset="obsidian-telemetry">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>sloplint · find the tells of generated code</title>
+<meta name="description" content="A zero-dependency linter, agent brief pack and live grader for the patterns AI assistants leave in UI, security, backend, copy and tests.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&family=Chivo+Mono:wght@400;500&family=Chivo:wght@400;600;800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Newsreader:opsz,wght@6..72,400;6..72,500&family=Public+Sans:wght@400;600&display=swap">
+<link rel="stylesheet" href="styles.css">
+<script>
+  try {
+    var saved = localStorage.getItem('sloplint:preset');
+    if (saved) document.documentElement.dataset.preset = saved;
+  } catch (e) {
+    // Storage blocked: keep the default preset.
+  }
+</script>
+<script type="module" src="app.js"></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="masthead">
+  <div class="wrap masthead-row">
+    <a class="wordmark" href="#top" aria-label="sloplint home"><span class="mark" aria-hidden="true"></span>sloplint</a>
+    <nav class="nav" aria-label="Sections">
+      <a href="#grader">Grader</a>
+      <a href="#rules">Rules</a>
+      <a href="#presets">Presets</a>
+      <a href="#cli">CLI</a>
+      <a href="#briefs">Briefs</a>
+    </nav>
+    <fieldset class="switcher" aria-label="Theme preset">
+      <legend class="sr-only">Theme preset</legend>
+      <label><input type="radio" name="preset" value="obsidian-telemetry" checked><span>Obsidian</span></label>
+      <label><input type="radio" name="preset" value="editorial-serif"><span>Editorial</span></label>
+      <label><input type="radio" name="preset" value="swiss-brutalist"><span>Swiss</span></label>
+      <label><input type="radio" name="preset" value="tactile-hardware"><span>Tactile</span></label>
+    </fieldset>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero wrap" id="top">
+    <div class="hero-copy">
+      <p class="kicker">Linter · agent briefs · live grader</p>
+      <h1>Find the tells of generated code before your users do.</h1>
+      <p class="lede">sloplint is a zero-dependency linter for the patterns AI assistants leave behind: purple gradients, swallowed errors, fallback secrets, mock data, filler copy and tests that assert nothing. Every rule is deterministic and ships with a fix and a worked example.</p>
+      <div class="command">
+        <code id="install-command">npx @sloplint/cli check .</code>
+        <button type="button" class="btn btn-quiet" data-copy="install-command">Copy command</button>
+      </div>
+      <p class="hero-links"><a href="#grader">Grade your own code</a><a href="#rules">Read the rules</a></p>
+    </div>
+    <figure class="terminal" aria-labelledby="terminal-caption">
+      <figcaption id="terminal-caption" class="terminal-bar"><span>sloplint check src/server/api.ts</span></figcaption>
+      <pre class="terminal-body" id="hero-terminal" aria-live="off">Loading real output…</pre>
+    </figure>
+  </section>
+
+  <section class="wrap facts" aria-label="Project facts">
+    <dl class="fact-list" id="facts"></dl>
+  </section>
+
+  <section class="band" id="grader" aria-labelledby="grader-title">
+    <div class="wrap">
+      <header class="section-head">
+        <h2 id="grader-title">Live grader</h2>
+        <p>Paste a component, route handler, stylesheet, test or README. It runs in your browser on the same engine as the CLI, so nothing leaves this page.</p>
+      </header>
+
+      <div class="grader-tools">
+        <div class="samples" role="group" aria-label="Load a sample">
+          <span class="label">Load a sample</span>
+          <button type="button" class="chip" data-sample="dashboard">React dashboard</button>
+          <button type="button" class="chip" data-sample="api">Express API</button>
+          <button type="button" class="chip" data-sample="service">Python service</button>
+          <button type="button" class="chip" data-sample="landing">Landing page</button>
+          <button type="button" class="chip" data-sample="checkout">Test file</button>
+          <button type="button" class="chip" data-sample="readme">README</button>
+          <button type="button" class="chip" data-sample="launch">Launch video</button>
+        </div>
+        <label class="field">
+          <span class="label">File name</span>
+          <input id="file-name" type="text" spellcheck="false" autocomplete="off" value="app/page.tsx">
+        </label>
+      </div>
+
+      <div class="grader">
+        <div class="editor">
+          <pre class="gutter" id="gutter" aria-hidden="true">1</pre>
+          <label class="sr-only" for="source">Code to grade</label>
+          <textarea id="source" spellcheck="false" autocapitalize="off" autocomplete="off" wrap="off" placeholder="Paste code here, or load a sample above."></textarea>
+        </div>
+
+        <aside class="report" aria-labelledby="report-title">
+          <h3 id="report-title" class="sr-only">Report</h3>
+          <div class="score" aria-live="polite">
+            <p class="score-value"><span id="score-number">0</span><span class="score-max">/100</span></p>
+            <p class="score-grade" id="score-grade">Studio Grade</p>
+            <div class="meter" aria-hidden="true"><span id="score-fill"></span></div>
+            <p class="score-meta" id="score-meta">Paste code to get a score.</p>
+          </div>
+          <dl class="domains" id="domain-counts"></dl>
+          <div class="report-actions">
+            <button type="button" class="btn btn-primary" id="apply-fixes" disabled>Apply autofixes</button>
+            <button type="button" class="btn btn-quiet" id="undo-fixes" hidden>Undo autofixes</button>
+          </div>
+          <ol class="diagnostics" id="diagnostics"></ol>
+        </aside>
+      </div>
+
+      <section class="changes" id="changes" hidden aria-labelledby="changes-title">
+        <h3 id="changes-title">Autofix changes</h3>
+        <div class="diff" id="changes-diff"></div>
+      </section>
+    </div>
+  </section>
+
+  <section class="wrap" id="rules" aria-labelledby="rules-title">
+    <header class="section-head">
+      <h2 id="rules-title">Rule catalog</h2>
+      <p id="rules-intro">Each rule names a pattern, explains why it hurts, and shows the slop and the fix side by side. Select one to see its example rendered.</p>
+    </header>
+
+    <div class="rule-tools">
+      <div class="filters" role="group" aria-label="Filter by domain" id="domain-filters"></div>
+      <label class="field field-search">
+        <span class="label">Search rules</span>
+        <input id="rule-search" type="search" spellcheck="false" autocomplete="off">
+      </label>
+    </div>
+
+    <div class="catalog">
+      <ol class="rule-list" id="rule-list" aria-label="Rules"></ol>
+      <article class="rule-detail" id="rule-detail" aria-live="polite"></article>
+    </div>
+  </section>
+
+  <section class="band" id="presets" aria-labelledby="presets-title">
+    <div class="wrap">
+      <header class="section-head">
+        <h2 id="presets-title">Four studio presets</h2>
+        <p><code>sloplint init</code> writes one of these to <code>DESIGN.md</code>, so agents pick tokens from a system instead of reaching for defaults. Each card below renders in its own preset; the switcher in the header restyles this whole page.</p>
+      </header>
+      <div class="preset-grid" id="preset-grid"></div>
+    </div>
+  </section>
+
+  <section class="wrap" id="cli" aria-labelledby="cli-title">
+    <header class="section-head">
+      <h2 id="cli-title">Command line</h2>
+      <p>Node 20 or newer, no install step, no dependencies. Exit codes are designed for CI.</p>
+    </header>
+    <div class="cli-grid">
+      <dl class="commands">
+        <div>
+          <dt><code>sloplint check [paths…]</code></dt>
+          <dd>Lints JS, TS, JSX, HTML, Vue, Svelte, CSS, Python and Markdown. Prints compiler-style frames with a fix for each finding and a weighted Slop Score. <code>--fix</code> applies safe autofixes, <code>--format json</code> feeds other tools, <code>--max-score 0</code> fails the build on any slop.</dd>
+        </div>
+        <div>
+          <dt><code>sloplint init [--preset name]</code></dt>
+          <dd>Writes <code>DESIGN.md</code> from a preset and syncs the rule list into <code>CLAUDE.md</code>, <code>GEMINI.md</code>, <code>AGENTS.md</code> and <code>.cursor/rules/sloplint.mdc</code>. Rerun it to switch presets; your own content in those files is left alone.</dd>
+        </div>
+        <div>
+          <dt><code>sloplint explain [RULE]</code></dt>
+          <dd>Prints the rationale and a side-by-side slop and craft diff in the terminal. Without an argument it lists every rule.</dd>
+        </div>
+        <div>
+          <dt>Suppressing a finding</dt>
+          <dd>Add <code>sloplint-disable-next-line UI-007</code> in a comment, or list paths in <code>.sloplintignore</code>. Suppressions only count inside comments.</dd>
+        </div>
+      </dl>
+      <figure class="snippet">
+        <figcaption>.github/workflows/sloplint.yml</figcaption>
+        <pre><code>name: sloplint
+on: [push, pull_request]
+jobs:
+  slop:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npx @sloplint/cli check . --max-score 0</code></pre>
+      </figure>
+    </div>
+  </section>
+
+  <section class="band" id="briefs" aria-labelledby="briefs-title">
+    <div class="wrap">
+      <header class="section-head">
+        <h2 id="briefs-title">Brief pack for agents</h2>
+        <p>Token-dense briefs you can drop into a system prompt, one per specialist. They cite the same rule IDs the linter enforces, so the reviewer and the author agree on what done means.</p>
+      </header>
+      <ol class="briefs">
+        <li><a href="../rules/ui.md">rules/ui.md</a><span>Visual design, motion and UX writing for frontend agents.</span><code>UI · COPY</code></li>
+        <li><a href="../rules/backend.md">rules/backend.md</a><span>Errors, data access, network calls and API design.</span><code>BE</code></li>
+        <li><a href="../rules/security.md">rules/security.md</a><span>Secrets, CORS, injection, server-side auth and webhooks.</span><code>SEC</code></li>
+        <li><a href="../rules/testing.md">rules/testing.md</a><span>Assertions, waits, focused tests and READMEs.</span><code>TEST</code></li>
+        <li><a href="../rules/motion.md">rules/motion.md</a><span>Motion, pacing and sound for videos written as code.</span><code>MOTION</code></li>
+        <li><a href="../scripts/verify-dom.spec.ts">scripts/verify-dom.spec.ts</a><span>Playwright checks against the rendered page: computed transitions, gradients, radii, layout shift and visible copy.</span><code>DOM</code></li>
+      </ol>
+    </div>
+  </section>
+</main>
+
+<footer class="wrap footer">
+  <p>MIT licensed. sloplint scores <strong>0/100</strong> on its own source, this page included.</p>
+  <p><a href="../README.md">README</a><a href="../rules/README.md">Using the briefs</a></p>
+</footer>
+</body>
+</html>

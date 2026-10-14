@@ -1,0 +1,13 @@
+{
+  "name": "tally-words",
+  "version": "1.2.0",
+  "description": "Count word frequency across text files.",
+  "type": "module",
+  "bin": {
+    "tally": "bin/tally.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT"
+}

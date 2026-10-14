@@ -1,0 +1,1350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ledgerly — Automatic Invoice Reconciliation for Small Agencies</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0e0f11;
+      --surface: #15171a;
+      --raised: #1c1f23;
+      --line: #2a2e34;
+      --ink: #e8e6e1;
+      --ink-2: #9a9ea6;
+      --accent: #f2a33a;
+      --on-accent: #1a1206;
+      --good: #5fbf8f;
+      --warn: #e6c15a;
+      --bad: #ef6b5b;
+      --font-body: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+      --font-display: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+      --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
+      --radius: 6px;
+      --radius-inner: 2px;
+      --shadow: none;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-variant-numeric: tabular-nums;
+    }
+
+    html {
+      background-color: var(--bg);
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 14px;
+      line-height: 20px;
+      -webkit-font-smoothing: antialiased;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Typography */
+    h1, h2, h3, h4 {
+      font-family: var(--font-display);
+      font-weight: 600;
+      line-height: 1.15;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+    }
+
+    h1 { font-size: 40px; }
+    h2 { font-size: 28px; }
+    h3 { font-size: 20px; }
+    h4 { font-size: 16px; }
+
+    p {
+      color: var(--ink);
+      font-size: 14px;
+      line-height: 20px;
+    }
+
+    .lead-copy {
+      font-size: 16px;
+      line-height: 26px;
+      max-width: 68ch;
+      color: var(--ink);
+    }
+
+    .meta-label {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      line-height: 16px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--ink-2);
+    }
+
+    .telemetry-num {
+      font-family: var(--font-mono);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Layout */
+    .container {
+      width: 100%;
+      max-width: 1120px;
+      margin-left: auto;
+      margin-right: auto;
+      padding-left: 24px;
+      padding-right: 24px;
+    }
+
+    /* Navigation */
+    header.site-header {
+      background-color: var(--surface);
+      border-bottom: 1px solid var(--line);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 56px;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .brand-mark {
+      width: 14px;
+      height: 14px;
+      background-color: var(--accent);
+      border-radius: var(--radius-inner);
+    }
+
+    .brand-title {
+      font-family: var(--font-mono);
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      color: var(--ink);
+    }
+
+    .brand-tag {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--ink-2);
+      border: 1px solid var(--line);
+      padding: 2px 6px;
+      border-radius: var(--radius-inner);
+    }
+
+    nav.nav-links {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    nav.nav-links a {
+      color: var(--ink-2);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: color 150ms ease-out;
+    }
+
+    nav.nav-links a:hover {
+      color: var(--ink);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 32px;
+      padding: 0 12px;
+      font-family: var(--font-body);
+      font-size: 12px;
+      font-weight: 500;
+      text-decoration: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      border: 1px solid transparent;
+      white-space: nowrap;
+      transition: background-color 150ms ease-out, border-color 150ms ease-out, color 150ms ease-out;
+    }
+
+    .btn-primary {
+      background-color: var(--accent);
+      color: var(--on-accent);
+      border-color: var(--accent);
+    }
+
+    .btn-primary:hover {
+      background-color: #d99132;
+      border-color: #d99132;
+    }
+
+    .btn-secondary {
+      background-color: transparent;
+      color: var(--ink);
+      border-color: var(--line);
+    }
+
+    .btn-secondary:hover {
+      background-color: var(--raised);
+      border-color: var(--ink-2);
+    }
+
+    .btn-block {
+      width: 100%;
+      height: 36px;
+      font-size: 14px;
+    }
+
+    /* Badges & Chips */
+    .status-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 500;
+      padding: 2px 8px;
+      border-radius: var(--radius-inner);
+    }
+
+    .status-chip.good {
+      color: var(--good);
+      background-color: rgba(95, 191, 143, 0.1);
+    }
+
+    .status-chip.warn {
+      color: var(--warn);
+      background-color: rgba(230, 193, 90, 0.1);
+    }
+
+    .status-chip.bad {
+      color: var(--bad);
+      background-color: rgba(239, 107, 91, 0.1);
+    }
+
+    .status-chip.neutral {
+      color: var(--ink-2);
+      background-color: var(--raised);
+    }
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 2px;
+      background-color: currentColor;
+    }
+
+    /* Sections */
+    section {
+      padding-top: 64px;
+      padding-bottom: 64px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .section-intro {
+      margin-bottom: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    /* Hero Section */
+    .hero-content {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      max-width: 840px;
+      margin-bottom: 40px;
+    }
+
+    .hero-buttons {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    /* Telemetry Instrument Panels */
+    .telemetry-board {
+      background-color: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .board-header {
+      padding: 12px 16px;
+      background-color: var(--raised);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .board-title-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .live-pulse {
+      width: 8px;
+      height: 8px;
+      border-radius: 2px;
+      background-color: var(--good);
+    }
+
+    .board-stream {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .stream-row {
+      display: grid;
+      grid-template-columns: 80px 180px 1fr 140px 120px 130px;
+      align-items: center;
+      padding: 12px 16px;
+      border-top: 1px solid var(--line);
+      font-size: 12px;
+      gap: 12px;
+    }
+
+    .stream-row:first-child {
+      border-top: none;
+    }
+
+    .stream-row.header-row {
+      background-color: var(--surface);
+      color: var(--ink-2);
+      font-family: var(--font-mono);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding-top: 8px;
+      padding-bottom: 8px;
+    }
+
+    .board-summary-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      background-color: var(--raised);
+      border-top: 1px solid var(--line);
+    }
+
+    .summary-metric {
+      padding: 16px;
+      border-right: 1px solid var(--line);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .summary-metric:last-child {
+      border-right: none;
+    }
+
+    .metric-value {
+      font-family: var(--font-mono);
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .metric-value.highlight {
+      color: var(--accent);
+    }
+
+    .metric-sub {
+      font-size: 12px;
+      color: var(--ink-2);
+    }
+
+    /* Features Section */
+    .featured-inspection {
+      background-color: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+
+    .inspection-lead {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background-color: var(--surface);
+    }
+
+    .data-table-wrapper {
+      overflow-x: auto;
+      border-top: 1px solid var(--line);
+    }
+
+    table.telemetry-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 13px;
+    }
+
+    table.telemetry-table th {
+      background-color: var(--raised);
+      padding: 8px 16px;
+      color: var(--ink-2);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      border-bottom: 1px solid var(--line);
+      white-space: nowrap;
+    }
+
+    table.telemetry-table td {
+      padding: 10px 16px;
+      border-top: 1px solid var(--line);
+      color: var(--ink);
+      white-space: nowrap;
+      height: 36px;
+    }
+
+    table.telemetry-table tr:first-child td {
+      border-top: none;
+    }
+
+    table.telemetry-table td.num, table.telemetry-table th.num {
+      text-align: right;
+      font-family: var(--font-mono);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Compact Features Grid (2 columns, single border container) */
+    .compact-capabilities {
+      background-color: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .capability-cell {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .capability-cell:nth-child(2n) {
+      border-right: none;
+    }
+
+    .capability-cell:nth-child(3),
+    .capability-cell:nth-child(4) {
+      border-bottom: none;
+    }
+
+    .capability-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .capability-tag {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--accent);
+      background-color: rgba(242, 163, 58, 0.12);
+      padding: 2px 6px;
+      border-radius: var(--radius-inner);
+    }
+
+    /* Pricing Section */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .pricing-card {
+      background-color: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .pricing-card.featured {
+      border-color: var(--accent);
+      background-color: var(--raised);
+    }
+
+    .plan-header {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .plan-meta-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .plan-badge {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--on-accent);
+      background-color: var(--accent);
+      padding: 2px 8px;
+      border-radius: var(--radius-inner);
+      letter-spacing: 0.04em;
+    }
+
+    .price-box {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .price-amount {
+      font-family: var(--font-mono);
+      font-size: 40px;
+      font-weight: 600;
+      color: var(--ink);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .price-interval {
+      font-size: 14px;
+      color: var(--ink-2);
+    }
+
+    .plan-target {
+      font-size: 14px;
+      color: var(--ink);
+      min-height: 40px;
+    }
+
+    .plan-specs {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      border-top: 1px solid var(--line);
+      padding-top: 16px;
+    }
+
+    .plan-specs li {
+      font-size: 13px;
+      color: var(--ink);
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .spec-mark {
+      font-family: var(--font-mono);
+      color: var(--good);
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    /* Testimonials Section */
+    .testimonial-container {
+      background-color: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .testimonial-card {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 20px;
+      border-right: 1px solid var(--line);
+    }
+
+    .testimonial-card:last-child {
+      border-right: none;
+    }
+
+    .quote-body {
+      font-size: 14px;
+      line-height: 22px;
+      color: var(--ink);
+    }
+
+    .author-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      border-top: 1px solid var(--line);
+      padding-top: 16px;
+    }
+
+    .author-name {
+      font-weight: 600;
+      color: var(--ink);
+      font-size: 14px;
+    }
+
+    .author-role {
+      font-size: 12px;
+      color: var(--ink-2);
+    }
+
+    .author-stat {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--accent);
+      margin-top: 4px;
+    }
+
+    /* Signup Form Section */
+    .signup-wrap {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      background-color: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 32px;
+    }
+
+    .signup-brief {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      justify-content: space-between;
+    }
+
+    .signup-specs-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .signup-specs-list li {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--ink);
+    }
+
+    .verification-seal {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px;
+      background-color: var(--raised);
+      border-radius: var(--radius-inner);
+      font-size: 12px;
+      color: var(--ink-2);
+    }
+
+    .form-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--ink-2);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    input, select {
+      background-color: var(--raised);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-inner);
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 14px;
+      height: 36px;
+      padding: 0 12px;
+      outline: none;
+      transition: border-color 150ms ease-out;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--accent);
+    }
+
+    .form-footnote {
+      font-size: 12px;
+      color: var(--ink-2);
+      text-align: center;
+    }
+
+    .feedback-box {
+      display: none;
+      padding: 16px;
+      background-color: var(--raised);
+      border-left: 3px solid var(--good);
+      border-radius: var(--radius-inner);
+      font-size: 13px;
+      line-height: 20px;
+    }
+
+    /* Footer */
+    footer.site-footer {
+      background-color: var(--surface);
+      border-top: 1px solid var(--line);
+      padding: 40px 0;
+      margin-top: auto;
+    }
+
+    .footer-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .footer-left {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .system-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--good);
+    }
+
+    .copyright {
+      font-size: 12px;
+      color: var(--ink-2);
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 20px;
+    }
+
+    .footer-links a {
+      color: var(--ink-2);
+      text-decoration: none;
+      font-size: 12px;
+      transition: color 150ms ease-out;
+    }
+
+    .footer-links a:hover {
+      color: var(--ink);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 900px) {
+      .stream-row {
+        grid-template-columns: 70px 140px 1fr 100px 90px;
+      }
+      .stream-row > div:nth-child(4) {
+        display: none;
+      }
+      .board-summary-bar {
+        grid-template-columns: 1fr 1fr;
+      }
+      .compact-capabilities {
+        grid-template-columns: 1fr;
+      }
+      .capability-cell {
+        border-right: none;
+      }
+      .pricing-grid {
+        grid-template-columns: 1fr;
+      }
+      .testimonial-container {
+        grid-template-columns: 1fr;
+      }
+      .testimonial-card {
+        border-right: none;
+        border-bottom: 1px solid var(--line);
+      }
+      .testimonial-card:last-child {
+        border-bottom: none;
+      }
+      .signup-wrap {
+        grid-template-columns: 1fr;
+      }
+      .footer-row {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Site Navigation -->
+  <header class="site-header">
+    <div class="container nav-row">
+      <a href="#" class="brand-group">
+        <div class="brand-mark"></div>
+        <span class="brand-title">LEDGERLY</span>
+        <span class="brand-tag">v2.4</span>
+      </a>
+
+      <nav class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#telemetry">Live Feed</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#testimonials">Case Studies</a>
+      </nav>
+
+      <div class="nav-actions">
+        <a href="#signup" class="btn btn-secondary">Sign in</a>
+        <a href="#signup" class="btn btn-primary">Start 14-day trial</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero Section -->
+    <section id="hero">
+      <div class="container">
+        <div class="hero-content">
+          <span class="meta-label">Automated Bank-to-Invoice Reconciliation</span>
+          <h1>Match incoming bank payments to open invoices in seconds</h1>
+          <p class="lead-copy">
+            Small agencies lose 14 hours each month cross-checking truncated bank descriptors with open billing balances. Ledgerly connects your operating accounts, reconciles multi-invoice client wires, and posts settled balances directly to your ledger.
+          </p>
+          <div class="hero-buttons">
+            <a href="#signup" class="btn btn-primary">Start 14-day trial</a>
+            <a href="#features" class="btn btn-secondary">Explore reconciliation engine</a>
+          </div>
+        </div>
+
+        <!-- Telemetry Board -->
+        <div id="telemetry" class="telemetry-board">
+          <div class="board-header">
+            <div class="board-title-group">
+              <div class="live-pulse"></div>
+              <span class="meta-label">LIVE FEED: MERCURY OPERATING ··· 4829</span>
+            </div>
+            <span class="status-chip good"><span class="dot"></span>FEED SYNCHRONIZED</span>
+          </div>
+
+          <div class="board-stream">
+            <div class="stream-row header-row">
+              <div>Time</div>
+              <div>Counterparty</div>
+              <div>Bank Reference Code</div>
+              <div>Matched Target</div>
+              <div>Amount</div>
+              <div>Action</div>
+            </div>
+
+            <div class="stream-row">
+              <div class="telemetry-num">14:28:12</div>
+              <div>Apex Media Group LLC</div>
+              <div class="telemetry-num">WIRE 99420-APEX-OCT-RETAINER</div>
+              <div>INV-1082 ($18,500.00)</div>
+              <div class="telemetry-num">$18,500.00</div>
+              <div><span class="status-chip good"><span class="dot"></span>Auto-settled</span></div>
+            </div>
+
+            <div class="stream-row">
+              <div class="telemetry-num">14:21:40</div>
+              <div>Studio Forma North America</div>
+              <div class="telemetry-num">ACH TRN 841920 SF-OCT-DELIV</div>
+              <div>INV-1086 ($6,200.00)</div>
+              <div class="telemetry-num">$6,200.00</div>
+              <div><span class="status-chip good"><span class="dot"></span>Auto-settled</span></div>
+            </div>
+
+            <div class="stream-row">
+              <div class="telemetry-num">13:58:11</div>
+              <div>Veloce Partners UK Ltd</div>
+              <div class="telemetry-num">INTL WIRE 2038+2039 COMBINED</div>
+              <div>INV-1079 + INV-1080</div>
+              <div class="telemetry-num">$26,000.00</div>
+              <div><span class="status-chip warn"><span class="dot"></span>Split matched</span></div>
+            </div>
+
+            <div class="stream-row">
+              <div class="telemetry-num">11:14:02</div>
+              <div>Kestrel Design Lab</div>
+              <div class="telemetry-num">FEDWIRE 771038 KESTREL MILESTONE</div>
+              <div>INV-1077 ($14,400.00)</div>
+              <div class="telemetry-num">$14,400.00</div>
+              <div><span class="status-chip good"><span class="dot"></span>Auto-settled</span></div>
+            </div>
+          </div>
+
+          <div class="board-summary-bar">
+            <div class="summary-metric">
+              <span class="meta-label">October Volume</span>
+              <span class="metric-value telemetry-num">$418,250.00</span>
+              <span class="metric-sub">58 client invoices closed</span>
+            </div>
+            <div class="summary-metric">
+              <span class="meta-label">First-Pass Match</span>
+              <span class="metric-value telemetry-num highlight">99.4%</span>
+              <span class="metric-sub">2 items flagged for manual confirm</span>
+            </div>
+            <div class="summary-metric">
+              <span class="meta-label">Average Match Latency</span>
+              <span class="metric-value telemetry-num">2.4s</span>
+              <span class="metric-sub">Plaid real-time webhook</span>
+            </div>
+            <div class="summary-metric">
+              <span class="meta-label">Ledger Sync</span>
+              <span class="metric-value telemetry-num">0 Pending</span>
+              <span class="metric-sub">QuickBooks &amp; Xero up to date</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features">
+      <div class="container">
+        <div class="section-intro">
+          <span class="meta-label">Technical Architecture</span>
+          <h2>Engineered for agency cash flow anomalies</h2>
+          <p class="lead-copy">
+            Generic invoicing tools assume clients type clean reference numbers into clean payment portals. Agency clients do not. Ledgerly resolves messy, real-world bank transfers through deterministic accounting rules.
+          </p>
+        </div>
+
+        <!-- Featured In-depth Inspection -->
+        <div class="featured-inspection">
+          <div class="inspection-lead">
+            <div class="capability-header">
+              <span class="capability-tag">PRIMARY ENGINE</span>
+              <h3>Algorithmic remittance parser with fuzzy entity mapping</h3>
+            </div>
+            <p class="lead-copy">
+              Corporate clients frequently remit funds under legal parent names, operating entities, or third-party payroll services. Ledgerly links bank transaction strings to your client directory using clearing identifiers, past transaction history, and exact amount verification.
+            </p>
+          </div>
+
+          <div class="data-table-wrapper">
+            <table class="telemetry-table">
+              <thead>
+                <tr>
+                  <th>Bank Descriptor</th>
+                  <th>Client Legal Profile</th>
+                  <th>Matched Open Invoice</th>
+                  <th class="num">Amount</th>
+                  <th class="num">Match Confidence</th>
+                  <th>Ledger Sync Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="telemetry-num">WIRE 88102 KESTREL HLDGS LLC</td>
+                  <td>Kestrel Design Lab Inc.</td>
+                  <td>INV-1049 (Sprint 3 Retainer)</td>
+                  <td class="num">$15,400.00</td>
+                  <td class="num">99.8%</td>
+                  <td><span class="status-chip good"><span class="dot"></span>Synced (Xero)</span></td>
+                </tr>
+                <tr>
+                  <td class="telemetry-num">ACH 9021 STUDIO FORMA DEL</td>
+                  <td>Studio Forma North America</td>
+                  <td>INV-1052 (Brand Identity)</td>
+                  <td class="num">$8,750.00</td>
+                  <td class="num">100.0%</td>
+                  <td><span class="status-chip good"><span class="dot"></span>Synced (QBO)</span></td>
+                </tr>
+                <tr>
+                  <td class="telemetry-num">WIRE INT VELOCE BATCH 105</td>
+                  <td>Veloce Partners UK Ltd</td>
+                  <td>INV-1054 ($22,000) + INV-1055 ($9,000)</td>
+                  <td class="num">$31,000.00</td>
+                  <td class="num">99.1% (Split)</td>
+                  <td><span class="status-chip warn"><span class="dot"></span>Synced (QBO)</span></td>
+                </tr>
+                <tr>
+                  <td class="telemetry-num">STRIPE PAYOUT BATCH 4492</td>
+                  <td>Monthly Retainer Clients</td>
+                  <td>INV-1056 through INV-1060 (5 Items)</td>
+                  <td class="num">$14,350.00</td>
+                  <td class="num">100.0%</td>
+                  <td><span class="status-chip good"><span class="dot"></span>Synced (Stripe)</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Compact Capabilities List -->
+        <div class="compact-capabilities">
+          <div class="capability-cell">
+            <div class="capability-header">
+              <span class="capability-tag">DECOMPOSITION</span>
+              <h4>Multi-invoice split payment allocation</h4>
+            </div>
+            <p>
+              When clients combine milestone invoices into one wire, Ledgerly decomposes line totals and applies funds across open accounts without leaving unallocated ledger fragments.
+            </p>
+          </div>
+
+          <div class="capability-cell">
+            <div class="capability-header">
+              <span class="capability-tag">TOLERANCE</span>
+              <h4>Intermediary bank fee auto-adjustment</h4>
+            </div>
+            <p>
+              International transfers often arrive $15 to $35 short due to correspondent routing fees. Configurable threshold rules mark invoices settled while recording wire deductions to expense accounts.
+            </p>
+          </div>
+
+          <div class="capability-cell">
+            <div class="capability-header">
+              <span class="capability-tag">INTEGRATIONS</span>
+              <h4>Two-way accounting ledger synchronization</h4>
+            </div>
+            <p>
+              Ledgerly writes payment records directly to QuickBooks Online, Xero, and FreshBooks in real time. Your accounting periods stay locked and reconciled without duplicate data entry.
+            </p>
+          </div>
+
+          <div class="capability-cell">
+            <div class="capability-header">
+              <span class="capability-tag">PROTOCOL</span>
+              <h4>Direct bank feed infrastructure</h4>
+            </div>
+            <p>
+              Read-only bank connections through Mercury, Chase Commercial, Silicon Valley Bank, and Brex refresh every 60 seconds with 256-bit TLS encryption.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing">
+      <div class="container">
+        <div class="section-intro">
+          <span class="meta-label">Transparent Rates</span>
+          <h2>Predictable pricing for growing studios</h2>
+          <p class="lead-copy">
+            Every plan includes 14 days of full feature access. Connect your bank feeds and test reconciliation before choosing a monthly tier.
+          </p>
+        </div>
+
+        <div class="pricing-grid">
+          <!-- Plan 1 -->
+          <div class="pricing-card">
+            <div class="plan-header">
+              <div class="plan-meta-row">
+                <span class="meta-label">TIER 01</span>
+              </div>
+              <h3>Boutique</h3>
+              <div class="price-box">
+                <span class="price-amount">$79</span>
+                <span class="price-interval">/ month</span>
+              </div>
+              <p class="plan-target">For independent design and engineering studios with 5 to 15 employees.</p>
+            </div>
+
+            <ul class="plan-specs">
+              <li><span class="spec-mark">✓</span> Up to $150,000 monthly invoice volume</li>
+              <li><span class="spec-mark">✓</span> 3 connected commercial bank accounts</li>
+              <li><span class="spec-mark">✓</span> Real-time remittance string parsing</li>
+              <li><span class="spec-mark">✓</span> QuickBooks Online and Xero sync</li>
+              <li><span class="spec-mark">✓</span> 90-day transaction history</li>
+              <li><span class="spec-mark">✓</span> Standard email support (under 4 hours)</li>
+            </ul>
+
+            <a href="#signup" class="btn btn-secondary btn-block">Select Boutique plan</a>
+          </div>
+
+          <!-- Plan 2 (Featured) -->
+          <div class="pricing-card featured">
+            <div class="plan-header">
+              <div class="plan-meta-row">
+                <span class="meta-label">TIER 02</span>
+                <span class="plan-badge">RECOMMENDED FOR 15–40 STAFF</span>
+              </div>
+              <h3>Agency</h3>
+              <div class="price-box">
+                <span class="price-amount">$149</span>
+                <span class="price-interval">/ month</span>
+              </div>
+              <p class="plan-target">For growing client-service agencies managing retainers and project sprints.</p>
+            </div>
+
+            <ul class="plan-specs">
+              <li><span class="spec-mark">✓</span> Up to $750,000 monthly invoice volume</li>
+              <li><span class="spec-mark">✓</span> Unlimited connected bank accounts</li>
+              <li><span class="spec-mark">✓</span> Multi-invoice split payment matching</li>
+              <li><span class="spec-mark">✓</span> Intermediary bank fee tolerance rules</li>
+              <li><span class="spec-mark">✓</span> Real-time bi-directional accounting sync</li>
+              <li><span class="spec-mark">✓</span> 3-year audit log retention</li>
+              <li><span class="spec-mark">✓</span> Priority support via dedicated Slack channel</li>
+            </ul>
+
+            <a href="#signup" class="btn btn-primary btn-block">Select Agency plan</a>
+          </div>
+
+          <!-- Plan 3 -->
+          <div class="pricing-card">
+            <div class="plan-header">
+              <div class="plan-meta-row">
+                <span class="meta-label">TIER 03</span>
+              </div>
+              <h3>Enterprise</h3>
+              <div class="price-box">
+                <span class="price-amount">$299</span>
+                <span class="price-interval">/ month</span>
+              </div>
+              <p class="plan-target">For multi-entity agency networks and studios with global client bases.</p>
+            </div>
+
+            <ul class="plan-specs">
+              <li><span class="spec-mark">✓</span> Unlimited monthly invoice volume</li>
+              <li><span class="spec-mark">✓</span> Multi-entity consolidated ledger views</li>
+              <li><span class="spec-mark">✓</span> Multi-currency conversion reconciliation</li>
+              <li><span class="spec-mark">✓</span> Custom webhook dispatch on settlement</li>
+              <li><span class="spec-mark">✓</span> Automated exception routing to project leads</li>
+              <li><span class="spec-mark">✓</span> Dedicated technical account manager</li>
+            </ul>
+
+            <a href="#signup" class="btn btn-secondary btn-block">Select Enterprise plan</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section id="testimonials">
+      <div class="container">
+        <div class="section-intro">
+          <span class="meta-label">Verified Operators</span>
+          <h2>Field reports from agency finance leads</h2>
+          <p class="lead-copy">
+            Agency directors and finance leads measure Ledgerly by hours reclaimed and invoices closed without dispute.
+          </p>
+        </div>
+
+        <div class="testimonial-container">
+          <div class="testimonial-card">
+            <p class="quote-body">
+              "We run a 22-person product engineering agency. Enterprise clients often send single wires under their corporate holding entity with no invoice numbers in the remittance memo. Ledgerly resolved 48 ambiguous wires in our first 30 days without pulling a project lead into a billing meeting."
+            </p>
+            <div class="author-info">
+              <span class="author-name">Marcus Vance</span>
+              <span class="author-role">Managing Director, Fieldwork Digital · Brooklyn, NY</span>
+              <span class="author-stat telemetry-num">48 split wires resolved in month 1</span>
+            </div>
+          </div>
+
+          <div class="testimonial-card">
+            <p class="quote-body">
+              "Our operations coordinator spent four hours every Monday morning manually reconciling SVB wire receipts against Xero invoices. Ledgerly cut that weekly review down to five minutes. Our days sales outstanding dropped from 42 days to 31 days because settled accounts clear immediately."
+            </p>
+            <div class="author-info">
+              <span class="author-name">Elena Rostova</span>
+              <span class="author-role">VP of Operations, Studio Forma · Chicago, IL</span>
+              <span class="author-stat telemetry-num">Reconciliation time: 4 hrs to 5 mins</span>
+            </div>
+          </div>
+
+          <div class="testimonial-card">
+            <p class="quote-body">
+              "When European clients wire funds in GBP into our Mercury accounts, correspondent fees used to leave open balances of $20 to $40 on closed milestones. Ledgerly's fee tolerance rules closed those micro-balances automatically and recorded the banking expenses correctly."
+            </p>
+            <div class="author-info">
+              <span class="author-name">Tariq Al-Mansoor</span>
+              <span class="author-role">Co-Founder &amp; COO, Syntax Interactive · Austin, TX</span>
+              <span class="author-stat telemetry-num">100% elimination of fee variance tickets</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Signup Form Section -->
+    <section id="signup">
+      <div class="container">
+        <div class="section-intro">
+          <span class="meta-label">Onboarding</span>
+          <h2>Connect your agency bank accounts</h2>
+          <p class="lead-copy">
+            Begin your 14-day trial with full feature access. Bank connections take four minutes to establish and operate under read-only permissions.
+          </p>
+        </div>
+
+        <div class="signup-wrap">
+          <div class="signup-brief">
+            <div>
+              <h3>Agency Account Setup</h3>
+              <p style="margin-top: 8px;">
+                Connect your commercial accounts to verify historical match accuracy across your last 60 days of client invoices.
+              </p>
+
+              <ul class="signup-specs-list">
+                <li><span class="spec-mark">✓</span> No credit card required during trial period</li>
+                <li><span class="spec-mark">✓</span> Read-only OAuth connection (no funds transfer permissions)</li>
+                <li><span class="spec-mark">✓</span> Reconciles alongside existing accounting software</li>
+                <li><span class="spec-mark">✓</span> Setup completed in under 4 minutes</li>
+              </ul>
+            </div>
+
+            <div class="verification-seal">
+              <span class="dot" style="background-color: var(--good);"></span>
+              <span>256-BIT TLS ENCRYPTED BANK FEED · SOC 2 TYPE II COMPLIANT</span>
+            </div>
+          </div>
+
+          <div class="form-panel">
+            <form id="agency-signup-form" onsubmit="handleSignup(event)">
+              <div class="form-group">
+                <label for="work-email">Work Email</label>
+                <input type="email" id="work-email" name="email" required placeholder="marcus.vance@fieldworkstudio.com">
+              </div>
+
+              <div class="form-group" style="margin-top: 12px;">
+                <label for="agency-name">Agency Name</label>
+                <input type="text" id="agency-name" name="agency" required placeholder="Fieldwork Digital">
+              </div>
+
+              <div class="form-group" style="margin-top: 12px;">
+                <label for="bank-institution">Primary Bank Institution</label>
+                <select id="bank-institution" name="bank">
+                  <option value="mercury">Mercury</option>
+                  <option value="chase">Chase Commercial</option>
+                  <option value="svb">Silicon Valley Bank</option>
+                  <option value="brex">Brex</option>
+                  <option value="boa">Bank of America Commercial</option>
+                  <option value="other">Other Financial Institution</option>
+                </select>
+              </div>
+
+              <div class="form-group" style="margin-top: 12px;">
+                <label for="accounting-software">Accounting Software</label>
+                <select id="accounting-software" name="accounting">
+                  <option value="qbo">QuickBooks Online</option>
+                  <option value="xero">Xero</option>
+                  <option value="freshbooks">FreshBooks</option>
+                  <option value="stripe">Stripe Invoicing</option>
+                </select>
+              </div>
+
+              <div class="form-group" style="margin-top: 12px;">
+                <label for="invoice-volume">Monthly Invoiced Volume</label>
+                <select id="invoice-volume" name="volume">
+                  <option value="tier-1">Under $100,000 / month</option>
+                  <option value="tier-2">$100,000 – $500,000 / month</option>
+                  <option value="tier-3">$500,000 – $1,500,000 / month</option>
+                  <option value="tier-4">Over $1,500,000 / month</option>
+                </select>
+              </div>
+
+              <div style="margin-top: 20px;">
+                <button type="submit" id="submit-btn" class="btn btn-primary btn-block">Create agency account</button>
+              </div>
+
+              <p class="form-footnote" style="margin-top: 12px;">
+                By clicking "Create agency account", you agree to our Terms of Service and Privacy Policy.
+              </p>
+            </form>
+
+            <div id="signup-feedback" class="feedback-box">
+              <strong style="color: var(--good); display: block; margin-bottom: 4px;">Account initialization pending</strong>
+              <span id="feedback-message">We dispatched a secure authentication email with bank setup instructions. Check your inbox to connect your primary feed.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Site Footer -->
+  <footer class="site-footer">
+    <div class="container footer-row">
+      <div class="footer-left">
+        <div class="system-status">
+          <span class="dot"></span>
+          <span>ALL RECONCILIATION SERVICES OPERATIONAL · PLAID LATENCY: 220MS</span>
+        </div>
+        <span class="copyright">© 2026 Ledgerly Systems Inc. All rights reserved.</span>
+      </div>
+
+      <div class="footer-links">
+        <a href="#hero">Security Architecture</a>
+        <a href="#features">API Documentation</a>
+        <a href="#pricing">SOC 2 Report</a>
+        <a href="#signup">Privacy Notice</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    function handleSignup(event) {
+      event.preventDefault();
+      var form = document.getElementById('agency-signup-form');
+      var feedback = document.getElementById('signup-feedback');
+      var agencyNameInput = document.getElementById('agency-name');
+      var emailInput = document.getElementById('work-email');
+      var feedbackMessage = document.getElementById('feedback-message');
+
+      var agency = agencyNameInput.value || 'your agency';
+      var email = emailInput.value || 'your email';
+
+      feedbackMessage.textContent = 'Account created for ' + agency + '. A secure verification link was sent to ' + email + ' to establish your read-only bank connection.';
+      form.style.display = 'none';
+      feedback.style.display = 'block';
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+.button {
+  padding: 10px 16px;
+  background: #1f2937;
+  color: #f9fafb;
+  transition: all 0.3s ease;
+}
+
+.button:hover {
+  background: #374151;
+  padding: 12px 20px;
+}

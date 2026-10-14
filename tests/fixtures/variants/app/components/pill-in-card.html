@@ -1,0 +1,25 @@
+<!-- expect: UI-006 -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Plan card</title>
+<style>
+  .card { border-radius: 18px; padding: 20px; border: 1px solid #d9d6cf; }
+  .cta { border-radius: 999px; padding: 10px 18px; }
+  .note { border-radius: 8px; padding: 12px; background: #f3f1ec; }
+  .tight { border-radius: 16px; padding: 4px; border: 1px solid #d9d6cf; }
+  .tight-inner { border-radius: 16px; padding: 8px; background: #f3f1ec; }
+</style>
+</head>
+<body>
+  <!-- Pill button and a small note with a 20px gap: corners do not interact. -->
+  <section class="card">
+    <h2>Studio plan</h2>
+    <p class="note">Billed yearly, cancel any time.</p>
+    <a class="cta" href="/signup?plan=studio">Choose Studio</a>
+  </section>
+  <!-- 16px inside 16px with a 4px gap: the inner corner should be 12px. -->
+  <div class="tight"><div class="tight-inner">Invoice settings</div></div>
+</body>
+</html>

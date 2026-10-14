@@ -1,0 +1,2254 @@
+{
+  "date": "2026-10-14",
+  "runs": [
+    {
+      "agent": "agy",
+      "model": "gemini-3.8-flash-high",
+      "arm": "baseline",
+      "task": "api",
+      "rep": 1,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 672559,
+      "ok": true,
+      "turns": 1,
+      "inputTokens": 234668,
+      "outputTokens": 48884,
+      "files": 2,
+      "lines": 405,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "checked": 1,
+        "failed": []
+      },
+      "findings": []
+    },
+    {
+      "agent": "agy",
+      "model": "gemini-3.8-flash-high",
+      "arm": "baseline",
+      "task": "api",
+      "rep": 2,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 586850,
+      "ok": true,
+      "turns": 1,
+      "inputTokens": 361753,
+      "outputTokens": 44636,
+      "files": 2,
+      "lines": 517,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "checked": 1,
+        "failed": []
+      },
+      "findings": []
+    },
+    {
+      "agent": "agy",
+      "model": "gemini-3.8-flash-high",
+      "arm": "sloplint",
+      "task": "api",
+      "rep": 1,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 750803,
+      "ok": true,
+      "turns": 1,
+      "inputTokens": 339022,
+      "outputTokens": 61800,
+      "files": 2,
+      "lines": 381,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "checked": 1,
+        "failed": []
+      },
+      "findings": []
+    },
+    {
+      "agent": "agy",
+      "model": "gemini-3.8-flash-high",
+      "arm": "sloplint",
+      "task": "api",
+      "rep": 2,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 596886,
+      "ok": true,
+      "turns": 1,
+      "inputTokens": 246338,
+      "outputTokens": 55204,
+      "files": 2,
+      "lines": 427,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "checked": 1,
+        "failed": []
+      },
+      "findings": []
+    },
+    {
+      "agent": "agy",
+      "model": "gemini-3.8-flash-high",
+      "arm": "baseline",
+      "task": "dashboard",
+      "rep": 1,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 173441,
+      "ok": true,
+      "turns": 1,
+      "inputTokens": 122773,
+      "outputTokens": 15382,
+      "files": 1,
+      "lines": 487,
+      "score": 25,
+      "grade": "Noticeable Slop",
+      "errors": 0,
+      "warnings": 2,
+      "byDomain": {
+        "UI": 1,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 1,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true
+      },
+      "findings": [
+        {
+          "file": "src/Dashboard.tsx",
+          "line": 53,
+          "rule": "COPY-002",
+          "message": "Dead-end error \"An unexpected error occurred\""
+        },
+        {
+          "file": "src/Dashboard.tsx",
+          "line": 215,
+          "rule": "UI-001",
+          "message": "Tailwind purple glow shadow"
+        }
+      ]
+    },
+    {
+      "agent": "agy",
+      "model": "gemini-3.8-flash-high",
+      "arm": "baseline",
+      "task": "dashboard",
+      "rep": 2,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 146345,
+      "ok": true,
+      "turns": 1,
+      "inputTokens": 36299,
+      "outputTokens": 17058,
+      "files": 1,
+      "lines": 329,
+      "score": 25,
+      "grade": "Noticeable Slop",
+      "errors": 0,
+      "warnings": 3,
+      "byDomain": {
+        "UI": 2,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 1,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true
+      },
+      "findings": [
+        {
+          "file": "src/Dashboard.tsx",
+          "line": 63,
+          "rule": "COPY-002",
+          "message": "Dead-end error \"An error occurred\""
+        },
+        {
+          "file": "src/Dashboard.tsx",
+          "line": 194,
+          "rule": "UI-003",
+          "message": "3 of 3 headings are followed by a muted subtitle"
+        },
+        {
+          "file": "src/Dashboard.tsx",
+          "line": 226,
+          "rule": "UI-005",
+          "message": "2 numeric values render without tabular-nums"
+        }
+      ]
+    },
+    {
+      "agent": "agy",
+      "model": "gemini-3.8-flash-high",
+      "arm": "sloplint",
+      "task": "dashboard",
+      "rep": 1,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 593400,
+      "ok": true,
+      "turns": 1,
+      "inputTokens": 354407,
+      "outputTokens": 37001,
+      "files": 1,
+      "lines": 352,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true
+      },
+      "findings": []
+    },
+    {
+      "agent": "agy",
+      "model": "gemini-3.8-flash-high",
+      "arm": "sloplint",
+      "task": "dashboard",
+      "rep": 2,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 585920,
+      "ok": true,
+      "turns": 1,
+      "inputTokens": 170597,
+      "outputTokens": 43318,
+      "files": 1,
+      "lines": 377,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true
+      },
+      "findings": []
+    },
+    {
+      "agent": "agy",
+      "model": "gemini-3.8-flash-high",
+      "arm": "baseline",
+      "task": "landing",
+      "rep": 1,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 332059,
+      "ok": true,
+      "turns": 1,
+      "inputTokens": 91295,
+      "outputTokens": 45503,
+      "files": 1,
+      "lines": 3115,
+      "score": 61,
+      "grade": "Heavy Slop",
+      "errors": 0,
+      "warnings": 35,
+      "byDomain": {
+        "UI": 23,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 12,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 8656,
+        "overflowAt375": true,
+        "pageErrors": 0
+      },
+      "findings": [
+        {
+          "file": "index.html",
+          "line": 76,
+          "rule": "UI-001",
+          "message": "Purple/indigo gradient: the stock AI accent"
+        },
+        {
+          "file": "index.html",
+          "line": 129,
+          "rule": "UI-007",
+          "message": "transition covers every property"
+        },
+        {
+          "file": "index.html",
+          "line": 167,
+          "rule": "UI-009",
+          "message": "Gradient clipped into text"
+        },
+        {
+          "file": "index.html",
+          "line": 220,
+          "rule": "UI-007",
+          "message": "transition covers every property"
+        },
+        {
+          "file": "index.html",
+          "line": 242,
+          "rule": "UI-007",
+          "message": "transition covers every property"
+        },
+        {
+          "file": "index.html",
+          "line": 334,
+          "rule": "UI-009",
+          "message": "Gradient clipped into text"
+        },
+        {
+          "file": "index.html",
+          "line": 369,
+          "rule": "UI-007",
+          "message": "transition covers every property"
+        },
+        {
+          "file": "index.html",
+          "line": 467,
+          "rule": "UI-001",
+          "message": "Purple/indigo gradient: the stock AI accent"
+        },
+        {
+          "file": "index.html",
+          "line": 548,
+          "rule": "UI-007",
+          "message": "transition covers every property"
+        },
+        {
+          "file": "index.html",
+          "line": 580,
+          "rule": "UI-007",
+          "message": "transition covers every property"
+        },
+        {
+          "file": "index.html",
+          "line": 828,
+          "rule": "UI-007",
+          "message": "transition covers every property"
+        },
+        {
+          "file": "index.html",
+          "line": 1020,
+          "rule": "UI-007",
+          "message": "transition covers every property"
+        },
+        {
+          "file": "index.html",
+          "line": 1147,
+          "rule": "UI-007",
+          "message": "transition covers every property"
+        },
+        {
+          "file": "index.html",
+          "line": 1159,
+          "rule": "UI-007",
+          "message": "transition covers every property"
+        },
+        {
+          "file": "index.html",
+          "line": 1202,
+          "rule": "UI-007",
+          "message": "transition covers every property"
+        },
+        {
+          "file": "index.html",
+          "line": 1323,
+          "rule": "UI-007",
+          "message": "transition covers every property"
+        },
+        {
+          "file": "index.html",
+          "line": 1509,
+          "rule": "UI-007",
+          "message": "transition covers every property"
+        },
+        {
+          "file": "index.html",
+          "line": 1551,
+          "rule": "UI-007",
+          "message": "transition covers every property"
+        },
+        {
+          "file": "index.html",
+          "line": 1638,
+          "rule": "UI-007",
+          "message": "transition covers every property"
+        },
+        {
+          "file": "index.html",
+          "line": 2003,
+          "rule": "COPY-004",
+          "message": "Placeholder content \"ACME\""
+        },
+        {
+          "file": "index.html",
+          "line": 2020,
+          "rule": "COPY-004",
+          "message": "Placeholder content \"Acme\""
+        },
+        {
+          "file": "index.html",
+          "line": 2020,
+          "rule": "COPY-004",
+          "message": "Placeholder content \"Acme\""
+        },
+        {
+          "file": "index.html",
+          "line": 2031,
+          "rule": "COPY-004",
+          "message": "Placeholder content \"Acme\""
+        },
+        {
+          "file": "index.html",
+          "line": 2053,
+          "rule": "UI-004",
+          "message": "3 nested bordered boxes"
+        },
+        {
+          "file": "index.html",
+          "line": 2078,
+          "rule": "COPY-001",
+          "message": "Filler \"Seamless\" says nothing concrete"
+        },
+        {
+          "file": "index.html",
+          "line": 2139,
+          "rule": "COPY-001",
+          "message": "Filler \"seamlessly\" says nothing concrete"
+        },
+        {
+          "file": "index.html",
+          "line": 2170,
+          "rule": "UI-002",
+          "message": "3-column grid of icon-badge cards (6 cards)"
+        },
+        {
+          "file": "index.html",
+          "line": 2297,
+          "rule": "COPY-001",
+          "message": "Filler \"effortlessly\" says nothing concrete"
+        },
+        {
+          "file": "index.html",
+          "line": 2444,
+          "rule": "UI-005",
+          "message": "3 numeric values render without tabular-nums"
+        },
+        {
+          "file": "index.html",
+          "line": 2711,
+          "rule": "UI-004",
+          "message": "3 nested bordered boxes"
+        },
+        {
+          "file": "index.html",
+          "line": 2801,
+          "rule": "COPY-001",
+          "message": "Filler \"seamlessly\" says nothing concrete"
+        },
+        {
+          "file": "index.html",
+          "line": 2922,
+          "rule": "COPY-004",
+          "message": "Placeholder content \"ACME\""
+        },
+        {
+          "file": "index.html",
+          "line": 2926,
+          "rule": "COPY-004",
+          "message": "Placeholder content \"Acme\""
+        },
+        {
+          "file": "index.html",
+          "line": 2926,
+          "rule": "COPY-004",
+          "message": "Placeholder content \"Acme\""
+        },
+        {
+          "file": "index.html",
+          "line": 2928,
+          "rule": "COPY-004",
+          "message": "Placeholder content \"Acme\""
+        }
+      ]
+    },
+    {
+      "agent": "agy",
+      "model": "gemini-3.8-flash-high",
+      "arm": "baseline",
+      "task": "landing",
+      "rep": 2,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 631951,
+      "ok": true,
+      "turns": 1,
+      "inputTokens": 173929,
+      "outputTokens": 48630,
+      "files": 1,
+      "lines": 2825,
+      "score": 53,
+      "grade": "Sloppy",
+      "errors": 1,
+      "warnings": 19,
+      "byDomain": {
+        "UI": 16,
+        "SEC": 1,
+        "BE": 0,
+        "COPY": 3,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 8494,
+        "overflowAt375": false,
+        "pageErrors": 0
+      },
+      "findings": [
+        {
+          "file": "index.html",
+          "line": 165,
+          "rule": "UI-009",
+          "message": "Gradient clipped into text"
+        },
+        {
+          "file": "index.html",
+          "line": 225,
+          "rule": "UI-007",
+          "message": "transition covers every property"
+        },
+        {
+          "file": "index.html",
+          "line": 314,
+          "rule": "UI-007",
+          "message": "transition covers every property"
+        },
+        {
+          "file": "index.html",
+          "line": 337,
+          "rule": "UI-007",
+          "message": "transition covers every property"
+        },
+        {
+          "file": "index.html",
+          "line": 520,
+          "rule": "UI-007",
+          "message": "transition covers every property"
+        },
+        {
+          "file": "index.html",
+          "line": 624,
+          "rule": "UI-007",
+          "message": "transition covers every property"
+        },
+        {
+          "file": "index.html",
+          "line": 668,
+          "rule": "UI-007",
+          "message": "transition covers every property"
+        },
+        {
+          "file": "index.html",
+          "line": 754,
+          "rule": "UI-007",
+          "message": "transition covers every property"
+        },
+        {
+          "file": "index.html",
+          "line": 831,
+          "rule": "UI-007",
+          "message": "transition covers every property"
+        },
+        {
+          "file": "index.html",
+          "line": 1025,
+          "rule": "UI-007",
+          "message": "transition covers every property"
+        },
+        {
+          "file": "index.html",
+          "line": 1159,
+          "rule": "UI-007",
+          "message": "transition covers every property"
+        },
+        {
+          "file": "index.html",
+          "line": 1366,
+          "rule": "UI-007",
+          "message": "transition covers every property"
+        },
+        {
+          "file": "index.html",
+          "line": 1478,
+          "rule": "UI-007",
+          "message": "transition covers every property"
+        },
+        {
+          "file": "index.html",
+          "line": 1801,
+          "rule": "UI-005",
+          "message": "6 numeric values render without tabular-nums"
+        },
+        {
+          "file": "index.html",
+          "line": 1954,
+          "rule": "UI-002",
+          "message": "3-column grid of icon-badge cards (6 cards)"
+        },
+        {
+          "file": "index.html",
+          "line": 1987,
+          "rule": "COPY-001",
+          "message": "Filler \"effortlessly\" says nothing concrete"
+        },
+        {
+          "file": "index.html",
+          "line": 2460,
+          "rule": "UI-004",
+          "message": "3 nested bordered boxes"
+        },
+        {
+          "file": "index.html",
+          "line": 2501,
+          "rule": "COPY-004",
+          "message": "Placeholder content \"company name\""
+        },
+        {
+          "file": "index.html",
+          "line": 2512,
+          "rule": "COPY-001",
+          "message": "Filler \"supercharges\" says nothing concrete"
+        },
+        {
+          "file": "index.html",
+          "line": 2813,
+          "rule": "SEC-007",
+          "message": "innerHTML receives 3 unescaped interpolations"
+        }
+      ]
+    },
+    {
+      "agent": "agy",
+      "model": "gemini-3.8-flash-high",
+      "arm": "sloplint",
+      "task": "landing",
+      "rep": 1,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 469497,
+      "ok": true,
+      "turns": 1,
+      "inputTokens": 171299,
+      "outputTokens": 41946,
+      "files": 1,
+      "lines": 1307,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 3670,
+        "overflowAt375": true,
+        "pageErrors": 0
+      },
+      "findings": []
+    },
+    {
+      "agent": "agy",
+      "model": "gemini-3.8-flash-high",
+      "arm": "sloplint",
+      "task": "landing",
+      "rep": 2,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 347368,
+      "ok": true,
+      "turns": 1,
+      "inputTokens": 119095,
+      "outputTokens": 33054,
+      "files": 1,
+      "lines": 1351,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 4167,
+        "overflowAt375": true,
+        "pageErrors": 0
+      },
+      "findings": []
+    },
+    {
+      "agent": "agy",
+      "model": "gemini-3.8-flash-high",
+      "arm": "baseline",
+      "task": "readme",
+      "rep": 1,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 240620,
+      "ok": true,
+      "turns": 1,
+      "inputTokens": 125830,
+      "outputTokens": 14566,
+      "files": 1,
+      "lines": 468,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "documented": 5,
+        "of": 5,
+        "invented": []
+      },
+      "findings": []
+    },
+    {
+      "agent": "agy",
+      "model": "gemini-3.8-flash-high",
+      "arm": "baseline",
+      "task": "readme",
+      "rep": 2,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 238010,
+      "ok": true,
+      "turns": 1,
+      "inputTokens": 109151,
+      "outputTokens": 20685,
+      "files": 1,
+      "lines": 873,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "documented": 5,
+        "of": 5,
+        "invented": [
+          "--rm"
+        ]
+      },
+      "findings": []
+    },
+    {
+      "agent": "agy",
+      "model": "gemini-3.8-flash-high",
+      "arm": "sloplint",
+      "task": "readme",
+      "rep": 1,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 414289,
+      "ok": true,
+      "turns": 1,
+      "inputTokens": 148898,
+      "outputTokens": 11820,
+      "files": 1,
+      "lines": 119,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "documented": 5,
+        "of": 5,
+        "invented": []
+      },
+      "findings": []
+    },
+    {
+      "agent": "agy",
+      "model": "gemini-3.8-flash-high",
+      "arm": "sloplint",
+      "task": "readme",
+      "rep": 2,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 218278,
+      "ok": true,
+      "turns": 1,
+      "inputTokens": 122798,
+      "outputTokens": 9711,
+      "files": 1,
+      "lines": 84,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "documented": 5,
+        "of": 5,
+        "invented": []
+      },
+      "findings": []
+    },
+    {
+      "agent": "agy",
+      "model": "gemini-3.8-flash-high",
+      "arm": "baseline",
+      "task": "tests",
+      "rep": 1,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 197207,
+      "ok": true,
+      "turns": 1,
+      "inputTokens": 86917,
+      "outputTokens": 16096,
+      "files": 1,
+      "lines": 653,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "passes": true,
+        "tests": 40,
+        "killed": 16,
+        "total": 16,
+        "survivors": []
+      },
+      "findings": []
+    },
+    {
+      "agent": "agy",
+      "model": "gemini-3.8-flash-high",
+      "arm": "baseline",
+      "task": "tests",
+      "rep": 2,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 219559,
+      "ok": true,
+      "turns": 1,
+      "inputTokens": 89797,
+      "outputTokens": 24514,
+      "files": 1,
+      "lines": 571,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "passes": true,
+        "tests": 43,
+        "killed": 16,
+        "total": 16,
+        "survivors": []
+      },
+      "findings": []
+    },
+    {
+      "agent": "agy",
+      "model": "gemini-3.8-flash-high",
+      "arm": "sloplint",
+      "task": "tests",
+      "rep": 1,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 338490,
+      "ok": true,
+      "turns": 1,
+      "inputTokens": 145269,
+      "outputTokens": 26204,
+      "files": 1,
+      "lines": 583,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "passes": true,
+        "tests": 41,
+        "killed": 16,
+        "total": 16,
+        "survivors": []
+      },
+      "findings": []
+    },
+    {
+      "agent": "agy",
+      "model": "gemini-3.8-flash-high",
+      "arm": "sloplint",
+      "task": "tests",
+      "rep": 2,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 300184,
+      "ok": true,
+      "turns": 1,
+      "inputTokens": 133902,
+      "outputTokens": 22213,
+      "files": 1,
+      "lines": 484,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "passes": true,
+        "tests": 31,
+        "killed": 16,
+        "total": 16,
+        "survivors": []
+      },
+      "findings": []
+    },
+    {
+      "agent": "agy",
+      "model": "gemini-3.8-flash-high",
+      "arm": "baseline",
+      "task": "video",
+      "rep": 1,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 488036,
+      "ok": true,
+      "turns": 1,
+      "inputTokens": 218135,
+      "outputTokens": 35487,
+      "files": 3,
+      "lines": 765,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true
+      },
+      "findings": []
+    },
+    {
+      "agent": "agy",
+      "model": "gemini-3.8-flash-high",
+      "arm": "baseline",
+      "task": "video",
+      "rep": 2,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 301491,
+      "ok": true,
+      "turns": 1,
+      "inputTokens": 131960,
+      "outputTokens": 20675,
+      "files": 3,
+      "lines": 765,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true
+      },
+      "findings": []
+    },
+    {
+      "agent": "agy",
+      "model": "gemini-3.8-flash-high",
+      "arm": "sloplint",
+      "task": "video",
+      "rep": 1,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 529671,
+      "ok": true,
+      "turns": 1,
+      "inputTokens": 223281,
+      "outputTokens": 44556,
+      "files": 2,
+      "lines": 1142,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true
+      },
+      "findings": []
+    },
+    {
+      "agent": "agy",
+      "model": "gemini-3.8-flash-high",
+      "arm": "sloplint",
+      "task": "video",
+      "rep": 2,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 536119,
+      "ok": true,
+      "turns": 1,
+      "inputTokens": 193560,
+      "outputTokens": 47710,
+      "files": 2,
+      "lines": 1081,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true
+      },
+      "findings": []
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "baseline",
+      "task": "api",
+      "rep": 1,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 50433,
+      "ok": true,
+      "turns": 3,
+      "costUsd": 0.2238588,
+      "inputTokens": 105479,
+      "outputTokens": 6258,
+      "files": 2,
+      "lines": 267,
+      "score": 19,
+      "grade": "Minor Slop",
+      "errors": 0,
+      "warnings": 1,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 1,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "checked": 1,
+        "failed": []
+      },
+      "findings": [
+        {
+          "file": "server.js",
+          "line": 157,
+          "rule": "BE-004",
+          "message": "POST /invoices creates records without an idempotency key"
+        }
+      ]
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "baseline",
+      "task": "api",
+      "rep": 2,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 49062,
+      "ok": true,
+      "turns": 3,
+      "costUsd": 0.2280569,
+      "inputTokens": 105737,
+      "outputTokens": 6575,
+      "files": 2,
+      "lines": 277,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "checked": 1,
+        "failed": []
+      },
+      "findings": []
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "sloplint",
+      "task": "api",
+      "rep": 1,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 76986,
+      "ok": true,
+      "turns": 7,
+      "costUsd": 0.2928635,
+      "inputTokens": 323052,
+      "outputTokens": 8665,
+      "files": 2,
+      "lines": 341,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "checked": 1,
+        "failed": []
+      },
+      "findings": []
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "sloplint",
+      "task": "api",
+      "rep": 2,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 69239,
+      "ok": true,
+      "turns": 3,
+      "costUsd": 0.278876,
+      "inputTokens": 115780,
+      "outputTokens": 9399,
+      "files": 2,
+      "lines": 320,
+      "score": 12,
+      "grade": "Minor Slop",
+      "errors": 0,
+      "warnings": 1,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 1,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "checked": 1,
+        "failed": []
+      },
+      "findings": [
+        {
+          "file": "server.js",
+          "line": 314,
+          "rule": "COPY-002",
+          "message": "Dead-end error \"Something went wrong\""
+        }
+      ]
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "baseline",
+      "task": "dashboard",
+      "rep": 1,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 30039,
+      "ok": true,
+      "turns": 2,
+      "costUsd": 0.1741641,
+      "inputTokens": 96275,
+      "outputTokens": 2604,
+      "files": 1,
+      "lines": 189,
+      "score": 12,
+      "grade": "Minor Slop",
+      "errors": 0,
+      "warnings": 1,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 1,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true
+      },
+      "findings": [
+        {
+          "file": "src/Dashboard.tsx",
+          "line": 68,
+          "rule": "COPY-002",
+          "message": "Dead-end error \"Something went wrong\""
+        }
+      ]
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "baseline",
+      "task": "dashboard",
+      "rep": 2,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 26096,
+      "ok": true,
+      "turns": 2,
+      "costUsd": 0.174088,
+      "inputTokens": 102646,
+      "outputTokens": 2606,
+      "files": 1,
+      "lines": 176,
+      "score": 12,
+      "grade": "Minor Slop",
+      "errors": 0,
+      "warnings": 1,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 1,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true
+      },
+      "findings": [
+        {
+          "file": "src/Dashboard.tsx",
+          "line": 72,
+          "rule": "COPY-002",
+          "message": "Dead-end error \"Something went wrong\""
+        }
+      ]
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "sloplint",
+      "task": "dashboard",
+      "rep": 1,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 50488,
+      "ok": true,
+      "turns": 7,
+      "costUsd": 0.2509317,
+      "inputTokens": 313536,
+      "outputTokens": 4574,
+      "files": 1,
+      "lines": 222,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true
+      },
+      "findings": []
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "sloplint",
+      "task": "dashboard",
+      "rep": 2,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 57826,
+      "ok": true,
+      "turns": 8,
+      "costUsd": 0.25086030000000004,
+      "inputTokens": 318576,
+      "outputTokens": 4394,
+      "files": 1,
+      "lines": 197,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true
+      },
+      "findings": []
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "baseline",
+      "task": "landing",
+      "rep": 1,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 61565,
+      "ok": true,
+      "turns": 2,
+      "costUsd": 0.25847950000000003,
+      "inputTokens": 109678,
+      "outputTokens": 8636,
+      "files": 1,
+      "lines": 400,
+      "score": 28,
+      "grade": "Noticeable Slop",
+      "errors": 0,
+      "warnings": 3,
+      "byDomain": {
+        "UI": 3,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 4295,
+        "overflowAt375": false,
+        "pageErrors": 0
+      },
+      "findings": [
+        {
+          "file": "index.html",
+          "line": 146,
+          "rule": "UI-006",
+          "message": "Inner radius 18px inside 28px with 24px gap; concentric is 4px"
+        },
+        {
+          "file": "index.html",
+          "line": 231,
+          "rule": "UI-002",
+          "message": "3-column grid of icon-badge cards (6 cards)"
+        },
+        {
+          "file": "index.html",
+          "line": 282,
+          "rule": "UI-005",
+          "message": "3 numeric values render without tabular-nums"
+        }
+      ]
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "baseline",
+      "task": "landing",
+      "rep": 2,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 71572,
+      "ok": true,
+      "turns": 2,
+      "costUsd": 0.2850171,
+      "inputTokens": 110547,
+      "outputTokens": 10535,
+      "files": 1,
+      "lines": 476,
+      "score": 22,
+      "grade": "Noticeable Slop",
+      "errors": 0,
+      "warnings": 2,
+      "byDomain": {
+        "UI": 2,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 4093,
+        "overflowAt375": false,
+        "pageErrors": 0
+      },
+      "findings": [
+        {
+          "file": "index.html",
+          "line": 295,
+          "rule": "UI-002",
+          "message": "3-column grid of icon-badge cards (6 cards)"
+        },
+        {
+          "file": "index.html",
+          "line": 341,
+          "rule": "UI-005",
+          "message": "3 numeric values render without tabular-nums"
+        }
+      ]
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "sloplint",
+      "task": "landing",
+      "rep": 1,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 71257,
+      "ok": true,
+      "turns": 4,
+      "costUsd": 0.2818711,
+      "inputTokens": 180057,
+      "outputTokens": 8500,
+      "files": 1,
+      "lines": 374,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 2864,
+        "overflowAt375": false,
+        "pageErrors": 0
+      },
+      "findings": []
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "sloplint",
+      "task": "landing",
+      "rep": 2,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 72449,
+      "ok": true,
+      "turns": 4,
+      "costUsd": 0.2747755,
+      "inputTokens": 179639,
+      "outputTokens": 8006,
+      "files": 1,
+      "lines": 343,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 3155,
+        "overflowAt375": false,
+        "pageErrors": 0
+      },
+      "findings": []
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "baseline",
+      "task": "readme",
+      "rep": 1,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 22267,
+      "ok": true,
+      "turns": 6,
+      "costUsd": 0.176424,
+      "inputTokens": 216882,
+      "outputTokens": 1411,
+      "files": 1,
+      "lines": 99,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "documented": 5,
+        "of": 5,
+        "invented": []
+      },
+      "findings": []
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "baseline",
+      "task": "readme",
+      "rep": 2,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 25102,
+      "ok": true,
+      "turns": 6,
+      "costUsd": 0.17625470000000001,
+      "inputTokens": 221539,
+      "outputTokens": 1445,
+      "files": 1,
+      "lines": 99,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "documented": 5,
+        "of": 5,
+        "invented": []
+      },
+      "findings": []
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "sloplint",
+      "task": "readme",
+      "rep": 1,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 37670,
+      "ok": true,
+      "turns": 8,
+      "costUsd": 0.2151997,
+      "inputTokens": 304834,
+      "outputTokens": 2087,
+      "files": 1,
+      "lines": 80,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "documented": 5,
+        "of": 5,
+        "invented": []
+      },
+      "findings": []
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "sloplint",
+      "task": "readme",
+      "rep": 2,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 37322,
+      "ok": true,
+      "turns": 5,
+      "costUsd": 0.1997388,
+      "inputTokens": 300532,
+      "outputTokens": 1603,
+      "files": 1,
+      "lines": 95,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "documented": 5,
+        "of": 5,
+        "invented": []
+      },
+      "findings": []
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "baseline",
+      "task": "tests",
+      "rep": 1,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 52166,
+      "ok": true,
+      "turns": 7,
+      "costUsd": 0.245964,
+      "inputTokens": 355862,
+      "outputTokens": 5455,
+      "files": 1,
+      "lines": 263,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "passes": true,
+        "tests": 46,
+        "killed": 16,
+        "total": 16,
+        "survivors": []
+      },
+      "findings": []
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "baseline",
+      "task": "tests",
+      "rep": 2,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 51917,
+      "ok": true,
+      "turns": 6,
+      "costUsd": 0.2306163,
+      "inputTokens": 226795,
+      "outputTokens": 5370,
+      "files": 1,
+      "lines": 273,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "passes": true,
+        "tests": 50,
+        "killed": 16,
+        "total": 16,
+        "survivors": []
+      },
+      "findings": []
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "sloplint",
+      "task": "tests",
+      "rep": 1,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 49027,
+      "ok": true,
+      "turns": 6,
+      "costUsd": 0.243894,
+      "inputTokens": 234427,
+      "outputTokens": 4728,
+      "files": 1,
+      "lines": 250,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "passes": true,
+        "tests": 35,
+        "killed": 15,
+        "total": 16,
+        "survivors": [
+          "tax truncated"
+        ]
+      },
+      "findings": []
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "sloplint",
+      "task": "tests",
+      "rep": 2,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 57536,
+      "ok": true,
+      "turns": 6,
+      "costUsd": 0.25129419999999997,
+      "inputTokens": 244618,
+      "outputTokens": 5269,
+      "files": 1,
+      "lines": 273,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "passes": true,
+        "tests": 43,
+        "killed": 16,
+        "total": 16,
+        "survivors": []
+      },
+      "findings": []
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "baseline",
+      "task": "video",
+      "rep": 1,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 46457,
+      "ok": true,
+      "turns": 5,
+      "costUsd": 0.21711190000000002,
+      "inputTokens": 165064,
+      "outputTokens": 5232,
+      "files": 3,
+      "lines": 319,
+      "score": 44,
+      "grade": "Sloppy",
+      "errors": 0,
+      "warnings": 6,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 1,
+        "TEST": 0,
+        "MOTION": 5
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true
+      },
+      "findings": [
+        {
+          "file": "src/Launch.tsx",
+          "line": 69,
+          "rule": "MOTION-003",
+          "message": "spring() with damping 12 overshoots"
+        },
+        {
+          "file": "src/Launch.tsx",
+          "line": 108,
+          "rule": "COPY-001",
+          "message": "Filler \"effortless\" says nothing concrete"
+        },
+        {
+          "file": "src/Launch.tsx",
+          "line": 127,
+          "rule": "MOTION-003",
+          "message": "spring() with damping 10 overshoots"
+        },
+        {
+          "file": "src/Launch.tsx",
+          "line": 196,
+          "rule": "MOTION-003",
+          "message": "spring() with damping 12 overshoots"
+        },
+        {
+          "file": "src/Launch.tsx",
+          "line": 197,
+          "rule": "MOTION-003",
+          "message": "spring() with damping 10 overshoots"
+        },
+        {
+          "file": "src/Launch.tsx",
+          "line": 289,
+          "rule": "MOTION-005",
+          "message": "whoosh.mp3 plays at 3 points"
+        }
+      ]
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "baseline",
+      "task": "video",
+      "rep": 2,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 77237,
+      "ok": true,
+      "turns": 7,
+      "costUsd": 0.29764350000000006,
+      "inputTokens": 297039,
+      "outputTokens": 10040,
+      "files": 3,
+      "lines": 350,
+      "score": 46,
+      "grade": "Sloppy",
+      "errors": 0,
+      "warnings": 5,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 1,
+        "TEST": 0,
+        "MOTION": 4
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true
+      },
+      "findings": [
+        {
+          "file": "src/Launch.tsx",
+          "line": 89,
+          "rule": "MOTION-003",
+          "message": "spring() with damping 12 overshoots"
+        },
+        {
+          "file": "src/Launch.tsx",
+          "line": 116,
+          "rule": "COPY-001",
+          "message": "Filler \"effortless\" says nothing concrete"
+        },
+        {
+          "file": "src/Launch.tsx",
+          "line": 215,
+          "rule": "MOTION-003",
+          "message": "spring() with damping 14 overshoots"
+        },
+        {
+          "file": "src/Launch.tsx",
+          "line": 216,
+          "rule": "MOTION-003",
+          "message": "spring() with damping 10 overshoots"
+        },
+        {
+          "file": "src/Launch.tsx",
+          "line": 294,
+          "rule": "MOTION-001",
+          "message": "3 elements enter with the same <FadeWrap>"
+        }
+      ]
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "sloplint",
+      "task": "video",
+      "rep": 1,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 94172,
+      "ok": true,
+      "turns": 8,
+      "costUsd": 0.35245760000000004,
+      "inputTokens": 320029,
+      "outputTokens": 12207,
+      "files": 3,
+      "lines": 367,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true
+      },
+      "findings": []
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "sloplint",
+      "task": "video",
+      "rep": 2,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 100805,
+      "ok": true,
+      "turns": 8,
+      "costUsd": 0.36272400000000005,
+      "inputTokens": 324310,
+      "outputTokens": 13309,
+      "files": 3,
+      "lines": 445,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true
+      },
+      "findings": []
+    }
+  ],
+  "failed": []
+}

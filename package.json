@@ -1,0 +1,55 @@
+{
+  "name": "@sloplint/cli",
+  "version": "0.1.0",
+  "description": "Zero-dependency linter that finds and fixes AI slop across UI, security, backend, copy, tests and motion video.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mattbaconz/sloplint.git"
+  },
+  "homepage": "https://mattbaconz.github.io/sloplint/",
+  "bugs": "https://github.com/mattbaconz/sloplint/issues",
+  "publishConfig": {
+    "access": "public"
+  },
+  "type": "module",
+  "bin": {
+    "sloplint": "bin/sloplint.mjs"
+  },
+  "exports": {
+    ".": "./src/engine.mjs",
+    "./init": "./src/init.mjs"
+  },
+  "files": [
+    "bin",
+    "src",
+    "examples",
+    "presets",
+    "rules",
+    "scripts/verify-dom.spec.ts"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test \"tests/**/*.test.mjs\"",
+    "check": "node ./bin/sloplint.mjs check . --max-score 0",
+    "site": "node ./scripts/serve.mjs",
+    "verify:dom": "playwright test --config scripts/playwright.config.mjs",
+    "bench": "node bench/run.mjs",
+    "bench:score": "node bench/score.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0"
+  },
+  "keywords": [
+    "lint",
+    "linter",
+    "ai",
+    "slop",
+    "code-quality",
+    "design-system",
+    "security",
+    "cli"
+  ]
+}

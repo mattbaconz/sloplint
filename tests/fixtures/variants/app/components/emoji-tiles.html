@@ -1,0 +1,27 @@
+<!-- expect: UI-002 -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Features</title>
+<style>
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .tile { width: 44px; height: 44px; border-radius: 12px; background: #fdf0e1; display: grid; place-items: center; }
+  .avatar { width: 40px; height: 40px; border-radius: 50%; background: #e7e4dc; }
+</style>
+</head>
+<body>
+  <!-- Emoji in tinted rounded squares, one per card: the icon-badge grid. -->
+  <div class="grid">
+    <article><div class="tile">⚡</div><h3>Instant matching</h3><p>Payments land on the right invoice.</p></article>
+    <article><div class="tile">🏦</div><h3>Bank feeds</h3><p>Connect accounts in two clicks.</p></article>
+    <article><div class="tile">🔔</div><h3>Reminders</h3><p>Overdue clients get a nudge.</p></article>
+  </div>
+  <!-- Testimonials with avatars at the bottom are a different layout and are not flagged. -->
+  <div class="grid">
+    <figure><blockquote>Month-end takes an hour now.</blockquote><figcaption><span class="avatar">MR</span> Maya Rosen</figcaption></figure>
+    <figure><blockquote>Days-to-pay fell from 41 to 29.</blockquote><figcaption><span class="avatar">DO</span> Daniel Okafor</figcaption></figure>
+    <figure><blockquote>Partial payments split correctly.</blockquote><figcaption><span class="avatar">PS</span> Priya Shah</figcaption></figure>
+  </div>
+</body>
+</html>

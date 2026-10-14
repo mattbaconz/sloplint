@@ -1,0 +1,2824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ledgerly — Automatic Bank-to-Invoice Reconciliation for Small Agencies</title>
+  <meta name="description" content="Stop wasting Fridays on manual bank reconciliation. Ledgerly automatically matches incoming client wire, ACH, and card payments to open agency invoices with 99.8% precision.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2224%22 fill=%22%230A0E17%22/><path d=%22M28 32h44v10H28zM28 48h30v10H28zM28 64h44v10H28z%22 fill=%22%2310B981%22/><circle cx=%2268%22 cy=%2253%22 r=%229%22 fill=%22%2338BDF8%22/></svg>">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==========================================================================
+       CSS RESET & DESIGN TOKENS
+       ========================================================================== */
+    :root {
+      --bg-base: #06090e;
+      --bg-surface: #0b111a;
+      --bg-surface-elevated: #111a28;
+      --bg-card: rgba(17, 26, 40, 0.75);
+      --bg-card-hover: rgba(22, 34, 52, 0.9);
+      --bg-input: #0b121e;
+      
+      --border-subtle: rgba(255, 255, 255, 0.07);
+      --border-medium: rgba(255, 255, 255, 0.12);
+      --border-bright: rgba(16, 185, 129, 0.4);
+      
+      --text-main: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --text-accent: #34d399;
+      
+      --emerald-primary: #10b981;
+      --emerald-light: #34d399;
+      --emerald-dark: #065f46;
+      --emerald-glow: rgba(16, 185, 129, 0.18);
+      
+      --cyan-accent: #06b6d4;
+      --cyan-glow: rgba(6, 182, 212, 0.18);
+      --amber-accent: #f59e0b;
+      
+      --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-xl: 28px;
+      
+      --shadow-card: 0 10px 30px -10px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--border-subtle);
+      --shadow-elevated: 0 20px 50px -12px rgba(0, 0, 0, 0.7), 0 0 0 1px var(--border-medium);
+      --shadow-emerald: 0 0 35px -5px rgba(16, 185, 129, 0.35);
+      
+      --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-slow: 400ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      font-size: 16px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      overflow-x: hidden;
+      min-height: 100vh;
+      background-color: var(--bg-base);
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.08) 0%, transparent 45%),
+        radial-gradient(circle at 10% 20%, rgba(6, 182, 212, 0.05) 0%, transparent 35%),
+        radial-gradient(circle at 90% 70%, rgba(16, 185, 129, 0.04) 0%, transparent 40%);
+      background-attachment: fixed;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button, input, select, textarea {
+      font-family: inherit;
+      font-size: inherit;
+      color: inherit;
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1240px;
+      margin-left: auto;
+      margin-right: auto;
+      padding-left: 24px;
+      padding-right: 24px;
+    }
+
+    /* ==========================================================================
+       TYPOGRAPHY & ACCENTS
+       ========================================================================== */
+    .mono {
+      font-family: var(--font-mono);
+      letter-spacing: -0.02em;
+    }
+
+    .section-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      color: var(--emerald-light);
+      font-size: 0.8125rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+
+    .section-eyebrow .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--emerald-light);
+      box-shadow: 0 0 10px var(--emerald-light);
+    }
+
+    .section-title {
+      font-size: clamp(2rem, 4vw, 3.25rem);
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      color: #ffffff;
+      margin-bottom: 20px;
+    }
+
+    .section-subtitle {
+      font-size: clamp(1.05rem, 1.8vw, 1.25rem);
+      color: var(--text-secondary);
+      max-width: 680px;
+      line-height: 1.6;
+      font-weight: 400;
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, #ffffff 30%, #a7f3d0 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .emerald-text {
+      color: var(--emerald-light);
+    }
+
+    /* ==========================================================================
+       TOP ANNOUNCEMENT BAR
+       ========================================================================== */
+    .announcement-bar {
+      background: linear-gradient(90deg, #064e3b 0%, #065f46 50%, #064e3b 100%);
+      border-bottom: 1px solid rgba(52, 211, 153, 0.2);
+      padding: 10px 16px;
+      font-size: 0.8125rem;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      font-weight: 500;
+      color: #e6fffa;
+    }
+
+    .announcement-badge {
+      background: #022c22;
+      color: #34d399;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      border: 1px solid rgba(52, 211, 153, 0.3);
+    }
+
+    .announcement-link {
+      color: #ffffff;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* ==========================================================================
+       HEADER & NAVIGATION
+       ========================================================================== */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: rgba(6, 9, 14, 0.82);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-subtle);
+      transition: all var(--transition-normal);
+    }
+
+    .nav-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 76px;
+    }
+
+    .logo-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.35rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: #ffffff;
+    }
+
+    .logo-mark {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+      color: #ffffff;
+    }
+
+    .logo-mark svg {
+      width: 22px;
+      height: 22px;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-link {
+      font-size: 0.9375rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      transition: color var(--transition-fast);
+      position: relative;
+    }
+
+    .nav-link:hover {
+      color: #ffffff;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .btn-login {
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      padding: 9px 18px;
+      border-radius: var(--radius-sm);
+      transition: color var(--transition-fast);
+    }
+
+    .btn-login:hover {
+      color: #ffffff;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: #ffffff;
+      font-weight: 600;
+      font-size: 0.9375rem;
+      padding: 12px 24px;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 4px 20px -2px rgba(16, 185, 129, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px -2px rgba(16, 185, 129, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+      background: linear-gradient(135deg, #34d399 0%, #059669 100%);
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      color: #ffffff;
+      font-weight: 600;
+      font-size: 0.9375rem;
+      padding: 12px 24px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-medium);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      backdrop-filter: blur(8px);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.25);
+      transform: translateY(-2px);
+    }
+
+    /* Mobile Menu Toggle */
+    .mobile-menu-btn {
+      display: none;
+      background: transparent;
+      border: 1px solid var(--border-medium);
+      color: #ffffff;
+      padding: 8px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+    }
+
+    /* ==========================================================================
+       HERO SECTION
+       ========================================================================== */
+    .hero-section {
+      padding-top: 70px;
+      padding-bottom: 90px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 50px;
+      align-items: center;
+    }
+
+    .hero-content {
+      max-width: 640px;
+    }
+
+    .hero-headline {
+      font-size: clamp(2.5rem, 4.5vw, 4rem);
+      font-weight: 800;
+      line-height: 1.08;
+      letter-spacing: -0.035em;
+      color: #ffffff;
+      margin-bottom: 24px;
+    }
+
+    .hero-description {
+      font-size: clamp(1.1rem, 1.8vw, 1.25rem);
+      line-height: 1.6;
+      color: var(--text-secondary);
+      margin-bottom: 36px;
+    }
+
+    .hero-cta-group {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+    }
+
+    .hero-cta-group .btn-primary {
+      padding: 15px 32px;
+      font-size: 1.05rem;
+    }
+
+    .hero-cta-group .btn-secondary {
+      padding: 15px 26px;
+      font-size: 1.05rem;
+    }
+
+    .hero-trust-badges {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      flex-wrap: wrap;
+    }
+
+    .hero-trust-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .hero-trust-item svg {
+      color: var(--emerald-light);
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+    }
+
+    /* ==========================================================================
+       LIVE MATCH ENGINE VISUALIZER (HERO DEMO)
+       ========================================================================== */
+    .hero-visual {
+      position: relative;
+    }
+
+    .live-demo-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-medium);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      box-shadow: var(--shadow-elevated), var(--shadow-emerald);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .demo-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 16px;
+      margin-bottom: 20px;
+    }
+
+    .demo-header-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: #ffffff;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .demo-pulse-indicator {
+      width: 8px;
+      height: 8px;
+      background: var(--emerald-light);
+      border-radius: 50%;
+      position: relative;
+    }
+
+    .demo-pulse-indicator::after {
+      content: '';
+      position: absolute;
+      top: -4px;
+      left: -4px;
+      right: -4px;
+      bottom: -4px;
+      border-radius: 50%;
+      border: 2px solid var(--emerald-light);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(0.8); opacity: 1; }
+      100% { transform: scale(2.2); opacity: 0; }
+    }
+
+    .demo-engine-tag {
+      font-size: 0.75rem;
+      font-family: var(--font-mono);
+      background: rgba(16, 185, 129, 0.12);
+      color: var(--emerald-light);
+      padding: 4px 10px;
+      border-radius: 6px;
+      border: 1px solid rgba(16, 185, 129, 0.25);
+    }
+
+    /* Transaction Match Simulation */
+    .reconciliation-flow {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .feed-card {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      position: relative;
+      transition: all var(--transition-normal);
+    }
+
+    .feed-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .feed-source {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+
+    .feed-source svg {
+      width: 14px;
+      height: 14px;
+      color: var(--cyan-accent);
+    }
+
+    .feed-body {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .feed-sender {
+      font-weight: 700;
+      color: #ffffff;
+      font-size: 0.975rem;
+    }
+
+    .feed-memo {
+      font-size: 0.775rem;
+      font-family: var(--font-mono);
+      color: var(--text-secondary);
+      margin-top: 3px;
+    }
+
+    .feed-amount {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #ffffff;
+      font-family: var(--font-mono);
+      text-align: right;
+    }
+
+    .feed-timestamp {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-align: right;
+    }
+
+    /* Connecting Match Node */
+    .match-connector {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      margin: -4px 0;
+    }
+
+    .match-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #064e3b;
+      color: #a7f3d0;
+      border: 1px solid #10b981;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-size: 0.775rem;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+      z-index: 2;
+    }
+
+    .match-badge svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .match-line {
+      position: absolute;
+      width: 2px;
+      height: 36px;
+      background: linear-gradient(180deg, var(--cyan-accent), var(--emerald-primary));
+      z-index: 1;
+    }
+
+    /* Matched Invoice */
+    .invoice-card {
+      background: rgba(16, 185, 129, 0.05);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      position: relative;
+      transition: all var(--transition-normal);
+    }
+
+    .invoice-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      margin-bottom: 8px;
+    }
+
+    .invoice-id {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: var(--emerald-light);
+    }
+
+    .invoice-status-chip {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--emerald-light);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .interactive-demo-btn {
+      margin-top: 18px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px dashed var(--border-medium);
+      color: var(--text-secondary);
+      border-radius: var(--radius-sm);
+      padding: 10px;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .interactive-demo-btn:hover {
+      background: rgba(16, 185, 129, 0.1);
+      border-color: var(--emerald-primary);
+      color: #ffffff;
+    }
+
+    /* ==========================================================================
+       TRUST / LOGO CLOUD SECTION
+       ========================================================================== */
+    .trust-section {
+      padding: 40px 0 70px;
+      border-top: 1px solid var(--border-subtle);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .trust-text {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 28px;
+    }
+
+    .logo-cloud {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 48px;
+      flex-wrap: wrap;
+      opacity: 0.75;
+    }
+
+    .agency-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-secondary);
+      font-weight: 700;
+      font-size: 1.1rem;
+      letter-spacing: -0.02em;
+      transition: opacity var(--transition-fast);
+    }
+
+    .agency-logo:hover {
+      opacity: 1;
+      color: #ffffff;
+    }
+
+    .agency-logo svg {
+      width: 24px;
+      height: 24px;
+      color: var(--emerald-light);
+    }
+
+    /* ==========================================================================
+       HOW IT WORKS SECTION
+       ========================================================================== */
+    .how-section {
+      padding: 100px 0;
+      position: relative;
+    }
+
+    .section-header-center {
+      text-align: center;
+      max-width: 720px;
+      margin: 0 auto 60px;
+    }
+
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+      position: relative;
+    }
+
+    .step-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 36px 28px;
+      position: relative;
+      transition: all var(--transition-normal);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .step-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--border-medium);
+      background: var(--bg-card-hover);
+    }
+
+    .step-number {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      color: var(--emerald-light);
+      font-weight: 800;
+      font-size: 1.15rem;
+      font-family: var(--font-mono);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+
+    .step-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 12px;
+      line-height: 1.3;
+    }
+
+    .step-description {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 20px;
+      flex-grow: 1;
+    }
+
+    .step-snippet {
+      background: var(--bg-base);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      font-family: var(--font-mono);
+      font-size: 0.775rem;
+      color: var(--text-muted);
+    }
+
+    .step-snippet span {
+      color: var(--emerald-light);
+      font-weight: 600;
+    }
+
+    /* ==========================================================================
+       FEATURES SECTION (BENTO GRID)
+       ========================================================================== */
+    .features-section {
+      padding: 100px 0;
+      background: linear-gradient(180deg, transparent 0%, rgba(11, 17, 26, 0.6) 50%, transparent 100%);
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+    }
+
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      transition: all var(--transition-normal);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card:hover {
+      border-color: rgba(16, 185, 129, 0.3);
+      transform: translateY(-3px);
+      box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.6);
+    }
+
+    .feature-card.col-span-2 {
+      grid-column: span 2;
+    }
+
+    .feature-icon-wrapper {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--emerald-light);
+      margin-bottom: 24px;
+    }
+
+    .feature-icon-wrapper svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    .feature-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 12px;
+      line-height: 1.3;
+    }
+
+    .feature-desc {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    /* Feature Visual Mockups */
+    .feature-mockup {
+      margin-top: auto;
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      font-family: var(--font-mono);
+      font-size: 0.775rem;
+    }
+
+    .fuzzy-match-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .fuzzy-match-row:last-child {
+      border-bottom: none;
+    }
+
+    .fuzzy-label {
+      color: var(--text-muted);
+    }
+
+    .fuzzy-value {
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    .fuzzy-score {
+      color: var(--emerald-light);
+      font-weight: 700;
+      background: rgba(16, 185, 129, 0.15);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .integration-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .int-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .int-pill span {
+      color: var(--emerald-light);
+      font-size: 0.7rem;
+    }
+
+    /* ==========================================================================
+       PRICING SECTION
+       ========================================================================== */
+    .pricing-section {
+      padding: 100px 0;
+      position: relative;
+    }
+
+    .pricing-toggle-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 50px;
+    }
+
+    .toggle-label {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: color var(--transition-fast);
+    }
+
+    .toggle-label.active {
+      color: #ffffff;
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 56px;
+      height: 30px;
+      background: var(--bg-surface-elevated);
+      border-radius: 9999px;
+      border: 1px solid var(--border-medium);
+      cursor: pointer;
+      transition: background var(--transition-fast);
+    }
+
+    .toggle-slider {
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 22px;
+      height: 22px;
+      background: var(--emerald-primary);
+      border-radius: 50%;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+      transition: transform var(--transition-fast);
+    }
+
+    .toggle-switch.annual .toggle-slider {
+      transform: translateX(26px);
+    }
+
+    .discount-badge {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: var(--emerald-light);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 9999px;
+    }
+
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+      align-items: stretch;
+    }
+
+    .pricing-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      padding: 40px 32px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: all var(--transition-normal);
+    }
+
+    .pricing-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--border-medium);
+    }
+
+    .pricing-card.featured {
+      background: linear-gradient(180deg, rgba(16, 185, 129, 0.08) 0%, rgba(11, 17, 26, 0.95) 100%);
+      border: 2px solid var(--emerald-primary);
+      box-shadow: var(--shadow-emerald);
+      transform: scale(1.02);
+    }
+
+    .pricing-card.featured:hover {
+      transform: scale(1.02) translateY(-4px);
+    }
+
+    .popular-tag {
+      position: absolute;
+      top: -14px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--emerald-primary);
+      color: #022c22;
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 5px 16px;
+      border-radius: 9999px;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+    }
+
+    .plan-header {
+      margin-bottom: 24px;
+    }
+
+    .plan-name {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 6px;
+    }
+
+    .plan-desc {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      min-height: 42px;
+    }
+
+    .plan-price-wrapper {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 24px;
+    }
+
+    .plan-price {
+      font-size: 3rem;
+      font-weight: 800;
+      color: #ffffff;
+      font-family: var(--font-mono);
+      line-height: 1;
+    }
+
+    .plan-billing {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+
+    .plan-features-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-bottom: 36px;
+      flex-grow: 1;
+    }
+
+    .plan-feature-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    .plan-feature-item svg {
+      width: 18px;
+      height: 18px;
+      color: var(--emerald-light);
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .plan-feature-item strong {
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    .plan-cta {
+      width: 100%;
+      text-align: center;
+    }
+
+    /* ==========================================================================
+       CUSTOMER TESTIMONIALS SECTION
+       ========================================================================== */
+    .testimonials-section {
+      padding: 100px 0;
+      background: radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.03) 0%, transparent 70%);
+    }
+
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+      margin-bottom: 50px;
+    }
+
+    .testimonial-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      transition: all var(--transition-normal);
+    }
+
+    .testimonial-card:hover {
+      border-color: var(--border-medium);
+      transform: translateY(-4px);
+    }
+
+    .testimonial-stars {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 18px;
+      color: #fbbf24;
+    }
+
+    .testimonial-stars svg {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
+    }
+
+    .testimonial-quote {
+      font-size: 1rem;
+      color: var(--text-main);
+      line-height: 1.6;
+      margin-bottom: 24px;
+      font-style: italic;
+    }
+
+    .testimonial-metric {
+      font-size: 0.8125rem;
+      font-family: var(--font-mono);
+      color: var(--emerald-light);
+      background: rgba(16, 185, 129, 0.1);
+      padding: 6px 12px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 20px;
+      border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      border-top: 1px solid var(--border-subtle);
+      padding-top: 18px;
+    }
+
+    .author-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      border: 1px solid var(--border-medium);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: var(--emerald-light);
+      font-size: 0.95rem;
+      font-family: var(--font-mono);
+    }
+
+    .author-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .author-name {
+      font-weight: 700;
+      color: #ffffff;
+      font-size: 0.95rem;
+    }
+
+    .author-role {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* Overall metrics banner */
+    .metrics-banner {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-medium);
+      border-radius: var(--radius-xl);
+      padding: 36px 40px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+      text-align: center;
+    }
+
+    .metric-item-value {
+      font-size: 2.5rem;
+      font-weight: 800;
+      font-family: var(--font-mono);
+      color: #ffffff;
+      line-height: 1.1;
+      margin-bottom: 6px;
+    }
+
+    .metric-item-label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    /* ==========================================================================
+       SIGNUP FORM SECTION
+       ========================================================================== */
+    .signup-section {
+      padding: 100px 0;
+      position: relative;
+    }
+
+    .signup-container-card {
+      background: linear-gradient(145deg, rgba(17, 26, 40, 0.95) 0%, rgba(9, 13, 22, 0.98) 100%);
+      border: 1px solid var(--border-medium);
+      border-radius: var(--radius-xl);
+      padding: 60px 48px;
+      box-shadow: var(--shadow-elevated), 0 0 60px -15px rgba(16, 185, 129, 0.15);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .signup-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+    }
+
+    .signup-intro h2 {
+      font-size: clamp(2rem, 3.5vw, 2.75rem);
+      font-weight: 800;
+      line-height: 1.15;
+      color: #ffffff;
+      margin-bottom: 18px;
+      letter-spacing: -0.03em;
+    }
+
+    .signup-intro p {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 32px;
+    }
+
+    .signup-checklist {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .signup-check-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+    }
+
+    .signup-check-item svg {
+      color: var(--emerald-light);
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+    }
+
+    /* The actual form */
+    .form-wrapper {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      box-shadow: var(--shadow-card);
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.825rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+    }
+
+    .form-input, .form-select {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border-medium);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      color: #ffffff;
+      font-size: 0.9375rem;
+      transition: all var(--transition-fast);
+      outline: none;
+    }
+
+    .form-input:focus, .form-select:focus {
+      border-color: var(--emerald-primary);
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+      background: #0f1826;
+    }
+
+    .form-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .form-checkbox-group {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-top: 14px;
+      margin-bottom: 22px;
+    }
+
+    .form-checkbox-group input[type="checkbox"] {
+      margin-top: 4px;
+      accent-color: var(--emerald-primary);
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+
+    .checkbox-text {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .checkbox-text a {
+      color: var(--text-secondary);
+      text-decoration: underline;
+    }
+
+    .btn-submit-signup {
+      width: 100%;
+      padding: 15px;
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .form-footer-note {
+      text-align: center;
+      font-size: 0.775rem;
+      color: var(--text-muted);
+      margin-top: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .form-footer-note svg {
+      width: 14px;
+      height: 14px;
+      color: var(--emerald-light);
+    }
+
+    /* Success message state (hidden by default) */
+    .signup-success-state {
+      display: none;
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    .success-icon-box {
+      width: 64px;
+      height: 64px;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid var(--emerald-primary);
+      border-radius: 50%;
+      color: var(--emerald-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      box-shadow: 0 0 25px rgba(16, 185, 129, 0.3);
+    }
+
+    .success-icon-box svg {
+      width: 32px;
+      height: 32px;
+    }
+
+    /* ==========================================================================
+       FAQ ACCORDION SECTION
+       ========================================================================== */
+    .faq-section {
+      padding: 100px 0;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .faq-accordion {
+      max-width: 800px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .faq-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      transition: all var(--transition-fast);
+    }
+
+    .faq-item:hover {
+      border-color: var(--border-medium);
+    }
+
+    .faq-question {
+      width: 100%;
+      padding: 22px 24px;
+      background: transparent;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: #ffffff;
+      font-size: 1.05rem;
+      font-weight: 600;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .faq-icon {
+      width: 20px;
+      height: 20px;
+      color: var(--text-muted);
+      transition: transform var(--transition-fast);
+      flex-shrink: 0;
+    }
+
+    .faq-item.open .faq-icon {
+      transform: rotate(180deg);
+      color: var(--emerald-light);
+    }
+
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s ease-out;
+      padding: 0 24px;
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    .faq-item.open .faq-answer {
+      padding-bottom: 24px;
+    }
+
+    /* ==========================================================================
+       FOOTER
+       ========================================================================== */
+    .footer {
+      border-top: 1px solid var(--border-subtle);
+      background: var(--bg-base);
+      padding: 70px 0 30px;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr 1fr;
+      gap: 40px;
+      margin-bottom: 50px;
+    }
+
+    .footer-brand p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-top: 16px;
+      max-width: 320px;
+      line-height: 1.6;
+    }
+
+    .footer-status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 20px;
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      padding: 6px 12px;
+      border-radius: 9999px;
+      font-size: 0.775rem;
+      color: var(--emerald-light);
+      font-family: var(--font-mono);
+    }
+
+    .footer-heading {
+      font-size: 0.875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #ffffff;
+      margin-bottom: 20px;
+    }
+
+    .footer-links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .footer-links a {
+      color: var(--text-muted);
+      font-size: 0.875rem;
+      transition: color var(--transition-fast);
+    }
+
+    .footer-links a:hover {
+      color: #ffffff;
+    }
+
+    .footer-bottom {
+      border-top: 1px solid var(--border-subtle);
+      padding-top: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--text-muted);
+      font-size: 0.8125rem;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    /* ==========================================================================
+       RESPONSIVE BREAKPOINTS
+       ========================================================================== */
+    @media (max-width: 1024px) {
+      .hero-grid {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+      .hero-content {
+        max-width: 100%;
+        text-align: center;
+      }
+      .hero-cta-group {
+        justify-content: center;
+      }
+      .hero-trust-badges {
+        justify-content: center;
+      }
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+      .feature-card.col-span-2 {
+        grid-column: span 1;
+      }
+      .pricing-grid {
+        grid-template-columns: 1fr;
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .pricing-card.featured {
+        transform: none;
+      }
+      .pricing-card.featured:hover {
+        transform: translateY(-4px);
+      }
+      .testimonials-grid {
+        grid-template-columns: 1fr;
+      }
+      .signup-grid {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+      .steps-grid {
+        grid-template-columns: 1fr;
+      }
+      .footer-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+      .metrics-banner {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .nav-links, .nav-actions .btn-login {
+        display: none;
+      }
+      .mobile-menu-btn {
+        display: block;
+      }
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+      .footer-grid {
+        grid-template-columns: 1fr;
+      }
+      .signup-container-card {
+        padding: 36px 20px;
+      }
+      .form-wrapper {
+        padding: 20px;
+      }
+      .metrics-banner {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Announcement Bar -->
+  <div class="announcement-bar">
+    <span class="announcement-badge">New in v2.4</span>
+    <span>Multi-Currency FX Variance & Stripe Direct Match is now live for all plans.</span>
+    <a href="#features" class="announcement-link">
+      See how it works
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
+  </div>
+
+  <!-- Header / Navigation -->
+  <header class="header">
+    <div class="container nav-container">
+      <a href="#" class="logo-link">
+        <div class="logo-mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+            <polyline points="22,6 12,13 2,6"/>
+            <path d="M8 15h3"/>
+            <path d="M8 11h8"/>
+          </svg>
+        </div>
+        <span>Ledgerly</span>
+      </a>
+
+      <nav>
+        <ul class="nav-links">
+          <li><a href="#how-it-works" class="nav-link">How it Works</a></li>
+          <li><a href="#features" class="nav-link">Features</a></li>
+          <li><a href="#pricing" class="nav-link">Pricing</a></li>
+          <li><a href="#testimonials" class="nav-link">Agencies</a></li>
+          <li><a href="#faq" class="nav-link">FAQ</a></li>
+        </ul>
+      </nav>
+
+      <div class="nav-actions">
+        <a href="#signup" class="btn-login">Sign In</a>
+        <a href="#signup" class="btn-primary">
+          Start Free Trial
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- ========================================================================
+         HERO SECTION
+         ======================================================================== -->
+    <section class="hero-section">
+      <div class="container hero-grid">
+        <div class="hero-content">
+          <div class="section-eyebrow">
+            <span class="dot"></span>
+            Automated Agency Invoicing & Reconciliation
+          </div>
+          <h1 class="hero-headline">
+            Stop playing detective in your bank feed. <span class="gradient-text">Auto-match invoices in seconds.</span>
+          </h1>
+          <p class="hero-description">
+            Ledgerly connects your agency's bank accounts directly to open client invoices. When a client pays via wire, ACH, or credit card, our fuzzy AI engine matches the payment, balances your ledger, and notifies your team instantly.
+          </p>
+
+          <div class="hero-cta-group">
+            <a href="#signup" class="btn-primary">
+              Start 14-Day Free Trial
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+            <a href="#demo-preview" class="btn-secondary" id="hero-demo-trigger">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              Watch Interactive Match
+            </a>
+          </div>
+
+          <div class="hero-trust-badges">
+            <div class="hero-trust-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>No credit card required</span>
+            </div>
+            <div class="hero-trust-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>Connects with 11,000+ banks</span>
+            </div>
+            <div class="hero-trust-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>SOC2 Type II certified</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hero Visual: Real-time Bank Matcher Interactive Mockup -->
+        <div class="hero-visual" id="demo-preview">
+          <div class="live-demo-card">
+            <div class="demo-header">
+              <div class="demo-header-title">
+                <span class="demo-pulse-indicator"></span>
+                <span>Live Reconciliation Engine</span>
+              </div>
+              <span class="demo-engine-tag">AUTO-MATCH ACTIVE</span>
+            </div>
+
+            <div class="reconciliation-flow" id="reconciliation-box">
+              <!-- Bank Feed Card -->
+              <div class="feed-card" id="demo-bank-card">
+                <div class="feed-card-header">
+                  <span class="feed-source">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                    Chase Business Direct Wire
+                  </span>
+                  <span class="feed-timestamp mono" id="demo-timestamp">Today, 2:41 PM</span>
+                </div>
+                <div class="feed-body">
+                  <div>
+                    <div class="feed-sender" id="demo-sender">Apex Venture Holdings LLC</div>
+                    <div class="feed-memo" id="demo-memo">REF: INV-8821 SPRINT-2 / APEX MEDIA</div>
+                  </div>
+                  <div>
+                    <div class="feed-amount" id="demo-amount">+$14,500.00</div>
+                    <div class="feed-timestamp">Fedwire Inbound</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Match Node -->
+              <div class="match-connector">
+                <div class="match-line"></div>
+                <div class="match-badge" id="demo-match-badge">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                  <span>99.8% Confidence Match (Fuzzy Ref)</span>
+                </div>
+              </div>
+
+              <!-- Invoice Card -->
+              <div class="invoice-card" id="demo-invoice-card">
+                <div class="invoice-card-header">
+                  <span class="invoice-id mono" id="demo-inv-id">INVOICE #INV-8821</span>
+                  <span class="invoice-status-chip" id="demo-inv-status">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                    Automatically Reconciled
+                  </span>
+                </div>
+                <div class="feed-body">
+                  <div>
+                    <div class="feed-sender" id="demo-client-name">Apex Media (Client Account)</div>
+                    <div class="feed-memo">Milestone 2: Design System & Brand Rollout</div>
+                  </div>
+                  <div>
+                    <div class="feed-amount" style="color: var(--emerald-light);">$14,500.00</div>
+                    <div class="feed-timestamp" style="color: var(--emerald-light);">Marked Paid in QuickBooks</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Interactive Trigger -->
+            <button class="interactive-demo-btn" id="simulate-btn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+              Click to Simulate Another Client Wire Transfer
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         AGENCY TRUST CLOUD
+         ======================================================================== -->
+    <section class="trust-section">
+      <div class="container">
+        <p class="trust-text">Reconciling over $180,000,000 in agency billing across 1,400+ creative shops</p>
+        <div class="logo-cloud">
+          <div class="agency-logo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+            <span>FORM STUDIO</span>
+          </div>
+          <div class="agency-logo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>
+            <span>KINETIC LABS</span>
+          </div>
+          <div class="agency-logo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16.5 9.4 7.55 4.24a1.78 1.78 0 0 0-2.5 1.55v12.42a1.78 1.78 0 0 0 2.5 1.55L16.5 14.6a1.78 1.78 0 0 0 0-3.2z"/></svg>
+            <span>OUTPOST DIGITAL</span>
+          </div>
+          <div class="agency-logo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+            <span>MONO FOUNDRY</span>
+          </div>
+          <div class="agency-logo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            <span>PIXEL CRAFT HQ</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         HOW IT WORKS (3 STEP WORKFLOW)
+         ======================================================================== -->
+    <section class="how-section" id="how-it-works">
+      <div class="container">
+        <div class="section-header-center">
+          <div class="section-eyebrow">
+            <span class="dot"></span>
+            Zero Manual Effort
+          </div>
+          <h2 class="section-title">How Ledgerly ends your reconciliation nightmare</h2>
+          <p class="section-subtitle">
+            Most small agencies spend 4 to 8 hours every month matching cryptic bank lines to open invoices. Here is how Ledgerly automates everything in 3 steps.
+          </p>
+        </div>
+
+        <div class="steps-grid">
+          <!-- Step 1 -->
+          <div class="step-card">
+            <div class="step-number">01</div>
+            <h3 class="step-title">Connect your bank & invoicing in 60s</h3>
+            <p class="step-description">
+              Securely link your agency accounts (Mercury, Chase, Brex, Stripe, Wise) and sync your existing invoices or create sleek new ones right in Ledgerly.
+            </p>
+            <div class="step-snippet">
+              Bank Connection: <span>Mercury Operating • 4821</span><br>
+              Status: <span>Live Real-Time Webhook Active</span>
+            </div>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="step-card">
+            <div class="step-number">02</div>
+            <h3 class="step-title">Fuzzy matching decodes client wires</h3>
+            <p class="step-description">
+              When clients pay under holding companies, mistype reference numbers, or send partial deposits, our smart algorithm identifies the exact matching invoice.
+            </p>
+            <div class="step-snippet">
+              Incoming: <span>"WIRE FRM VTX HOLDINGS"</span><br>
+              Resolved to: <span>Vertex Interactive ($8,400)</span>
+            </div>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="step-card">
+            <div class="step-number">03</div>
+            <h3 class="step-title">Books balanced, team unblocked</h3>
+            <p class="step-description">
+              Invoices are automatically tagged Paid, your accounting software (QuickBooks/Xero) updates instantly, and your project leads receive a Slack notification.
+            </p>
+            <div class="step-snippet">
+              Action: <span>Receipt sent to client</span><br>
+              Slack: <span>#agency-finance unblocked milestone</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         FEATURES SECTION (BENTO GRID)
+         ======================================================================== -->
+    <section class="features-section" id="features">
+      <div class="container">
+        <div class="section-header-center">
+          <div class="section-eyebrow">
+            <span class="dot"></span>
+            Engineered For Agencies
+          </div>
+          <h2 class="section-title">Everything you need to get paid & stay balanced</h2>
+          <p class="section-subtitle">
+            Built specifically for the quirks of agency billings: retainers, variable milestones, third-party paying entities, and international client wires.
+          </p>
+        </div>
+
+        <div class="features-grid">
+          <!-- Feature 1 (Large 2-col) -->
+          <div class="feature-card col-span-2">
+            <div class="feature-icon-wrapper">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><path d="m11 8 3 3-3 3"/></svg>
+            </div>
+            <h3 class="feature-title">Fuzzy Reference & Entity Recognition</h3>
+            <p class="feature-desc">
+              Clients rarely paste your exact invoice ID in their bank memo. Ledgerly correlates parent entities, DBA names, historical wire patterns, and approximate memo text so you never have to ask "who sent this $12,000?"
+            </p>
+            <div class="feature-mockup">
+              <div class="fuzzy-match-row">
+                <span class="fuzzy-label">Bank Raw Memo</span>
+                <span class="fuzzy-value">TX-80219 JPM WIRE SVC 992-KRAKEN HOLDINGS</span>
+              </div>
+              <div class="fuzzy-match-row">
+                <span class="fuzzy-label">Detected Client</span>
+                <span class="fuzzy-value">Kraken Studio Ltd (Contract #402)</span>
+              </div>
+              <div class="fuzzy-match-row">
+                <span class="fuzzy-label">Matched Invoice</span>
+                <span class="fuzzy-score">INV-2024-099 • 99.4% Match Confirmed</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Feature 2 -->
+          <div class="feature-card">
+            <div class="feature-icon-wrapper">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            </div>
+            <h3 class="feature-title">Retainer & Split Allocations</h3>
+            <p class="feature-desc">
+              When a client pays for a monthly retainer plus an out-of-scope sprint in a single wire, Ledgerly splits and reconciles across multiple open line items effortlessly.
+            </p>
+            <div class="integration-pills">
+              <span class="int-pill">Retainers <span>Auto-apply</span></span>
+              <span class="int-pill">Milestones <span>Draw-down</span></span>
+              <span class="int-pill">Overages <span>Tracked</span></span>
+            </div>
+          </div>
+
+          <!-- Feature 3 -->
+          <div class="feature-card">
+            <div class="feature-icon-wrapper">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>
+            </div>
+            <h3 class="feature-title">Real-Time Bank Feed Sync</h3>
+            <p class="feature-desc">
+              Direct API integrations with Plaid, Mercury, Chase, Silicon Valley Bank, Brex, Wise, and Stripe. No daily CSV downloads or manual uploads required.
+            </p>
+            <div class="integration-pills">
+              <span class="int-pill">Mercury</span>
+              <span class="int-pill">Chase</span>
+              <span class="int-pill">Brex</span>
+              <span class="int-pill">Wise Business</span>
+              <span class="int-pill">Stripe</span>
+            </div>
+          </div>
+
+          <!-- Feature 4 (Large 2-col) -->
+          <div class="feature-card col-span-2">
+            <div class="feature-icon-wrapper">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <h3 class="feature-title">Instant Branded Receipts & Client Confirmations</h3>
+            <p class="feature-desc">
+              Delight your enterprise clients. The second their deposit reconciles, Ledgerly sends a stunning PDF receipt bearing your agency branding and updates project health dashboards so developers know kickoff deposit cleared.
+            </p>
+            <div class="feature-mockup">
+              <div class="fuzzy-match-row">
+                <span class="fuzzy-label">Automated Trigger</span>
+                <span class="fuzzy-value">Wire verified -> Send receipt -> Slack notify team</span>
+              </div>
+              <div class="fuzzy-match-row">
+                <span class="fuzzy-label">Client Feedback</span>
+                <span class="fuzzy-value">"You guys are the only agency that confirms wires within 5 minutes."</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Feature 5 -->
+          <div class="feature-card">
+            <div class="feature-icon-wrapper">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h5l3 8 4-16 3 8h5"/></svg>
+            </div>
+            <h3 class="feature-title">Two-Way Accounting Sync</h3>
+            <p class="feature-desc">
+              Bi-directional sync with QuickBooks Online and Xero. Matches in Ledgerly mirror as paid transactions in your general ledger with correct chart-of-accounts mapping.
+            </p>
+            <div class="integration-pills">
+              <span class="int-pill">QuickBooks Online</span>
+              <span class="int-pill">Xero</span>
+              <span class="int-pill">FreshBooks</span>
+            </div>
+          </div>
+
+          <!-- Feature 6 -->
+          <div class="feature-card">
+            <div class="feature-icon-wrapper">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            </div>
+            <h3 class="feature-title">FX Variance & Multi-Currency</h3>
+            <p class="feature-desc">
+              Billing overseas clients in EUR, GBP, or CAD? Ledgerly automatically calculates realized foreign exchange gains/losses at the exact moment the bank converts.
+            </p>
+            <div class="integration-pills">
+              <span class="int-pill">USD</span>
+              <span class="int-pill">EUR</span>
+              <span class="int-pill">GBP</span>
+              <span class="int-pill">CAD</span>
+              <span class="int-pill">AUD</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         PRICING SECTION (3 PLANS WITH MONTHLY/ANNUAL TOGGLE)
+         ======================================================================== -->
+    <section class="pricing-section" id="pricing">
+      <div class="container">
+        <div class="section-header-center">
+          <div class="section-eyebrow">
+            <span class="dot"></span>
+            Transparent Agency Pricing
+          </div>
+          <h2 class="section-title">Simple plans scaled for small agencies</h2>
+          <p class="section-subtitle">
+            Every plan includes our core automated bank matching engine, unlimited clients, and high-speed reconciliation. No hidden transaction percentages.
+          </p>
+        </div>
+
+        <!-- Billing Toggle -->
+        <div class="pricing-toggle-wrapper">
+          <span class="toggle-label active" id="label-monthly">Monthly</span>
+          <div class="toggle-switch" id="pricing-toggle">
+            <div class="toggle-slider"></div>
+          </div>
+          <span class="toggle-label" id="label-annual">Annual</span>
+          <span class="discount-badge">Save 20% + 2 Months Free</span>
+        </div>
+
+        <div class="pricing-grid">
+          <!-- Plan 1: Starter / Boutique -->
+          <div class="pricing-card">
+            <div class="plan-header">
+              <h3 class="plan-name">Starter Studio</h3>
+              <p class="plan-desc">For freelance collectives and boutique design/dev studios with up to 5 team members.</p>
+            </div>
+
+            <div class="plan-price-wrapper">
+              <span class="plan-price" id="price-starter">$29</span>
+              <span class="plan-billing" id="billing-starter">/month</span>
+            </div>
+
+            <ul class="plan-features-list">
+              <li class="plan-feature-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                <span>Up to <strong>40 matched invoices</strong> per month</span>
+              </li>
+              <li class="plan-feature-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                <span><strong>2 bank accounts</strong> connected</span>
+              </li>
+              <li class="plan-feature-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                <span>Core automatic bank reconciliation</span>
+              </li>
+              <li class="plan-feature-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                <span>Standard client payment receipts</span>
+              </li>
+              <li class="plan-feature-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                <span>1 agency team seat</span>
+              </li>
+            </ul>
+
+            <div class="plan-cta">
+              <a href="#signup" class="btn-secondary" style="width: 100%;">Start 14-Day Free Trial</a>
+            </div>
+          </div>
+
+          <!-- Plan 2: Agency Standard (Featured) -->
+          <div class="pricing-card featured">
+            <div class="popular-tag">Most Popular for Agencies</div>
+            <div class="plan-header">
+              <h3 class="plan-name">Agency Growth</h3>
+              <p class="plan-desc">For established digital, marketing, and software agencies managing multiple active client accounts.</p>
+            </div>
+
+            <div class="plan-price-wrapper">
+              <span class="plan-price" id="price-growth">$79</span>
+              <span class="plan-billing" id="billing-growth">/month</span>
+            </div>
+
+            <ul class="plan-features-list">
+              <li class="plan-feature-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                <span><strong>Unlimited</strong> matched invoices</span>
+              </li>
+              <li class="plan-feature-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                <span>Up to <strong>8 bank accounts & Stripe</strong></span>
+              </li>
+              <li class="plan-feature-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                <span><strong>Fuzzy Entity Matching</strong> (Parent & DBA detection)</span>
+              </li>
+              <li class="plan-feature-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                <span>Retainer & milestone split allocation</span>
+              </li>
+              <li class="plan-feature-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                <span>Two-way <strong>QuickBooks & Xero sync</strong></span>
+              </li>
+              <li class="plan-feature-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                <span>5 agency team seats with role permissions</span>
+              </li>
+            </ul>
+
+            <div class="plan-cta">
+              <a href="#signup" class="btn-primary" style="width: 100%;">Start 14-Day Free Trial</a>
+            </div>
+          </div>
+
+          <!-- Plan 3: Scale / Holding Studio -->
+          <div class="pricing-card">
+            <div class="plan-header">
+              <h3 class="plan-name">Scale / Multi-Entity</h3>
+              <p class="plan-desc">For larger agency groups, multi-entity studios, and agencies with substantial international client billings.</p>
+            </div>
+
+            <div class="plan-price-wrapper">
+              <span class="plan-price" id="price-scale">$189</span>
+              <span class="plan-billing" id="billing-scale">/month</span>
+            </div>
+
+            <ul class="plan-features-list">
+              <li class="plan-feature-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                <span><strong>Unlimited</strong> everything (Invoices & Banks)</span>
+              </li>
+              <li class="plan-feature-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                <span><strong>Multi-Entity</strong> & holding company consolidated ledger</span>
+              </li>
+              <li class="plan-feature-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                <span>Automated <strong>FX variance calculation</strong></span>
+              </li>
+              <li class="plan-feature-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                <span>Custom Slack & Webhook integrations</span>
+              </li>
+              <li class="plan-feature-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                <span>Unlimited team seats</span>
+              </li>
+              <li class="plan-feature-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                <span>Dedicated account manager & migration assistance</span>
+              </li>
+            </ul>
+
+            <div class="plan-cta">
+              <a href="#signup" class="btn-secondary" style="width: 100%;">Start Free Trial</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         CUSTOMER TESTIMONIALS SECTION
+         ======================================================================== -->
+    <section class="testimonials-section" id="testimonials">
+      <div class="container">
+        <div class="section-header-center">
+          <div class="section-eyebrow">
+            <span class="dot"></span>
+            Loved By Agency Leaders
+          </div>
+          <h2 class="section-title">Reconciliation Fridays are officially extinct</h2>
+          <p class="section-subtitle">
+            See how boutique studios and 30-person engineering agencies reclaimed their time, eliminated cash flow blindsides, and stopped chasing mystery wires.
+          </p>
+        </div>
+
+        <div class="testimonials-grid">
+          <!-- Testimonial 1 -->
+          <div class="testimonial-card">
+            <div>
+              <div class="testimonial-stars">
+                <svg viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                <svg viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                <svg viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                <svg viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                <svg viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+              </div>
+              <p class="testimonial-quote">
+                "We had enterprise clients wire payments with cryptic notes like 'OCT-FEES-DIV'. I spent 5 hours every Friday cross-referencing bank statements. Ledgerly matched 98 out of 100 invoices automatically on day one."
+              </p>
+              <div class="testimonial-metric">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>
+                <span>Saved 18 hours / month</span>
+              </div>
+            </div>
+            <div class="testimonial-author">
+              <div class="author-avatar">MV</div>
+              <div class="author-info">
+                <span class="author-name">Marcus Vance</span>
+                <span class="author-role">Founder, Vance & Holt Digital (18-person agency)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Testimonial 2 -->
+          <div class="testimonial-card">
+            <div>
+              <div class="testimonial-stars">
+                <svg viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                <svg viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                <svg viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                <svg viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                <svg viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+              </div>
+              <p class="testimonial-quote">
+                "The retainer split feature is genius. When a client pays their $10k monthly retainer plus an unscheduled $3,200 sprint in one check, Ledgerly divides it across both records in Xero without me touching a spreadsheet."
+              </p>
+              <div class="testimonial-metric">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>
+                <span>Zero reconciliation errors</span>
+              </div>
+            </div>
+            <div class="testimonial-author">
+              <div class="author-avatar">ER</div>
+              <div class="author-info">
+                <span class="author-name">Elena Rostova</span>
+                <span class="author-role">Operations Director, Prism Design Lab</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Testimonial 3 -->
+          <div class="testimonial-card">
+            <div>
+              <div class="testimonial-stars">
+                <svg viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                <svg viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                <svg viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                <svg viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                <svg viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+              </div>
+              <p class="testimonial-quote">
+                "Our project managers used to constantly ask me if a client's retainer wire cleared before starting next week's sprint. Now Ledgerly pings Slack within 20 seconds of the bank feed update. Priceless."
+              </p>
+              <div class="testimonial-metric">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>
+                <span>Instant team kickoff</span>
+              </div>
+            </div>
+            <div class="testimonial-author">
+              <div class="author-avatar">TA</div>
+              <div class="author-info">
+                <span class="author-name">Tariq Al-Mansoor</span>
+                <span class="author-role">Co-Founder, Horizon Software Engineering</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Metrics Banner -->
+        <div class="metrics-banner">
+          <div>
+            <div class="metric-item-value">99.8%</div>
+            <div class="metric-item-label">Fuzzy Match Precision</div>
+          </div>
+          <div>
+            <div class="metric-item-value">&lt; 30 sec</div>
+            <div class="metric-item-label">Average Reconcile Speed</div>
+          </div>
+          <div>
+            <div class="metric-item-value">$180M+</div>
+            <div class="metric-item-label">Agency Volume Matched</div>
+          </div>
+          <div>
+            <div class="metric-item-value">16 hrs</div>
+            <div class="metric-item-label">Average Monthly Time Saved</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         SIGNUP FORM SECTION
+         ======================================================================== -->
+    <section class="signup-section" id="signup">
+      <div class="container">
+        <div class="signup-container-card">
+          <div class="signup-grid">
+            <div class="signup-intro">
+              <div class="section-eyebrow">
+                <span class="dot"></span>
+                Get Started in 3 Minutes
+              </div>
+              <h2>Ready to automate your agency's invoicing?</h2>
+              <p>
+                Join over 1,400 agency founders and ops leads who eliminated manual bank matching. Start your full-featured 14-day free trial right now.
+              </p>
+
+              <ul class="signup-checklist">
+                <li class="signup-check-item">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                  <span><strong>14-day free trial</strong> — full access to all Agency Growth features</span>
+                </li>
+                <li class="signup-check-item">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                  <span><strong>No credit card required</strong> during trial period</span>
+                </li>
+                <li class="signup-check-item">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                  <span>Connects instantly with Chase, Mercury, Brex, Wise, and Stripe</span>
+                </li>
+                <li class="signup-check-item">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                  <span>Free white-glove onboarding for agencies with $50k+/mo billing</span>
+                </li>
+              </ul>
+            </div>
+
+            <!-- Form Wrapper -->
+            <div class="form-wrapper">
+              <form id="ledgerly-signup-form">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label" for="full-name">Full Name</label>
+                    <input class="form-input" type="text" id="full-name" placeholder="Alex Morgan" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="agency-name">Agency Name</label>
+                    <input class="form-input" type="text" id="agency-name" placeholder="Verve Creative Ltd" required>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="work-email">Work Email</label>
+                  <input class="form-input" type="email" id="work-email" placeholder="alex@vervecreative.com" required>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label" for="primary-bank">Primary Agency Bank</label>
+                    <select class="form-select" id="primary-bank" required>
+                      <option value="" disabled selected>Select bank or account</option>
+                      <option value="mercury">Mercury</option>
+                      <option value="chase">Chase Commercial</option>
+                      <option value="brex">Brex Cash</option>
+                      <option value="stripe">Stripe Treasury / Connect</option>
+                      <option value="wise">Wise Business</option>
+                      <option value="svb">Silicon Valley Bank / First Republic</option>
+                      <option value="other">Other Bank (Plaid Direct)</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label" for="billing-volume">Monthly Invoicing Volume</label>
+                    <select class="form-select" id="billing-volume" required>
+                      <option value="" disabled selected>Select volume range</option>
+                      <option value="under-25k">$10k – $25k / month</option>
+                      <option value="25k-100k">$25k – $100k / month</option>
+                      <option value="100k-500k">$100k – $500k / month</option>
+                      <option value="500k-plus">$500k+ / month</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="password">Create Password</label>
+                  <input class="form-input" type="password" id="password" placeholder="At least 8 characters" minlength="8" required>
+                </div>
+
+                <div class="form-checkbox-group">
+                  <input type="checkbox" id="terms-agree" required>
+                  <label class="checkbox-text" for="terms-agree">
+                    I agree to the <a href="#">Terms of Service</a>, <a href="#">Privacy Policy</a>, and understand my data is protected with 256-bit encryption.
+                  </label>
+                </div>
+
+                <button type="submit" class="btn-primary btn-submit-signup">
+                  Create Agency Account & Start Free Trial
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </button>
+
+                <div class="form-footer-note">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                  <span>Bank-grade 256-bit encryption • Read-only feed access</span>
+                </div>
+              </form>
+
+              <!-- Dynamic Success State -->
+              <div class="signup-success-state" id="signup-success">
+                <div class="success-icon-box">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <h3 style="font-size: 1.5rem; font-weight: 800; color: #ffffff; margin-bottom: 8px;">Welcome to Ledgerly!</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 24px; font-size: 0.95rem;" id="success-message">
+                  We sent a confirmation link to your work email. You can now link your first bank feed and match your open agency invoices.
+                </p>
+                <button class="btn-secondary" id="reset-form-btn" style="width: 100%;">
+                  Back to Registration Form
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         FAQ ACCORDION SECTION
+         ======================================================================== -->
+    <section class="faq-section" id="faq">
+      <div class="container">
+        <div class="section-header-center">
+          <div class="section-eyebrow">
+            <span class="dot"></span>
+            Got Questions?
+          </div>
+          <h2 class="section-title">Frequently asked questions</h2>
+          <p class="section-subtitle">
+            Everything you need to know about bank matching, security, and how Ledgerly integrates into your existing agency workflow.
+          </p>
+        </div>
+
+        <div class="faq-accordion">
+          <!-- Question 1 -->
+          <div class="faq-item open">
+            <button class="faq-question">
+              <span>How does Ledgerly match payments if clients use weird wire memos?</span>
+              <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="faq-answer" style="max-height: 200px;">
+              Our proprietary fuzzy matching engine uses multiple heuristic layers: it cross-references the exact or partial invoice number, client DBA names, parent entity tax IDs, historical bank account identifiers, and expected invoice totals. Even when a client simply writes "Milestone 2" or their parent holding company name, Ledgerly resolves the match with 99.8% precision.
+            </div>
+          </div>
+
+          <!-- Question 2 -->
+          <div class="faq-item">
+            <button class="faq-question">
+              <span>Does Ledgerly replace my existing accounting software (QuickBooks / Xero)?</span>
+              <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="faq-answer">
+              No, Ledgerly supercharges it! Accounting software requires you to manually click and reconcile each line item or write cumbersome bank rules. Ledgerly sits between your bank feeds and your accounting ledger, automatically marking invoices paid and syncing the reconciled transaction directly into QuickBooks Online or Xero in real time.
+            </div>
+          </div>
+
+          <!-- Question 3 -->
+          <div class="faq-item">
+            <button class="faq-question">
+              <span>What happens if a client sends a partial payment or combines two invoices?</span>
+              <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="faq-answer">
+              Ledgerly natively supports split allocations. If an enterprise client combines Invoice #102 ($10,000) and Invoice #103 ($4,500) into a single $14,500 wire, Ledgerly detects the mathematical combination, applies the exact amounts to both invoices, and marks both paid. For partial payments, it logs the remaining balance and issues a partial receipt.
+            </div>
+          </div>
+
+          <!-- Question 4 -->
+          <div class="faq-item">
+            <button class="faq-question">
+              <span>Can Ledgerly move money or initiate transfers out of my bank?</span>
+              <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="faq-answer">
+              Never. Ledgerly uses read-only bank feeds via Plaid, Stripe Financial Connections, and direct open banking APIs. We never ask for or store money movement or withdrawal permissions. Your funds remain 100% secure in your own banking institutions.
+            </div>
+          </div>
+
+          <!-- Question 5 -->
+          <div class="faq-item">
+            <button class="faq-question">
+              <span>Can I customize the client receipts with my agency's logo and branding?</span>
+              <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="faq-answer">
+              Yes! You can upload your agency logo, customize brand accent colors, attach specific terms of payment, and include personalized notes. When your client receives a confirmation receipt, it reflects the premium craft of your agency.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ========================================================================
+       FOOTER
+       ======================================================================== -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="#" class="logo-link">
+            <div class="logo-mark">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                <polyline points="22,6 12,13 2,6"/>
+                <path d="M8 15h3"/>
+                <path d="M8 11h8"/>
+              </svg>
+            </div>
+            <span>Ledgerly</span>
+          </a>
+          <p>
+            The automated invoicing and bank reconciliation platform purpose-built for boutique, design, dev, and marketing agencies.
+          </p>
+          <div class="footer-status-badge">
+            <span class="demo-pulse-indicator"></span>
+            <span>All Systems Operational • 99.99% Uptime</span>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="footer-heading">Product</h4>
+          <ul class="footer-links">
+            <li><a href="#how-it-works">How it Works</a></li>
+            <li><a href="#features">Fuzzy Matching</a></li>
+            <li><a href="#features">Retainer Splitter</a></li>
+            <li><a href="#pricing">Pricing Plans</a></li>
+            <li><a href="#">Bank Integrations</a></li>
+            <li><a href="#">Changelog (v2.4)</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer-heading">Agency Solutions</h4>
+          <ul class="footer-links">
+            <li><a href="#">Design Studios</a></li>
+            <li><a href="#">Software Dev Shops</a></li>
+            <li><a href="#">Marketing & SEO Firms</a></li>
+            <li><a href="#">Consulting Practices</a></li>
+            <li><a href="#">QuickBooks Sync</a></li>
+            <li><a href="#">Xero Automation</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer-heading">Company & Security</h4>
+          <ul class="footer-links">
+            <li><a href="#">About Ledgerly</a></li>
+            <li><a href="#">Security Architecture</a></li>
+            <li><a href="#">SOC2 Compliance</a></li>
+            <li><a href="#">Privacy Policy</a></li>
+            <li><a href="#">Terms of Service</a></li>
+            <li><a href="#">Contact Support</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>
+          &copy; 2026 Ledgerly Technologies Inc. All rights reserved.
+        </div>
+        <div>
+          Crafted with obsession for agency founders who hate reconciliation Fridays.
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ========================================================================
+       VANILLA JAVASCRIPT MICRO-INTERACTIONS
+       ======================================================================== -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // 1. Annual / Monthly Pricing Toggle
+      const toggle = document.getElementById('pricing-toggle');
+      const labelMonthly = document.getElementById('label-monthly');
+      const labelAnnual = document.getElementById('label-annual');
+      const priceStarter = document.getElementById('price-starter');
+      const priceGrowth = document.getElementById('price-growth');
+      const priceScale = document.getElementById('price-scale');
+      const billingStarter = document.getElementById('billing-starter');
+      const billingGrowth = document.getElementById('billing-growth');
+      const billingScale = document.getElementById('billing-scale');
+
+      let isAnnual = false;
+
+      function updatePricing() {
+        if (isAnnual) {
+          toggle.classList.add('annual');
+          labelAnnual.classList.add('active');
+          labelMonthly.classList.remove('active');
+          
+          priceStarter.textContent = '$24';
+          priceGrowth.textContent = '$64';
+          priceScale.textContent = '$149';
+
+          billingStarter.textContent = '/mo (billed annually)';
+          billingGrowth.textContent = '/mo (billed annually)';
+          billingScale.textContent = '/mo (billed annually)';
+        } else {
+          toggle.classList.remove('annual');
+          labelMonthly.classList.add('active');
+          labelAnnual.classList.remove('active');
+
+          priceStarter.textContent = '$29';
+          priceGrowth.textContent = '$79';
+          priceScale.textContent = '$189';
+
+          billingStarter.textContent = '/month';
+          billingGrowth.textContent = '/month';
+          billingScale.textContent = '/month';
+        }
+      }
+
+      toggle.addEventListener('click', () => {
+        isAnnual = !isAnnual;
+        updatePricing();
+      });
+
+      labelMonthly.addEventListener('click', () => {
+        isAnnual = false;
+        updatePricing();
+      });
+
+      labelAnnual.addEventListener('click', () => {
+        isAnnual = true;
+        updatePricing();
+      });
+
+      // 2. Interactive Reconciliation Simulator
+      const demoBankCard = document.getElementById('demo-bank-card');
+      const demoSender = document.getElementById('demo-sender');
+      const demoMemo = document.getElementById('demo-memo');
+      const demoAmount = document.getElementById('demo-amount');
+      const demoInvId = document.getElementById('demo-inv-id');
+      const demoClientName = document.getElementById('demo-client-name');
+      const demoMatchBadge = document.getElementById('demo-match-badge');
+      const simulateBtn = document.getElementById('simulate-btn');
+      const heroDemoTrigger = document.getElementById('hero-demo-trigger');
+
+      const demoScenarios = [
+        {
+          sender: "Verve Global Ventures",
+          memo: "REF: 99401 / DEV RETAINER VERVE",
+          amount: "+$22,000.00",
+          invId: "INVOICE #INV-9042",
+          client: "Verve Technologies (Mobile App Sprint)",
+          confidence: "99.9% Confidence Match (DBA Alias)"
+        },
+        {
+          sender: "Starlight Holdings DE LLC",
+          memo: "INV-7731 BRAND IDENTITY DEPOSIT",
+          amount: "+$8,750.00",
+          invId: "INVOICE #INV-7731",
+          client: "Starlight Media Inc. (50% Deposit)",
+          confidence: "99.8% Exact Match (Memo + Entity)"
+        },
+        {
+          sender: "Kestrel Robotics Inc",
+          memo: "OCT WIRE PMT FOR FRONTEND WORK",
+          amount: "+$16,400.00",
+          invId: "INVOICE #INV-8120",
+          client: "Kestrel Robotics (Milestone 3 Kickoff)",
+          confidence: "99.4% Fuzzy Match (Account ID Match)"
+        },
+        {
+          sender: "Apex Venture Holdings LLC",
+          memo: "REF: INV-8821 SPRINT-2 / APEX MEDIA",
+          amount: "+$14,500.00",
+          invId: "INVOICE #INV-8821",
+          client: "Apex Media (Client Account)",
+          confidence: "99.8% Confidence Match (Fuzzy Ref)"
+        }
+      ];
+
+      let scenarioIndex = 0;
+
+      function runSimulation() {
+        scenarioIndex = (scenarioIndex + 1) % demoScenarios.length;
+        const s = demoScenarios[scenarioIndex];
+
+        // Animate transition
+        demoBankCard.style.opacity = '0.4';
+        demoBankCard.style.transform = 'scale(0.98)';
+        demoMatchBadge.style.opacity = '0.5';
+
+        setTimeout(() => {
+          demoSender.textContent = s.sender;
+          demoMemo.textContent = s.memo;
+          demoAmount.textContent = s.amount;
+          demoInvId.textContent = s.invId;
+          demoClientName.textContent = s.client;
+          demoMatchBadge.querySelector('span').textContent = s.confidence;
+
+          demoBankCard.style.opacity = '1';
+          demoBankCard.style.transform = 'scale(1)';
+          demoMatchBadge.style.opacity = '1';
+        }, 220);
+      }
+
+      simulateBtn.addEventListener('click', runSimulation);
+
+      heroDemoTrigger.addEventListener('click', (e) => {
+        e.preventDefault();
+        document.getElementById('demo-preview').scrollIntoView({ behavior: 'smooth' });
+        runSimulation();
+      });
+
+      // 3. FAQ Accordion Interaction
+      const faqItems = document.querySelectorAll('.faq-item');
+
+      faqItems.forEach(item => {
+        const questionBtn = item.querySelector('.faq-question');
+        const answer = item.querySelector('.faq-answer');
+
+        questionBtn.addEventListener('click', () => {
+          const isOpen = item.classList.contains('open');
+
+          // Close all items
+          faqItems.forEach(otherItem => {
+            otherItem.classList.remove('open');
+            otherItem.querySelector('.faq-answer').style.maxHeight = null;
+          });
+
+          // Toggle current
+          if (!isOpen) {
+            item.classList.add('open');
+            answer.style.maxHeight = answer.scrollHeight + 30 + 'px';
+          }
+        });
+      });
+
+      // 4. Signup Form Validation & Submission
+      const signupForm = document.getElementById('ledgerly-signup-form');
+      const signupSuccess = document.getElementById('signup-success');
+      const successMessage = document.getElementById('success-message');
+      const resetFormBtn = document.getElementById('reset-form-btn');
+
+      signupForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const nameInput = document.getElementById('full-name');
+        const emailInput = document.getElementById('work-email');
+        const agencyInput = document.getElementById('agency-name');
+
+        const userName = nameInput.value.trim() || 'there';
+        const userEmail = emailInput.value.trim() || 'your email';
+        const agencyName = agencyInput.value.trim() || 'your agency';
+
+        // Success state update
+        signupForm.style.display = 'none';
+        signupSuccess.style.display = 'block';
+
+        successMessage.innerHTML = `Awesome, <strong>${userName}</strong>! We've provisioned your workspace for <strong>${agencyName}</strong> and sent a magic activation link to <strong>${userEmail}</strong>. Click the link to connect your first bank feed and start auto-reconciling immediately.`;
+      });
+
+      resetFormBtn.addEventListener('click', () => {
+        signupForm.reset();
+        signupSuccess.style.display = 'none';
+        signupForm.style.display = 'block';
+      });
+    });
+  </script>
+</body>
+</html>

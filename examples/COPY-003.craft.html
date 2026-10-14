@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Profile</title>
+<style>
+  body { margin: 0; padding: 32px; font-family: system-ui, sans-serif; color: #111827; }
+  form { display: grid; gap: 12px; max-width: 360px; }
+</style>
+</head>
+<body>
+  <form action="/settings/profile" method="post">
+    <label>Display name <input name="name" value="Rosa Martinez"></label>
+    <button type="submit">Save profile</button>
+    <p><a href="/docs/profile">Read the profile settings guide</a></p>
+  </form>
+</body>
+</html>

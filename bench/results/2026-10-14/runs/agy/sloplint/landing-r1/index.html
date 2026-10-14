@@ -1,0 +1,1306 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ledgerly — Automatic Bank Payment Matching for Small Agencies</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0e0f11;
+      --surface: #15171a;
+      --raised: #1c1f23;
+      --line: #2a2e34;
+      --ink: #e8e6e1;
+      --ink-2: #9a9ea6;
+      --accent: #f2a33a;
+      --on-accent: #1a1206;
+      --good: #5fbf8f;
+      --warn: #e6c15a;
+      --bad: #ef6b5b;
+      --font-body: "IBM Plex Sans", system-ui, sans-serif;
+      --font-display: "IBM Plex Sans", system-ui, sans-serif;
+      --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+      --radius: 6px;
+      --radius-inner: 2px;
+      --shadow: none;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 14px;
+      line-height: 20px;
+      font-weight: 400;
+      font-variant-numeric: tabular-nums;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    /* Typography Scale strictly adheres to 12, 14, 16, 20, 28, 40 */
+    h1 {
+      font-size: 40px;
+      line-height: 1.15;
+      font-weight: 600;
+      color: var(--ink);
+      letter-spacing: -0.02em;
+    }
+
+    h2 {
+      font-size: 28px;
+      line-height: 1.15;
+      font-weight: 600;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+    }
+
+    h3 {
+      font-size: 20px;
+      line-height: 1.15;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    h4 {
+      font-size: 16px;
+      line-height: 1.15;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    p {
+      color: var(--ink);
+      font-size: 14px;
+      line-height: 20px;
+    }
+
+    .body-long {
+      font-size: 16px;
+      line-height: 26px;
+      max-width: 68ch;
+    }
+
+    .mono-meta {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      line-height: 16px;
+      letter-spacing: 0.04em;
+      color: var(--ink-2);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .tag-label {
+      font-size: 12px;
+      line-height: 16px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--ink-2);
+      display: inline-block;
+      margin-bottom: 4px;
+    }
+
+    /* Container & Layout */
+    .page-wrap {
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    header {
+      border-bottom: 1px solid var(--line);
+      background-color: var(--bg);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .nav-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 56px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-title {
+      font-family: var(--font-mono);
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 2px 8px;
+      background-color: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-inner);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      line-height: 14px;
+      color: var(--good);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: var(--good);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .nav-link {
+      font-size: 14px;
+      color: var(--ink-2);
+      transition: color 140ms ease-out;
+    }
+
+    .nav-link:hover {
+      color: var(--ink);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* Buttons: exactly 32px tall, 12px horizontal padding, --radius */
+    .btn {
+      height: 32px;
+      padding: 0 12px;
+      border-radius: var(--radius);
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      text-align: center;
+      white-space: nowrap;
+      transition: background-color 140ms ease-out, border-color 140ms ease-out, color 140ms ease-out;
+    }
+
+    .btn-primary {
+      background-color: var(--accent);
+      color: var(--on-accent);
+      border: 1px solid var(--accent);
+    }
+
+    .btn-primary:hover {
+      background-color: #df9127;
+      border-color: #df9127;
+    }
+
+    .btn-secondary {
+      background-color: transparent;
+      color: var(--ink);
+      border: 1px solid var(--line);
+    }
+
+    .btn-secondary:hover {
+      background-color: var(--raised);
+      border-color: var(--ink-2);
+    }
+
+    .btn-filter {
+      height: 24px;
+      padding: 0 8px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      border-radius: var(--radius-inner);
+      background-color: transparent;
+      color: var(--ink-2);
+      border: 1px solid var(--line);
+      cursor: pointer;
+      transition: background-color 140ms ease-out, color 140ms ease-out, border-color 140ms ease-out;
+    }
+
+    .btn-filter.active, .btn-filter:hover {
+      background-color: var(--surface);
+      color: var(--ink);
+      border-color: var(--ink-2);
+    }
+
+    /* Sections */
+    section {
+      padding: 64px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .section-header {
+      margin-bottom: 32px;
+    }
+
+    /* Hero */
+    .hero-grid {
+      display: grid;
+      gap: 32px;
+    }
+
+    .hero-copy {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .telemetry-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+    }
+
+    .telemetry-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .telemetry-value {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      color: var(--ink);
+      font-weight: 500;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Single bordered container per region (DESIGN.md space & shape) */
+    .panel {
+      background-color: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 16px;
+      background-color: var(--raised);
+      border-bottom: 1px solid var(--line);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--ink-2);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .panel-header-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--ink);
+    }
+
+    .panel-badge {
+      padding: 1px 6px;
+      border-radius: var(--radius-inner);
+      font-size: 11px;
+      background-color: var(--surface);
+      color: var(--accent);
+      border: 1px solid var(--line);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .panel-subbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 16px;
+      background-color: var(--surface);
+      border-bottom: 1px solid var(--line);
+      font-size: 12px;
+      color: var(--ink-2);
+    }
+
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Tables: 32px rows, right-aligned numeric columns, sticky header on --surface */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-variant-numeric: tabular-nums;
+      font-size: 13px;
+    }
+
+    thead th {
+      background-color: var(--surface);
+      color: var(--ink-2);
+      font-weight: 500;
+      text-align: left;
+      padding: 6px 16px;
+      border-bottom: 1px solid var(--line);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      position: sticky;
+      top: 0;
+      height: 32px;
+    }
+
+    thead th.num-col, tbody td.num-col {
+      text-align: right;
+    }
+
+    tbody tr {
+      cursor: pointer;
+      transition: background-color 140ms ease-out;
+    }
+
+    tbody tr:hover {
+      background-color: var(--raised);
+    }
+
+    tbody tr.active-row {
+      background-color: var(--raised);
+    }
+
+    tbody td {
+      padding: 6px 16px;
+      border-bottom: 1px solid var(--line);
+      color: var(--ink);
+      height: 32px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .code-text {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .status-matched {
+      color: var(--good);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 500;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .status-partial {
+      color: var(--warn);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 500;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Inspector Detail Bar within Hero Panel */
+    .inspector-tray {
+      border-top: 1px solid var(--line);
+      background-color: var(--raised);
+      padding: 12px 16px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .inspector-prop {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .inspector-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--ink-2);
+      font-family: var(--font-mono);
+    }
+
+    .inspector-val {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--ink);
+      font-variant-numeric: tabular-nums;
+      word-break: break-all;
+    }
+
+    /* Feature Deep Dive (Ranked: Lead in depth, then compact list - avoids UI-002) */
+    .features-layout {
+      display: grid;
+      grid-template-columns: 1.25fr 1fr;
+      gap: 32px;
+      align-items: start;
+    }
+
+    .feature-lead {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .feature-lead-body {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .feature-lead-divider {
+      border-top: 1px solid var(--line);
+      background-color: var(--raised);
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--ink-2);
+    }
+
+    .compact-feature-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .compact-feature-item {
+      padding: 20px 0;
+      border-top: 1px solid var(--line);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .compact-feature-item:first-child {
+      border-top: none;
+      padding-top: 0;
+    }
+
+    .feature-index {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--accent);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Testimonials (Field Reports) */
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .testimonial-card {
+      background-color: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    blockquote {
+      color: var(--ink);
+      font-size: 14px;
+      line-height: 22px;
+    }
+
+    figcaption {
+      border-top: 1px solid var(--line);
+      padding-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .author-name {
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--ink);
+    }
+
+    .author-role {
+      font-size: 12px;
+      color: var(--ink-2);
+    }
+
+    /* Pricing Section */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .pricing-card {
+      background-color: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+    }
+
+    .pricing-card.highlight {
+      border-color: var(--accent);
+      background-color: var(--raised);
+    }
+
+    .pricing-card-badge {
+      display: inline-block;
+      align-self: flex-start;
+      margin-bottom: 12px;
+      padding: 2px 8px;
+      background-color: var(--surface);
+      border: 1px solid var(--accent);
+      border-radius: var(--radius-inner);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .plan-header {
+      margin-bottom: 20px;
+    }
+
+    .plan-price-wrap {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .price-amount {
+      font-family: var(--font-mono);
+      font-size: 40px;
+      font-weight: 600;
+      line-height: 1.15;
+      color: var(--ink);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .price-period {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--ink-2);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .plan-specs {
+      list-style: none;
+      margin: 20px 0 28px;
+      border-top: 1px solid var(--line);
+    }
+
+    .plan-spec-item {
+      padding: 10px 0;
+      border-bottom: 1px solid var(--line);
+      font-size: 13px;
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .spec-icon {
+      color: var(--good);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      line-height: 1;
+    }
+
+    /* Signup Form */
+    .signup-wrap {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: start;
+    }
+
+    .form-panel {
+      background-color: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 32px;
+    }
+
+    .form-grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .field-group {
+      display: grid;
+      gap: 6px;
+    }
+
+    label {
+      font-size: 12px;
+      line-height: 16px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--ink-2);
+    }
+
+    input, select {
+      height: 32px;
+      background-color: var(--bg);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-inner);
+      padding: 0 12px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 14px;
+      outline: none;
+      transition: border-color 140ms ease-out;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--accent);
+    }
+
+    .signup-perks {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    .signup-perk-item {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .perk-bullet {
+      font-family: var(--font-mono);
+      color: var(--accent);
+      font-size: 13px;
+    }
+
+    /* Footer */
+    footer {
+      padding: 48px 0;
+      background-color: var(--bg);
+    }
+
+    .footer-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 24px;
+    }
+
+    .footer-link {
+      font-size: 13px;
+      color: var(--ink-2);
+      transition: color 140ms ease-out;
+    }
+
+    .footer-link:hover {
+      color: var(--ink);
+    }
+
+    @media (max-width: 860px) {
+      .features-layout,
+      .testimonials-grid,
+      .pricing-grid,
+      .signup-wrap,
+      .inspector-tray {
+        grid-template-columns: 1fr;
+      }
+      .nav-links {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <header>
+    <div class="page-wrap">
+      <nav class="nav-bar">
+        <div class="brand">
+          <span class="brand-title">LEDGERLY</span>
+          <span class="status-badge">
+            <span class="status-dot"></span>
+            INGESTION ACTIVE · 120ms
+          </span>
+        </div>
+        <div class="nav-links">
+          <a class="nav-link" href="#features">Reconciliation engine</a>
+          <a class="nav-link" href="#pricing">Pricing plans</a>
+          <a class="nav-link" href="#testimonials">Customer reports</a>
+          <a class="nav-link" href="#signup">Create workspace</a>
+        </div>
+        <div class="nav-actions">
+          <a class="btn btn-secondary" href="#signup">Sign in to workspace</a>
+          <a class="btn btn-primary" href="#signup">Start 14-day trial</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero Section -->
+    <section>
+      <div class="page-wrap">
+        <div class="hero-grid">
+          <div class="hero-copy">
+            <div>
+              <span class="tag-label">Automated Bank Reconciliation</span>
+              <h1>Match bank deposits to invoices in 3 seconds</h1>
+            </div>
+            <p class="body-long">
+              Small agencies lose 4 hours every Friday hunting through truncated ACH memos, wire references, and lump-sum deposits. Ledgerly connects directly to your commercial bank feeds to resolve incoming transfers against outstanding client invoices with 99.4% first-pass accuracy.
+            </p>
+            <div class="hero-actions">
+              <a class="btn btn-primary" href="#signup">Start 14-day trial</a>
+              <a class="btn btn-secondary" href="#features">Inspect live ledger</a>
+            </div>
+            <div class="telemetry-row">
+              <div class="telemetry-item">
+                <span class="tag-label">Median match latency</span>
+                <span class="telemetry-value">2.4 seconds</span>
+              </div>
+              <div class="telemetry-item">
+                <span class="tag-label">Supported banks</span>
+                <span class="telemetry-value">11,400+ via Plaid Exchange</span>
+              </div>
+              <div class="telemetry-item">
+                <span class="tag-label">First-pass accuracy</span>
+                <span class="telemetry-value">99.4% on ACH & Wire</span>
+              </div>
+              <div class="telemetry-item">
+                <span class="tag-label">Compliance</span>
+                <span class="telemetry-value">SOC-2 Type II Certified</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Hero Terminal Visual (Live Reconciliation Telemetry with Row Inspection) -->
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-header-title">
+                <span>INCOMING BANK STREAM // RECONCILIATION FEED</span>
+              </div>
+              <span class="panel-badge">FEED LATENCY: 120ms</span>
+            </div>
+            <div class="panel-subbar">
+              <span>Click any transaction row to inspect ledger audit telemetry</span>
+              <div class="filter-group">
+                <button type="button" class="btn-filter active" id="filter-all" onclick="filterFeed('all')">All entries (4)</button>
+                <button type="button" class="btn-filter" id="filter-resolved" onclick="filterFeed('resolved')">Resolved (3)</button>
+                <button type="button" class="btn-filter" id="filter-split" onclick="filterFeed('split')">Partial (1)</button>
+              </div>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>Bank Transaction Memo</th>
+                  <th>Resolved Invoice</th>
+                  <th class="num-col">Amount</th>
+                  <th class="num-col">Status</th>
+                </tr>
+              </thead>
+              <tbody id="feed-body">
+                <tr id="row-0" class="active-row" onclick="selectRow(0)">
+                  <td class="code-text">14:32:08</td>
+                  <td class="code-text">ACH CR MERIDIAN-084 Q3-SPRINT</td>
+                  <td>INV-2026-084 · Meridian Media Group</td>
+                  <td class="num-col code-text">$18,500.00</td>
+                  <td class="num-col"><span class="status-matched">[RESOLVED 99.8%]</span></td>
+                </tr>
+                <tr id="row-1" onclick="selectRow(1)">
+                  <td class="code-text">14:18:41</td>
+                  <td class="code-text">FEDWIRE CTX-9912 KILN DESIGN</td>
+                  <td>INV-2026-081 · Kiln Studios Ltd</td>
+                  <td class="num-col code-text">$6,200.00</td>
+                  <td class="num-col"><span class="status-matched">[RESOLVED 99.6%]</span></td>
+                </tr>
+                <tr id="row-2" onclick="selectRow(2)">
+                  <td class="code-text">13:55:12</td>
+                  <td class="code-text">WIRE REF-77189 VECTOR BRAND</td>
+                  <td>INV-2026-079 · Vector Brand Partners</td>
+                  <td class="num-col code-text">$14,750.00</td>
+                  <td class="num-col"><span class="status-matched">[RESOLVED 100%]</span></td>
+                </tr>
+                <tr id="row-3" onclick="selectRow(3)">
+                  <td class="code-text">12:10:04</td>
+                  <td class="code-text">ACH CR THRESHOLD PARTIAL-1</td>
+                  <td>INV-2026-077 · Threshold Interactive</td>
+                  <td class="num-col code-text">$5,000.00</td>
+                  <td class="num-col"><span class="status-partial">[PARTIAL SPLIT]</span></td>
+                </tr>
+              </tbody>
+            </table>
+
+            <!-- Telemetry Inspector Tray for the selected row -->
+            <div class="inspector-tray" id="inspector-tray">
+              <div class="inspector-prop">
+                <span class="inspector-label">Selected Record</span>
+                <span class="inspector-val" id="insp-record">INV-2026-084</span>
+              </div>
+              <div class="inspector-prop">
+                <span class="inspector-label">Entity EIN Match</span>
+                <span class="inspector-val" id="insp-ein">XX-XXX8921 (Meridian Media)</span>
+              </div>
+              <div class="inspector-prop">
+                <span class="inspector-label">Resolution Latency</span>
+                <span class="inspector-val" id="insp-latency">1.8 seconds</span>
+              </div>
+              <div class="inspector-prop">
+                <span class="inspector-label">Accounting Sync</span>
+                <span class="inspector-val" id="insp-sync">QuickBooks Online (TX-99042)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features Section (Ranked: Lead in-depth, then compact list - avoids UI-002) -->
+    <section id="features">
+      <div class="page-wrap">
+        <div class="section-header">
+          <span class="tag-label">Engine Capabilities</span>
+          <h2>Deterministic matching built for agency invoices</h2>
+        </div>
+
+        <div class="features-layout">
+          <!-- Primary Ranked Feature: In Depth in a single bordered panel -->
+          <div class="feature-lead">
+            <div class="panel">
+              <div class="panel-header">
+                <span class="panel-header-title">INSPECTION DEEP-DIVE: MEMO PARSER</span>
+                <span class="code-text">RULE: FUZZY-ENTITY-v3</span>
+              </div>
+              <div class="feature-lead-body">
+                <h3>Fuzzy memo resolution decodes truncated corporate transfers</h3>
+                <p>
+                  Enterprise accounting departments regularly truncate payment reference strings into cryptic records like <code>ACH CR MERID-084-SPRNT</code>. Ledgerly extracts invoice numbers, validates corporate tax identifiers, and matches amounts against open receivables within 3 seconds of bank settlement.
+                </p>
+              </div>
+
+              <!-- Internal Divider & Audit Table (no nested box borders, pure divider rows) -->
+              <div class="feature-lead-divider">
+                <span>TRANSACTION AUDIT TRACE</span>
+                <span class="code-text">CRYPTOGRAPHIC HASH: 7f89b4a1</span>
+              </div>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Rule Step</th>
+                    <th>Extracted Signal</th>
+                    <th class="num-col">Confidence</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>1. Token Parser</td>
+                    <td class="code-text">Extracted invoice index "084" from raw memo</td>
+                    <td class="num-col code-text">0.96</td>
+                  </tr>
+                  <tr>
+                    <td>2. Entity Cross-check</td>
+                    <td class="code-text">Payer EIN matched Meridian Media LLC</td>
+                    <td class="num-col code-text">0.99</td>
+                  </tr>
+                  <tr>
+                    <td>3. Balance Verification</td>
+                    <td class="code-text">Exact open balance settlement $18,500.00</td>
+                    <td class="num-col code-text">1.00</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Compact Feature List -->
+          <ul class="compact-feature-list">
+            <li class="compact-feature-item">
+              <span class="feature-index">CAPABILITY 01</span>
+              <h4>Lump-sum multi-invoice allocation</h4>
+              <p>When an enterprise client consolidates three overdue milestone invoices into a single wire, Ledgerly decomposes the remittance schedule and clears all open balances in chronological order.</p>
+            </li>
+            <li class="compact-feature-item">
+              <span class="feature-index">CAPABILITY 02</span>
+              <h4>Direct sync to QuickBooks & Xero</h4>
+              <p>Reconciled payments automatically update your primary accounting general ledger. Every record includes the raw bank transaction ID and timestamp for audit verification.</p>
+            </li>
+            <li class="compact-feature-item">
+              <span class="feature-index">CAPABILITY 03</span>
+              <h4>Overdue notice suppression</h4>
+              <p>Eliminate awkward dunning emails sent to clients who already wired their balance. Ledgerly silences scheduled reminders the moment funds appear in your clearing account.</p>
+            </li>
+            <li class="compact-feature-item">
+              <span class="feature-index">CAPABILITY 04</span>
+              <h4>Virtual routing per client</h4>
+              <p>Generate unique virtual account numbers for recurring retainer clients. Incoming ACH and wires route directly to their specific client ledger without parsing guesswork.</p>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pricing Section (3 Plans) -->
+    <section id="pricing">
+      <div class="page-wrap">
+        <div class="section-header">
+          <span class="tag-label">Transparent Rates</span>
+          <h2>Flat monthly pricing with zero processing cuts</h2>
+        </div>
+
+        <div class="pricing-grid">
+          <!-- Plan 1 -->
+          <div class="pricing-card">
+            <div>
+              <div class="plan-header">
+                <h3>Starter Studio</h3>
+                <div class="plan-price-wrap">
+                  <span class="price-amount">$49</span>
+                  <span class="price-period">/ month billed monthly</span>
+                </div>
+              </div>
+              <p>Built for small boutique studios handling up to 25 invoices per billing cycle.</p>
+              <ul class="plan-specs">
+                <li class="plan-spec-item"><span class="spec-icon">✓</span> Up to 25 matched invoices / mo</li>
+                <li class="plan-spec-item"><span class="spec-icon">✓</span> 2 connected bank accounts</li>
+                <li class="plan-spec-item"><span class="spec-icon">✓</span> Automated ACH and Wire matching</li>
+                <li class="plan-spec-item"><span class="spec-icon">✓</span> Daily general ledger sync</li>
+                <li class="plan-spec-item"><span class="spec-icon">✓</span> 2 team member seats</li>
+              </ul>
+            </div>
+            <a class="btn btn-secondary" href="#signup">Select Starter plan</a>
+          </div>
+
+          <!-- Plan 2 (Highlighted Standard) -->
+          <div class="pricing-card highlight">
+            <div>
+              <span class="pricing-card-badge">STANDARD FOR AGENCIES</span>
+              <div class="plan-header">
+                <h3>Growing Studio</h3>
+                <div class="plan-price-wrap">
+                  <span class="price-amount">$99</span>
+                  <span class="price-period">/ month billed monthly</span>
+                </div>
+              </div>
+              <p>Designed for active client service firms with multi-stage retainer contracts.</p>
+              <ul class="plan-specs">
+                <li class="plan-spec-item"><span class="spec-icon">✓</span> Up to 150 matched invoices / mo</li>
+                <li class="plan-spec-item"><span class="spec-icon">✓</span> Unlimited connected bank feeds</li>
+                <li class="plan-spec-item"><span class="spec-icon">✓</span> Lump-sum multi-invoice split engine</li>
+                <li class="plan-spec-item"><span class="spec-icon">✓</span> Real-time Slack payment notifications</li>
+                <li class="plan-spec-item"><span class="spec-icon">✓</span> 5 team member seats</li>
+                <li class="plan-spec-item"><span class="spec-icon">✓</span> Two-way QuickBooks & Xero sync</li>
+              </ul>
+            </div>
+            <a class="btn btn-primary" href="#signup">Select Studio plan</a>
+          </div>
+
+          <!-- Plan 3 -->
+          <div class="pricing-card">
+            <div>
+              <div class="plan-header">
+                <h3>Scale Partner</h3>
+                <div class="plan-price-wrap">
+                  <span class="price-amount">$199</span>
+                  <span class="price-period">/ month billed monthly</span>
+                </div>
+              </div>
+              <p>For established agencies managing high invoice volume across multiple banking entities.</p>
+              <ul class="plan-specs">
+                <li class="plan-spec-item"><span class="spec-icon">✓</span> Unlimited matched invoices / mo</li>
+                <li class="plan-spec-item"><span class="spec-icon">✓</span> Dedicated virtual routing accounts</li>
+                <li class="plan-spec-item"><span class="spec-icon">✓</span> Multi-currency matching (USD, EUR, GBP)</li>
+                <li class="plan-spec-item"><span class="spec-icon">✓</span> Custom webhook endpoints & REST API</li>
+                <li class="plan-spec-item"><span class="spec-icon">✓</span> Unlimited team seats with roles</li>
+                <li class="plan-spec-item"><span class="spec-icon">✓</span> 99.99% uptime SLA</li>
+              </ul>
+            </div>
+            <a class="btn btn-secondary" href="#signup">Select Agency plan</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section id="testimonials">
+      <div class="page-wrap">
+        <div class="section-header">
+          <span class="tag-label">Verified Experience</span>
+          <h2>Field reports from agency finance leads</h2>
+        </div>
+
+        <div class="testimonials-grid">
+          <figure class="testimonial-card">
+            <blockquote>
+              "We run a 14-person design studio. Before Ledgerly, our operations director spent Friday afternoons cross-referencing truncated wire memos from enterprise procurement systems. In August, Ledgerly auto-reconciled 42 incoming transfers totalling $194,000 without a single manual adjustment."
+            </blockquote>
+            <figcaption>
+              <span class="author-name">Marcus Vance</span>
+              <span class="author-role">Managing Partner, Studio Meridian</span>
+            </figcaption>
+          </figure>
+
+          <figure class="testimonial-card">
+            <blockquote>
+              "Enterprise clients frequently send one lump-sum payment covering two project retainers and an expense reimbursement with zero remittance memo. Ledgerly’s split-allocation engine correctly allocated all 6 milestone balances within two seconds of bank deposit."
+            </blockquote>
+            <figcaption>
+              <span class="author-name">Priya Raman</span>
+              <span class="author-role">Director of Operations, Kite & Dart Creative</span>
+            </figcaption>
+          </figure>
+
+          <figure class="testimonial-card">
+            <blockquote>
+              "The most immediate benefit was stopping phantom payment reminders. We used to look disorganized when automated dunning emails reached clients who had wired funds earlier that morning. Ledgerly settles invoices immediately upon bank clearing."
+            </blockquote>
+            <figcaption>
+              <span class="author-name">Elena Rostova</span>
+              <span class="author-role">Principal, Hexagon Digital Group</span>
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- Signup Form Section -->
+    <section id="signup">
+      <div class="page-wrap">
+        <div class="signup-wrap">
+          <div>
+            <span class="tag-label">Immediate Setup</span>
+            <h2 style="margin-bottom: 16px;">Create your agency workspace</h2>
+            <p class="body-long" style="margin-bottom: 24px;">
+              Connect your first bank account and reconcile pending client invoices in less than five minutes. 14 days free with full access to all features.
+            </p>
+            <ul class="signup-perks">
+              <li class="signup-perk-item">
+                <span class="perk-bullet">→</span>
+                <div>
+                  <strong>Read-only banking credentials.</strong>
+                  <p>Ledgerly connects via Plaid Exchange and cannot initiate transfers or move funds.</p>
+                </div>
+              </li>
+              <li class="signup-perk-item">
+                <span class="perk-bullet">→</span>
+                <div>
+                  <strong>No credit card required.</strong>
+                  <p>Evaluate reconciliation accuracy against your historical deposits before entering billing details.</p>
+                </div>
+              </li>
+              <li class="signup-perk-item">
+                <span class="perk-bullet">→</span>
+                <div>
+                  <strong>Automated general ledger export.</strong>
+                  <p>Sync matched entries to QuickBooks Online or Xero with one-click credential authorization.</p>
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Signup Form -->
+          <div class="form-panel">
+            <form action="#signup" method="post" class="form-grid">
+              <div class="field-group">
+                <label for="agency-name">Agency Name</label>
+                <input id="agency-name" name="agency_name" type="text" required placeholder="Northwind Interactive">
+              </div>
+
+              <div class="field-group">
+                <label for="work-email">Work Email</label>
+                <input id="work-email" name="work_email" type="email" required placeholder="operations@northwind.co">
+              </div>
+
+              <div class="field-group">
+                <label for="bank-feed">Primary Bank Feed</label>
+                <select id="bank-feed" name="bank_feed" required>
+                  <option value="" disabled selected>Select primary bank account</option>
+                  <option value="mercury">Mercury Commercial Banking</option>
+                  <option value="chase">Chase Commercial Banking</option>
+                  <option value="brex">Brex Cash Management</option>
+                  <option value="svb">Silicon Valley Bank</option>
+                  <option value="bofa">Bank of America Business</option>
+                  <option value="other">Other institution via Plaid</option>
+                </select>
+              </div>
+
+              <div class="field-group">
+                <label for="invoiced-volume">Monthly Invoiced Volume</label>
+                <select id="invoiced-volume" name="invoiced_volume" required>
+                  <option value="" disabled selected>Select approximate monthly volume</option>
+                  <option value="under25k">Under $25,000 / month</option>
+                  <option value="25k-100k">$25,000 – $100,000 / month</option>
+                  <option value="100k-250k">$100,000 – $250,000 / month</option>
+                  <option value="over250k">Over $250,000 / month</option>
+                </select>
+              </div>
+
+              <div class="field-group">
+                <label for="password">Account Password</label>
+                <input id="password" name="password" type="password" required placeholder="At least 12 characters">
+              </div>
+
+              <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 8px;">Create agency workspace</button>
+              <div class="mono-meta" style="text-align: center; margin-top: 8px;">
+                256-BIT TLS ENCRYPTION · SOC-2 TYPE II AUDITED
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="page-wrap">
+      <div class="footer-bar">
+        <div class="brand">
+          <span class="brand-title">LEDGERLY</span>
+          <span class="mono-meta">© 2026 LEDGERLY TECHNOLOGIES INC.</span>
+        </div>
+        <div class="footer-links">
+          <a class="footer-link" href="#features">Platform architecture</a>
+          <a class="footer-link" href="#pricing">Subscription plans</a>
+          <a class="footer-link" href="#testimonials">Customer reports</a>
+          <a class="footer-link" href="#signup">Security & compliance</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const telemetryRecords = [
+      {
+        record: 'INV-2026-084',
+        ein: 'XX-XXX8921 (Meridian Media Group)',
+        latency: '1.8 seconds',
+        sync: 'QuickBooks Online (TX-99042)'
+      },
+      {
+        record: 'INV-2026-081',
+        ein: 'XX-XXX4109 (Kiln Studios Ltd)',
+        latency: '2.1 seconds',
+        sync: 'Xero Ledger (REC-30119)'
+      },
+      {
+        record: 'INV-2026-079',
+        ein: 'XX-XXX7780 (Vector Brand Partners)',
+        latency: '1.2 seconds',
+        sync: 'QuickBooks Online (TX-99018)'
+      },
+      {
+        record: 'INV-2026-077',
+        ein: 'XX-XXX3312 (Threshold Interactive)',
+        latency: '3.4 seconds (Multi-split queued)',
+        sync: 'Pending manual milestone signoff'
+      }
+    ];
+
+    function selectRow(index) {
+      for (let i = 0; i < 4; i++) {
+        const row = document.getElementById('row-' + i);
+        if (row) {
+          if (i === index) {
+            row.classList.add('active-row');
+          } else {
+            row.classList.remove('active-row');
+          }
+        }
+      }
+      const item = telemetryRecords[index];
+      if (item) {
+        document.getElementById('insp-record').textContent = item.record;
+        document.getElementById('insp-ein').textContent = item.ein;
+        document.getElementById('insp-latency').textContent = item.latency;
+        document.getElementById('insp-sync').textContent = item.sync;
+      }
+    }
+
+    function filterFeed(kind) {
+      document.getElementById('filter-all').classList.remove('active');
+      document.getElementById('filter-resolved').classList.remove('active');
+      document.getElementById('filter-split').classList.remove('active');
+
+      const filterBtn = document.getElementById('filter-' + kind);
+      if (filterBtn) filterBtn.classList.add('active');
+
+      const rows = [
+        { el: document.getElementById('row-0'), type: 'resolved' },
+        { el: document.getElementById('row-1'), type: 'resolved' },
+        { el: document.getElementById('row-2'), type: 'resolved' },
+        { el: document.getElementById('row-3'), type: 'split' }
+      ];
+
+      rows.forEach(r => {
+        if (!r.el) return;
+        if (kind === 'all' || r.type === kind) {
+          r.el.style.display = '';
+        } else {
+          r.el.style.display = 'none';
+        }
+      });
+    }
+  </script>
+</body>
+</html>

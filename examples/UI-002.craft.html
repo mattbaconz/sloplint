@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Features</title>
+<style>
+  body { margin: 0; font-family: system-ui, sans-serif; color: #1f2937; }
+  .features { display: grid; grid-template-columns: 3fr 2fr; gap: 40px; padding: 48px; align-items: start; }
+  .shot { display: grid; gap: 6px; margin: 16px 0 0; padding: 16px; background: #f3f4f6; }
+  .shot span { display: block; height: 10px; background: #9ca3af; }
+  .shot span:nth-child(2) { width: 70%; }
+  .shot span:nth-child(3) { width: 45%; background: #0e7490; }
+  .more { margin: 0; padding: 0; list-style: none; display: grid; gap: 12px; }
+</style>
+</head>
+<body>
+  <section class="features">
+    <article>
+      <h2>Edits land on every device in under a second</h2>
+      <p>Including the ones made offline on a train: they merge when you reconnect, and conflicts show side by side.</p>
+      <div class="shot" role="img" aria-label="Three devices showing the same edit timeline"><span></span><span></span><span></span></div>
+    </article>
+    <ul class="more">
+      <li><strong>Audit log.</strong> Every change, who made it, when.</li>
+      <li><strong>Roles.</strong> Viewer, editor and owner per workspace.</li>
+      <li><strong>Exports.</strong> CSV and JSON on demand.</li>
+    </ul>
+  </section>
+</body>
+</html>
