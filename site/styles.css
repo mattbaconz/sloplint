@@ -348,7 +348,8 @@ kbd {
   gap: 6px;
 }
 
-.field input {
+.field input,
+.field select {
   min-height: 40px;
   width: 100%;
   padding: 0 12px;
@@ -1150,6 +1151,47 @@ main > section {
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: #ffffff;
+}
+
+/* Style generator */
+
+.style-tools {
+  display: grid;
+  gap: 16px;
+  align-items: end;
+}
+
+@media (min-width: 960px) {
+  .style-tools {
+    grid-template-columns: minmax(0, 2fr) repeat(3, minmax(0, 1fr)) auto;
+  }
+}
+
+.style-summary {
+  margin: 24px 0 12px;
+  color: var(--ink-2);
+}
+
+.style-summary strong {
+  color: var(--ink);
+}
+
+.specimen {
+  display: block;
+  width: 100%;
+  height: min(720px, 80vh);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.style-command {
+  max-width: none;
+  margin-top: 16px;
+}
+
+.style-command code {
+  overflow-wrap: anywhere;
 }
 
 /* Presets */

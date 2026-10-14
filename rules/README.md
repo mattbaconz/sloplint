@@ -12,7 +12,7 @@ Five master briefs that tell coding agents what generated code gets wrong and wh
 
 ## Using the briefs with agents
 
-**One agent.** Run `npx @sloplint/cli init`. It writes `DESIGN.md` and syncs a compact version of every rule into `CLAUDE.md`, `GEMINI.md`, `AGENTS.md` and `.cursor/rules/sloplint.mdc`. That is usually enough.
+**One agent.** Run `npx @sloplint/cli init --brief "<one line about the product>"`. It generates a `DESIGN.md` for the project and syncs a compact version of every rule into `CLAUDE.md`, `GEMINI.md`, `AGENTS.md` and `.cursor/rules/sloplint.mdc`. With Claude Code, add `--hooks`: every file the agent writes is linted on the spot and findings come back to it in the same turn, which is cheaper than a full check at the end. That is usually enough.
 
 **Several specialised agents.** Give each agent the brief for its lane and the shared `DESIGN.md`:
 
@@ -22,7 +22,7 @@ Five master briefs that tell coding agents what generated code gets wrong and wh
 - Video agent (Remotion, GSAP): `rules/motion.md` + `rules/ui.md` + `DESIGN.md`
 - Reviewer agent: every brief, plus the instruction to run `npx @sloplint/cli check . --format json` and treat every finding as a review comment.
 
-**Gate the loop.** Whatever the setup, the last step of every task is `npx @sloplint/cli check . --max-score 0`. The agent is not done until it exits 0.
+**Gate the loop.** Whatever the setup, the last step of every task is `npx @sloplint/cli check . --max-score 0`. The agent is not done until it exits 0. In a large repository, `check --changed` limits the run to the files the task touched.
 
 ## Visual verification
 

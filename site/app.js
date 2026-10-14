@@ -1,7 +1,8 @@
-// Docs site: preset switcher, live grader and rule catalog.
-// The grader imports the exact engine the CLI runs, straight from ../src.
+// Docs site: preset switcher, live grader, style generator and rule catalog.
+// The grader and the generator import the exact code the CLI runs, straight from ../src.
 
 import { RULES, DOMAINS, lint, score, fixSource, diffLines, pairRows } from '../src/engine.mjs';
+import { generateStyle, specimenHtml, parseDesign, MOODS } from '../src/design.mjs';
 
 const PRESET_KEY = 'sloplint:preset';
 
@@ -203,6 +204,9 @@ const undoButton = $('#undo-fixes');
 let autoPath = true;
 let undoText = null;
 let timer = 0;
+// The samples sit next to examples/samples/DESIGN.md, so they are graded against it as the
+// CLI grades them. Pasted code has no design system and skips the token rules.
+let design = null;
 
 // Picks a virtual file name so the right language and path rules apply to pasted code.
 function guessPath(text) {
@@ -246,7 +250,7 @@ function renderReport(text, result, s) {
   $('#score-fill').style.width = `${s.score}%`;
   $('#score-meta').textContent = empty
     ? 'Paste code to get a score.'
-    : `${plural(s.errors, 'error')} · ${plural(s.warnings, 'warning')} · ${plural(s.lines, 'line')} as ${fileName.value.trim()}`;
+    : `${plural(s.errors, 'error')} · ${plural(s.warnings, 'warning')} · ${plural(s.lines, 'line')} as ${fileName.value.trim()}${design ? ', against examples/samples/DESIGN.md' : ''}`;
 
   $('#domain-counts').replaceChildren(
     ...Object.keys(DOMAINS).map((d) => h('div', { title: DOMAINS[d] }, h('dt', {}, d), h('dd', { class: s.byDomain[d] ? null : 'is-zero' }, String(s.byDomain[d])))),
@@ -279,7 +283,7 @@ function grade() {
   const path = fileName.value.trim() || 'src/index.ts';
   let result;
   try {
-    result = lint(text, path);
+    result = lint(text, path, { design });
   } catch (error) {
     $('#diagnostics').replaceChildren(h('li', { class: 'empty', role: 'alert' }, `${error.message}. The rest of the page still works; please open an issue with this snippet.`));
     return;
@@ -317,6 +321,7 @@ async function loadSample(key) {
   for (const chip of document.querySelectorAll('[data-sample]')) chip.setAttribute('aria-pressed', String(chip.dataset.sample === key));
   try {
     source.value = await load(path);
+    design = parseDesign(await load('../examples/samples/DESIGN.md'));
   } catch (error) {
     $('#diagnostics').replaceChildren(h('li', {}, loadFailure(path, error)));
     return;
@@ -343,6 +348,7 @@ function initGrader() {
   });
   source.addEventListener('paste', () => {
     autoPath = true;
+    design = null;
   });
   fileName.addEventListener('input', () => {
     autoPath = !fileName.value.trim();
@@ -372,6 +378,44 @@ function initGrader() {
 
   grade();
   loadSample('dashboard');
+}
+
+// ─── Style generator ─────────────────────────────────────────────────────────
+
+const SEED_WORDS = ['harbor', 'quarry', 'meridian', 'lantern', 'atlas', 'juniper', 'cobalt', 'tundra', 'saffron', 'pylon', 'ember', 'basalt', 'willow', 'heron', 'garnet', 'fjord'];
+
+function renderStyle() {
+  const style = generateStyle({
+    seed: $('#style-seed').value.trim() || 'sloplint',
+    brief: $('#style-brief').value.trim(),
+    mood: $('#style-mood').value || undefined,
+    mode: $('#style-mode').value || undefined,
+  });
+  const { display, text, mono } = style.fonts;
+  $('#style-summary').replaceChildren(
+    h('strong', {}, style.name),
+    ` · ${style.mood}, ${style.mode} · ${display.family}, ${text.family} and ${mono.family} · ${style.layout.name} layout`,
+  );
+  $('#style-specimen').srcdoc = specimenHtml(style);
+  $('#style-command').textContent = `npx @sloplint/cli init --seed "${style.seed}" --mood ${style.mood} --mode ${style.mode}`;
+}
+
+function initStyles() {
+  $('#style-mood').append(...MOODS.map((m) => h('option', { value: m }, m[0].toUpperCase() + m.slice(1))));
+  let wait = 0;
+  for (const input of ['#style-brief', '#style-seed']) {
+    $(input).addEventListener('input', () => {
+      clearTimeout(wait);
+      wait = setTimeout(renderStyle, 150);
+    });
+  }
+  for (const select of ['#style-mood', '#style-mode']) $(select).addEventListener('change', renderStyle);
+  $('#style-shuffle').addEventListener('click', () => {
+    const word = () => SEED_WORDS[Math.floor(Math.random() * SEED_WORDS.length)];
+    $('#style-seed').value = `${word()}-${word()}`;
+    renderStyle();
+  });
+  renderStyle();
 }
 
 // ─── Rule catalog ────────────────────────────────────────────────────────────
@@ -517,4 +561,5 @@ initCopy();
 initFacts();
 initHero();
 initGrader();
+initStyles();
 initCatalog();

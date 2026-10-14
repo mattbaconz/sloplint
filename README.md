@@ -2,11 +2,12 @@
 
 A zero-dependency linter for the patterns AI coding assistants leave behind: purple gradients and icon-circle grids, swallowed errors and N+1 queries, fallback secrets and wildcard CORS, filler copy, tests that cannot fail, and launch videos where everything fades in to the same whoosh.
 
-sloplint ships three things:
+sloplint ships four things:
 
-- **A CLI** that reports 36 deterministic rules with compiler-style diagnostics, a fix for every finding, autofixes where the fix is mechanical, and a weighted Slop Score from `0/100 Studio Grade` to `100/100 Critical Slop`.
-- **A brief pack** for coding agents: design presets, master briefs per discipline, rule blocks synced into `CLAUDE.md`, `GEMINI.md`, `AGENTS.md` and Cursor rules, and a Playwright suite that audits the rendered page.
-- **A docs site** with the rule catalog, worked examples, a live preset switcher and an in-browser grader that runs the same engine as the CLI.
+- **A CLI** that reports 41 deterministic rules with compiler-style diagnostics, a fix for every finding, autofixes where the fix is mechanical, and a weighted Slop Score from `0/100 Studio Grade` to `100/100 Critical Slop`.
+- **A design-system generator** that gives every project its own `DESIGN.md`: a typeface trio, a contrast-checked palette, shape, motion and a layout archetype picked from a seed and a one-line brief, so agents stop converging on the same look. Two rules then hold the code to it.
+- **A brief pack** for coding agents: master briefs per discipline, rule blocks synced into `CLAUDE.md`, `GEMINI.md`, `AGENTS.md` and Cursor rules, Claude Code hooks that lint every file as it is written, and a Playwright suite that audits the rendered page.
+- **A docs site** with the rule catalog, worked examples, a style generator and an in-browser grader that runs the same engine as the CLI.
 
 ```text
 $ npx @sloplint/cli check examples/samples
@@ -20,8 +21,8 @@ error[SEC-001]: JWT_SECRET silently falls back to a hard-coded value
   = autofix available (--fix)
 
 Slop Score  ████████████████████████  100/100 Critical Slop
-            7 files · 311 lines · 10 errors · 71 warnings · 17 autofixable
-            UI 15  SEC 9  BE 14  COPY 25  TEST 9  MOTION 9
+            8 files · 411 lines · 11 errors · 93 warnings · 18 autofixable
+            UI 36  SEC 9  BE 14  COPY 27  TEST 9  MOTION 9
 ```
 
 ## Quick start
@@ -33,7 +34,7 @@ npx @sloplint/cli check .
 ```
 
 ```bash
-npx @sloplint/cli init --preset swiss
+npx @sloplint/cli init --brief "Invoicing for freelance studios" --hooks
 ```
 
 ```bash
@@ -76,7 +77,8 @@ Lints files and directories (default `.`) and prints one diagnostic per finding,
 | Flag | Effect |
 | --- | --- |
 | `--fix` | Apply safe autofixes in place, then report what remains |
-| `--format json` | Machine-readable report: score, counts and every diagnostic |
+| `--changed` | Only files changed since the last commit: staged, unstaged and untracked (needs git) |
+| `--format <f>` | `pretty` (default in a terminal), `compact` (default when piped: one line per finding, each fix once, then the score) or `json` |
 | `--max-score <n>` | Exit 1 when the score is above `n`; use `0` as a CI gate |
 | `--no-color` | Plain output; `NO_COLOR` is honoured too |
 
@@ -84,15 +86,30 @@ Exit codes: `0` clean or warnings only, `1` errors or score above `--max-score`,
 
 Scanned extensions: `.js .mjs .cjs .ts .mts .cts .jsx .tsx .html .htm .vue .svelte .astro .css .scss .less .py .md .mdx`. `node_modules`, build output, minified files, `.gitignore` entries and `.sloplintignore` entries are skipped.
 
-### `sloplint init [--preset <name>]`
+### `sloplint init [dir]`
 
-Writes `DESIGN.md` from one of four presets and syncs a compact copy of every rule into the files agents read:
+Writes `DESIGN.md` and syncs a compact rule block into the files agents read:
 
-- `DESIGN.md`: tokens, type, color, spacing, motion, component and avoid lists for the chosen preset
-- `CLAUDE.md`, `GEMINI.md`, `AGENTS.md`: an `sloplint` block between markers; your own content is preserved
-- `.cursor/rules/sloplint.mdc`: the same rules as an always-applied Cursor rule
+- `DESIGN.md`: a design system generated for this project, with tokens (`:root` custom properties and a Google Fonts import), type, color, layout, components, motion and an avoid list
+- `CLAUDE.md`, `GEMINI.md`, `AGENTS.md`: a `sloplint` block between markers, one line per rule; your own content is preserved
+- `.cursor/rules/sloplint.mdc`: the same block as an always-applied Cursor rule
+- `.claude/settings.json`, with `--hooks`: the Claude Code hooks described under [`sloplint hook`](#sloplint-hook); other settings are kept
 
-Re-running is idempotent. Switching presets rewrites only what sloplint owns; a hand-written `DESIGN.md` is left alone unless you pass `--force`.
+The design system comes from a seed (the package name by default) and a one-line brief (the package description by default). Words in the brief pick one of seven moods: editorial, technical, warm, brutalist, luxe, playful or institutional. The seed then picks a typeface trio from that mood's curated Google Fonts pairings, an OKLCH palette solved for WCAG contrast (body text at least 12:1, secondary text, accent text and status colors at least 4.5:1) that stays out of the indigo-to-fuchsia band, a radius and shadow language, a layout archetype and two signature moves. The same seed and brief always give the same system.
+
+| Flag | Effect |
+| --- | --- |
+| `--seed <text>` | Generate from this seed instead of the package name |
+| `--brief <text>` | One line about the product; its words steer the mood |
+| `--mood <name>` | Force a mood |
+| `--mode light\|dark` | Force light or dark |
+| `--preset <name>` | Use a curated preset instead of generating a system |
+| `--hooks` | Add the Claude Code hooks |
+| `--force` | Replace a `DESIGN.md` that sloplint did not write |
+
+Re-running keeps the system recorded in `DESIGN.md`, so it is idempotent. A hand-written `DESIGN.md` is left alone unless you pass `--force`; the agent files then point at it. The rule block lists only what the project uses: motion-video rules appear when `remotion`, `@remotion/*` or `gsap` is a dependency, and UI rules are dropped for a project with dependencies but no front end.
+
+The four curated presets:
 
 | Preset | Alias | Character |
 | --- | --- | --- |
@@ -103,9 +120,21 @@ Re-running is idempotent. Switching presets rewrites only what sloplint owns; a 
 
 All four define the same 17 tokens, so components written against one preset work under the others.
 
+### `sloplint style`
+
+Previews the system `init` would generate and writes nothing else. It takes `--seed`, `--brief`, `--mood` and `--mode` as `init` does, plus `--json` for the whole system as data and `--html <file>` for a specimen page with swatches, contrast ratios, the type scale and components.
+
+```bash
+npx @sloplint/cli style --brief "Recipes from a family bakery" --html design.html
+```
+
 ### `sloplint explain [RULE]`
 
 Without an argument, lists every rule. With one, prints the rationale, the fix and a side-by-side `✖ SLOP` / `✔ CRAFT` diff from the worked examples in `examples/`.
+
+### `sloplint hook`
+
+The command behind the Claude Code hooks that `init --hooks` installs. After every `Write`, `Edit` or `MultiEdit` it lints the file just written; when the agent stops, it checks the files changed since the last commit. Findings reach the agent on stderr with exit code 2, in the compact format, so they are fixed in the same turn. Unreadable input never blocks, and the second stop in a row always succeeds.
 
 ## Rules
 
@@ -120,6 +149,9 @@ Without an argument, lists every rule. With one, prints the rationale, the fix a
 | UI-007 | Transition on every property | warn |
 | UI-008 | Spinner swaps out content and shifts layout | warn |
 | UI-009 | Gradient-filled headline text | warn |
+| UI-010 | Form shows success without sending anything | error |
+| UI-011 | Color outside the DESIGN.md palette | warn |
+| UI-012 | Typeface outside the DESIGN.md type system | warn |
 | SEC-001 | Secret falls back to a hard-coded value | error |
 | SEC-002 | CORS allows every origin | error |
 | SEC-003 | SQL assembled from interpolated strings | error |
@@ -137,6 +169,8 @@ Without an argument, lists every rule. With one, prints the rationale, the fix a
 | COPY-002 | Error message with no cause and no next step | warn |
 | COPY-003 | Button or link label does not name the action | warn |
 | COPY-004 | Template placeholder content shipped as real copy | warn |
+| COPY-005 | Social proof or performance claim with no source | warn |
+| COPY-006 | Emoji used as decoration in headings, buttons and links | warn |
 | TEST-001 | Test asserts only mocks, constants, or nothing | warn |
 | TEST-002 | Fixed sleep in a test | warn |
 | TEST-003 | Emoji-decorated README headings and bullets | warn |
@@ -147,6 +181,8 @@ Without an argument, lists every rule. With one, prints the rationale, the fix a
 | MOTION-004 | Every scene has the same length | warn |
 | MOTION-005 | The same sound effect on every cut | warn |
 | MOTION-006 | Layered audio left at full volume | warn |
+
+`UI-011` and `UI-012` run only when a `DESIGN.md` with a `:root` token block sits in the file's directory or above it, up to the repository root. They flag color literals, Tailwind palette classes and typefaces the design system does not define, and name the nearest token.
 
 `MOTION-*` rules apply to videos written as code: files that import `remotion`, `@remotion/*` or `gsap`. They read the composition source; they do not analyse rendered video or audio.
 
@@ -218,7 +254,7 @@ const { score: value, grade } = score([result]);
 const { text, applied } = fixSource(source, 'src/app/page.tsx');
 ```
 
-The path matters: it decides the language, and whether the file is a test, a server module or a README.
+The path matters: it decides the language, and whether the file is a test, a server module or a README. Pass `{ design: parseDesign(designMarkdown) }` as the third argument to run the design-token rules; `generateStyle`, `designDoc`, `specimenHtml` and `parseDesign` come from `@sloplint/cli/design`.
 
 ## Docs site
 
@@ -242,7 +278,7 @@ npm run check
 npm run verify:dom
 ```
 
-`npm test` runs the rule, CLI, init, scoring and dogfood suites with `node:test`. `npm run check` lints this repository and fails above 0. `npm run verify:dom` serves the site and audits it in every preset with Playwright.
+`npm test` runs the rule, CLI, init, design, scoring and dogfood suites with `node:test`. `npm run check` lints this repository and fails above 0. `npm run verify:dom` serves the site and audits it in every preset with Playwright. `npm run check:fonts` asks Google Fonts for every curated family and weight; it needs the network, so it is not part of `npm test`.
 
 The repository is held to its own standard: `sloplint check .` scores `0/100 Studio Grade`, and a test fails if it does not.
 

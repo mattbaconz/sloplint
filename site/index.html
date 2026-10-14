@@ -27,6 +27,7 @@
     <a class="wordmark" href="#top" aria-label="sloplint home"><span class="mark" aria-hidden="true"></span>sloplint</a>
     <nav class="nav" aria-label="Sections">
       <a href="#grader">Grader</a>
+      <a href="#styles">Styles</a>
       <a href="#rules">Rules</a>
       <a href="#presets">Presets</a>
       <a href="#cli">CLI</a>
@@ -45,9 +46,9 @@
 <main id="main">
   <section class="hero wrap" id="top">
     <div class="hero-copy">
-      <p class="kicker">Linter · agent briefs · live grader</p>
+      <p class="kicker">Linter · design systems · agent briefs</p>
       <h1>Find the tells of generated code before your users do.</h1>
-      <p class="lede">sloplint is a zero-dependency linter for the patterns AI assistants leave behind: purple gradients, swallowed errors, fallback secrets, mock data, filler copy and tests that assert nothing. Every rule is deterministic and ships with a fix and a worked example.</p>
+      <p class="lede">sloplint is a zero-dependency linter for the patterns AI assistants leave behind: purple gradients, swallowed errors, fallback secrets, mock data, invented proof and tests that assert nothing. It also gives each project its own design system, so agents stop converging on one look.</p>
       <div class="command">
         <code id="install-command">npx @sloplint/cli check .</code>
         <button type="button" class="btn btn-quiet" data-copy="install-command">Copy command</button>
@@ -119,6 +120,40 @@
     </div>
   </section>
 
+  <section class="wrap" id="styles" aria-labelledby="styles-title">
+    <header class="section-head">
+      <h2 id="styles-title">A design system for every project</h2>
+      <p><code>sloplint init</code> writes a <code>DESIGN.md</code> generated from your package name and a one-line brief: a typeface trio, a palette solved for contrast, shape, motion and a layout to follow. The same input always gives the same system, and two rules keep the code on it.</p>
+    </header>
+
+    <div class="style-tools">
+      <label class="field">
+        <span class="label">One line about the product</span>
+        <input id="style-brief" type="text" spellcheck="false" autocomplete="off" value="Invoicing for freelance studios">
+      </label>
+      <label class="field">
+        <span class="label">Seed</span>
+        <input id="style-seed" type="text" spellcheck="false" autocomplete="off" value="harbor-invoices">
+      </label>
+      <label class="field">
+        <span class="label">Mood</span>
+        <select id="style-mood"><option value="">From the brief</option></select>
+      </label>
+      <label class="field">
+        <span class="label">Mode</span>
+        <select id="style-mode"><option value="">From the seed</option><option value="light">Light</option><option value="dark">Dark</option></select>
+      </label>
+      <button type="button" class="btn" id="style-shuffle">Try another seed</button>
+    </div>
+
+    <p class="style-summary" id="style-summary" aria-live="polite"></p>
+    <iframe class="specimen" id="style-specimen" title="Specimen of the generated design system" sandbox loading="lazy"></iframe>
+    <div class="command style-command">
+      <code id="style-command">npx @sloplint/cli init</code>
+      <button type="button" class="btn btn-quiet" data-copy="style-command">Copy command</button>
+    </div>
+  </section>
+
   <section class="wrap" id="rules" aria-labelledby="rules-title">
     <header class="section-head">
       <h2 id="rules-title">Rule catalog</h2>
@@ -142,8 +177,8 @@
   <section class="band" id="presets" aria-labelledby="presets-title">
     <div class="wrap">
       <header class="section-head">
-        <h2 id="presets-title">Four studio presets</h2>
-        <p><code>sloplint init</code> writes one of these to <code>DESIGN.md</code>, so agents pick tokens from a system instead of reaching for defaults. Each card below renders in its own preset; the switcher in the header restyles this whole page.</p>
+        <h2 id="presets-title">Four curated presets</h2>
+        <p>Prefer a hand-tuned system? <code>sloplint init --preset</code> writes one of these to <code>DESIGN.md</code> instead. Each card below renders in its own preset; the switcher in the header restyles this whole page.</p>
       </header>
       <div class="preset-grid" id="preset-grid"></div>
     </div>
@@ -158,11 +193,15 @@
       <dl class="commands">
         <div>
           <dt><code>sloplint check [paths…]</code></dt>
-          <dd>Lints JS, TS, JSX, HTML, Vue, Svelte, CSS, Python and Markdown. Prints compiler-style frames with a fix for each finding and a weighted Slop Score. <code>--fix</code> applies safe autofixes, <code>--format json</code> feeds other tools, <code>--max-score 0</code> fails the build on any slop.</dd>
+          <dd>Lints JS, TS, JSX, HTML, Vue, Svelte, CSS, Python and Markdown. Prints compiler-style frames with a fix for each finding and a weighted Slop Score, or one line per finding when piped. <code>--fix</code> applies safe autofixes, <code>--changed</code> checks only what changed since the last commit, <code>--format json</code> feeds other tools, <code>--max-score 0</code> fails the build on any slop.</dd>
         </div>
         <div>
-          <dt><code>sloplint init [--preset name]</code></dt>
-          <dd>Writes <code>DESIGN.md</code> from a preset and syncs the rule list into <code>CLAUDE.md</code>, <code>GEMINI.md</code>, <code>AGENTS.md</code> and <code>.cursor/rules/sloplint.mdc</code>. Rerun it to switch presets; your own content in those files is left alone.</dd>
+          <dt><code>sloplint init [--brief text] [--hooks]</code></dt>
+          <dd>Generates <code>DESIGN.md</code> for the project and syncs the rules it needs into <code>CLAUDE.md</code>, <code>GEMINI.md</code>, <code>AGENTS.md</code> and <code>.cursor/rules/sloplint.mdc</code>. <code>--hooks</code> makes Claude Code lint every file it writes. Your own content in those files is left alone.</dd>
+        </div>
+        <div>
+          <dt><code>sloplint style [--seed text]</code></dt>
+          <dd>Previews the system <code>init</code> would generate, as text, JSON or a specimen page, without writing anything else.</dd>
         </div>
         <div>
           <dt><code>sloplint explain [RULE]</code></dt>

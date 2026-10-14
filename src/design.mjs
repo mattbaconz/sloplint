@@ -666,7 +666,13 @@ const esc = (s) => String(s).replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&
 // A standalone specimen page: swatches with contrast, the type scale and core components.
 export function specimenHtml(style) {
   const { colors: c, fonts, type } = style;
-  const swatch = ([name, hex]) => `<figure class="swatch"><div class="chip" style="background: var(--${name})"></div><figcaption><b>--${name}</b><span>${hex}</span><span>${ratio(hex, name === 'accent' || name === 'on-accent' ? (name === 'accent' ? c['on-accent'] : c.accent) : c.bg)}</span></figcaption></figure>`;
+  // Each swatch shows the pairing that matters for it: ink on a surface, a foreground on --bg.
+  const pairing = (name, hex) => {
+    if (name === 'bg' || name.startsWith('surface')) return `ink ${ratio(c.ink, hex)}`;
+    if (name === 'accent' || name === 'on-accent') return `on-accent ${ratio(c['on-accent'], c.accent)}`;
+    return `on bg ${ratio(hex, c.bg)}`;
+  };
+  const swatch = ([name, hex]) => `<figure class="swatch"><div class="chip" style="background: var(--${name})"></div><figcaption><b>--${name}</b><span>${hex}</span><span>${pairing(name, hex)}</span></figcaption></figure>`;
   const samples = [
     [5, 'Clear first.'],
     [4, 'Every figure has a source.'],
@@ -718,10 +724,6 @@ ul { margin: 12px 0 0; padding-left: 20px; max-width: var(--measure); }
   <h1>${esc(style.name)}</h1>
   <p class="lede">${esc(style.mood)}, ${esc(style.mode)}. ${esc(fonts.display.family)}, ${esc(fonts.text.family)} and ${esc(fonts.mono.family)}. Seed: ${esc(style.seed)}.</p>
   <section>
-    <h2>Color</h2>
-    <div class="swatches">${Object.entries(c).map(swatch).join('')}</div>
-  </section>
-  <section>
     <h2>Type</h2>
     <div class="scale">
       ${samples.map(([step, text]) => `<p class="display" style="font-size: var(--step-${step})">${text}</p>`).join('\n      ')}
@@ -747,6 +749,10 @@ ul { margin: 12px 0 0; padding-left: 20px; max-width: var(--measure); }
         </table>
       </div>
     </div>
+  </section>
+  <section>
+    <h2>Color</h2>
+    <div class="swatches">${Object.entries(c).map(swatch).join('')}</div>
   </section>
   <section>
     <h2>Layout</h2>
