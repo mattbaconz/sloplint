@@ -1,29 +1,42 @@
 // Command-line front end: argument parsing, file walking, terminal rendering.
 
-import { readFileSync, writeFileSync, readdirSync, statSync, existsSync } from 'node:fs';
-import { join, relative, resolve, sep } from 'node:path';
+import { spawnSync } from 'node:child_process';
+import { readFileSync, writeFileSync, readdirSync, statSync, existsSync, realpathSync } from 'node:fs';
+import { basename, dirname, join, relative, resolve, sep } from 'node:path';
 import { parseArgs } from 'node:util';
 import { RULES, DOMAINS, EXTENSIONS, findRule, lint, fixSource, score, diffLines, pairRows } from './engine.mjs';
 import { init, PRESETS } from './init.mjs';
+import { generateStyle, specimenHtml, parseDesign, contrast, MOODS } from './design.mjs';
 
 const ROOT = new URL('../', import.meta.url);
 const VERSION = JSON.parse(readFileSync(new URL('package.json', ROOT), 'utf8')).version;
 const MAX_BYTES = 1_000_000;
 const DEFAULT_IGNORES = ['node_modules/', '.git/', 'dist/', 'build/', 'out/', 'coverage/', '.next/', '.nuxt/', '.svelte-kit/', '.turbo/', 'vendor/', '*.min.js', '*.min.css', '*.bundle.js'];
 
-const HELP = `sloplint ${VERSION} - find and fix AI slop across UI, security, backend, copy and tests
+const HELP = `sloplint ${VERSION} - find and fix AI slop across UI, security, backend, copy, tests and video
 
 Usage
   sloplint check [paths...]       Lint files and print a Slop Score (default: .)
       --fix                     Apply safe autofixes in place
-      --format pretty|json      Output format (default: pretty)
+      --changed                 Only files changed since the last commit (git)
+      --format <f>              pretty, compact or json (default: pretty in a terminal, compact when piped)
       --max-score <n>           Exit 1 when the score is above n
       --no-color                Plain output (also honours NO_COLOR)
-  sloplint init [--preset <name>] Write DESIGN.md and sync agent rule files
+  sloplint init [dir]             Write DESIGN.md and sync the agent rule files
+      --seed <text>             Generate the design system from this seed (default: the package name)
+      --brief <text>            One line about the product; its words steer the mood
+      --mood <name>             Force a mood: ${MOODS.join(', ')}
+      --mode light|dark         Force light or dark
+      --preset <name>           Use a curated preset instead: ${Object.keys(PRESETS).join(', ')}
+      --hooks                   Also lint every file Claude Code writes (.claude/settings.json)
       --force                   Overwrite a DESIGN.md that sloplint did not write
+  sloplint style                  Preview the design system init would generate; writes nothing
+      --seed, --brief, --mood, --mode as for init
+      --html <file>             Also write a specimen page
+      --json                    Print the system as JSON
   sloplint explain [RULE]         Rationale and slop/craft diff for one rule, or list all
+  sloplint hook                   Claude Code hook entry point; reads the hook payload on stdin
 
-Presets: ${Object.keys(PRESETS).join(', ')}
 Exit codes: 0 clean or warnings only, 1 errors or score above --max-score, 2 bad usage`;
 
 // ─── Terminal styling ────────────────────────────────────────────────────────
@@ -37,6 +50,7 @@ function painter(enabled) {
 }
 
 const fit = (s, width) => (s.length > width ? `${s.slice(0, Math.max(0, width - 1))}…` : s.padEnd(width));
+const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
 
 function wrapText(text, width, indent = '') {
   const lines = [];
@@ -87,20 +101,31 @@ function readIgnores(dir) {
   return patterns.map(compileIgnore);
 }
 
-const lintable = (name) => EXTENSIONS.includes(name.slice(name.lastIndexOf('.') + 1).toLowerCase());
+// True when a file path (relative, forward slashes) or any directory above it is ignored.
+function ignoredPath(tests, rel) {
+  const parts = rel.split('/');
+  return parts.some((_, k) => tests.some((test) => test(parts.slice(0, k + 1).join('/'), k < parts.length - 1)));
+}
 
-// Returns [{ abs, rel }] where rel is relative to the scan root and uses forward slashes.
+const lintable = (name) => EXTENSIONS.includes(name.slice(name.lastIndexOf('.') + 1).toLowerCase());
+const toPosix = (p) => p.split(sep).join('/');
+
+// Returns [{ abs, rel }]. rel is relative to the scan root, or for a single file to the
+// working directory, so path-based heuristics (tests/, server/, README) still apply.
 function collect(target) {
   const abs = resolve(target);
   const stat = statSync(abs, { throwIfNoEntry: false });
   if (!stat) throw new UsageError(`No such file or directory: ${target}`);
-  if (stat.isFile()) return [{ abs, rel: abs.split(sep).pop() }];
+  if (stat.isFile()) {
+    const rel = toPosix(relative(process.cwd(), abs));
+    return [{ abs, rel: rel && !rel.startsWith('..') ? rel : basename(abs) }];
+  }
   const ignored = readIgnores(abs);
   const files = [];
   const walk = (dir) => {
     for (const entry of readdirSync(dir, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
       const full = join(dir, entry.name);
-      const rel = relative(abs, full).split(sep).join('/');
+      const rel = toPosix(relative(abs, full));
       const isDir = entry.isDirectory();
       if (ignored.some((test) => test(rel, isDir))) continue;
       if (isDir) walk(full);
@@ -111,31 +136,68 @@ function collect(target) {
   return files;
 }
 
+// Files changed since HEAD (staged, unstaged and untracked) under `cwd`, minus ignored paths.
+// git prints resolved long paths, so they are compared with the real path of `cwd` (Windows
+// temp directories are often 8.3 short names such as RUNNER~1).
+function changedFiles(cwd) {
+  const top = spawnSync('git', ['rev-parse', '--show-toplevel'], { cwd, encoding: 'utf8' });
+  if (top.status !== 0) return null;
+  const root = top.stdout.trim();
+  const real = realpathSync.native(cwd);
+  const status = spawnSync('git', ['status', '--porcelain', '-uall', '-z'], { cwd: root, encoding: 'utf8' });
+  const entries = status.stdout.split('\0');
+  const ignored = readIgnores(cwd);
+  const files = [];
+  for (let k = 0; k < entries.length; k++) {
+    const entry = entries[k];
+    if (!entry) continue;
+    if (/^[RC]/.test(entry)) k++; // renames and copies carry the old path as the next entry
+    if (entry[0] === 'D' || entry[1] === 'D') continue;
+    const rel = toPosix(relative(real, resolve(root, entry.slice(3))));
+    const abs = join(cwd, rel);
+    if (rel.startsWith('..') || !lintable(abs) || ignoredPath(ignored, rel)) continue;
+    if (existsSync(abs) && statSync(abs).size <= MAX_BYTES) files.push({ abs, rel });
+  }
+  return files;
+}
+
+// The nearest DESIGN.md at or above `dir`, up to the repository root, parsed for the token rules.
+const designs = new Map();
+function designFor(dir) {
+  if (designs.has(dir)) return designs.get(dir);
+  const file = join(dir, 'DESIGN.md');
+  const parent = dirname(dir);
+  let found = null;
+  if (existsSync(file)) found = parseDesign(readFileSync(file, 'utf8'));
+  else if (!existsSync(join(dir, '.git')) && parent !== dir) found = designFor(parent);
+  designs.set(dir, found);
+  return found;
+}
+
 class UsageError extends Error {}
 
 // ─── check ───────────────────────────────────────────────────────────────────
 
-function lintFiles(targets, { fix }) {
+function lintFiles(files, { fix }) {
   const results = [];
   let fixed = 0;
   let fixedFiles = 0;
-  for (const target of targets) {
-    for (const file of collect(target)) {
-      let text = readFileSync(file.abs, 'utf8');
-      if (fix) {
-        const out = fixSource(text, file.rel);
-        if (out.applied) {
-          writeFileSync(file.abs, out.text);
-          text = out.text;
-          fixed += out.applied;
-          fixedFiles++;
-        }
+  for (const file of files) {
+    let text = readFileSync(file.abs, 'utf8');
+    const options = { design: designFor(dirname(file.abs)) };
+    if (fix) {
+      const out = fixSource(text, file.rel, 5, options);
+      if (out.applied) {
+        writeFileSync(file.abs, out.text);
+        text = out.text;
+        fixed += out.applied;
+        fixedFiles++;
       }
-      const result = lint(text, file.rel);
-      result.path = relative(process.cwd(), file.abs).split(sep).join('/') || file.rel;
-      result.text = text;
-      results.push(result);
     }
+    const result = lint(text, file.rel, options);
+    result.path = toPosix(relative(process.cwd(), file.abs)) || file.rel;
+    result.text = text;
+    results.push(result);
   }
   return { results, fixed, fixedFiles };
 }
@@ -172,20 +234,32 @@ function summary(s, c, extra) {
   const filled = Math.round((s.score / 100) * cells);
   const paint = s.score === 0 ? c.green : s.score < 40 ? c.yellow : c.red;
   const bar = paint('█'.repeat(filled)) + c.gray('░'.repeat(cells - filled));
-  const counts = [
-    `${s.files} file${s.files === 1 ? '' : 's'}`,
-    `${s.lines.toLocaleString('en-US')} lines`,
-    `${s.errors} error${s.errors === 1 ? '' : 's'}`,
-    `${s.warnings} warning${s.warnings === 1 ? '' : 's'}`,
-  ];
+  const counts = [plural(s.files, 'file'), `${s.lines.toLocaleString('en-US')} lines`, plural(s.errors, 'error'), plural(s.warnings, 'warning')];
   if (s.fixable) counts.push(`${s.fixable} autofixable`);
   const domains = Object.keys(DOMAINS).map((d) => (s.byDomain[d] ? `${d} ${c.bold(s.byDomain[d])}` : c.gray(`${d} 0`))).join('  ');
   return [
     `${c.bold('Slop Score')}  ${bar}  ${paint(c.bold(`${s.score}/100`))} ${paint(s.grade)}`,
     c.dim(`            ${counts.join(' · ')}`),
     `            ${domains}`,
-    ...extra,
+    ...extra.map((e) => `            ${e}`),
   ].join('\n');
+}
+
+// One line per finding, each rule's fix once, then the score: cheap for agents and logs to read.
+export function compactReport(results, s, extra = []) {
+  const lines = [];
+  const fixes = new Map();
+  for (const r of results) {
+    for (const d of r.diagnostics) {
+      lines.push(`${r.path}:${d.line}:${d.col} ${d.severity === 'error' ? 'error' : 'warn'} ${d.rule} ${d.message}${d.fix ? ' [autofix]' : ''}`);
+      fixes.set(d.rule, findRule(d.rule).fix);
+    }
+  }
+  if (fixes.size) lines.push('', 'How to fix:', ...[...fixes].map(([id, fix]) => `  ${id} ${fix}`), '');
+  const counts = [plural(s.files, 'file'), plural(s.errors, 'error'), plural(s.warnings, 'warning')];
+  if (s.fixable) counts.push(`${s.fixable} autofixable with --fix`);
+  lines.push(`Slop Score ${s.score}/100 ${s.grade} · ${counts.join(' · ')}`, ...extra);
+  return lines.join('\n');
 }
 
 function check(argv, io) {
@@ -194,32 +268,43 @@ function check(argv, io) {
     allowPositionals: true,
     options: {
       fix: { type: 'boolean' },
-      format: { type: 'string', default: 'pretty' },
+      changed: { type: 'boolean' },
+      format: { type: 'string' },
       'max-score': { type: 'string' },
       'no-color': { type: 'boolean' },
     },
   });
-  if (!['pretty', 'json'].includes(values.format)) throw new UsageError(`--format must be pretty or json, got "${values.format}"`);
+  const format = values.format ?? (io.tty ? 'pretty' : 'compact');
+  if (!['pretty', 'compact', 'json'].includes(format)) throw new UsageError(`--format must be pretty, compact or json, got "${format}"`);
   const max = values['max-score'] == null ? null : Number(values['max-score']);
   if (max != null && !(Number.isInteger(max) && max >= 0 && max <= 100)) throw new UsageError('--max-score takes a whole number from 0 to 100');
 
-  const { results, fixed, fixedFiles } = lintFiles(positionals.length ? positionals : ['.'], { fix: values.fix });
+  let files;
+  if (values.changed) {
+    files = changedFiles(process.cwd());
+    if (!files) throw new UsageError('--changed needs a git repository');
+  } else files = (positionals.length ? positionals : ['.']).flatMap(collect);
+  const { results, fixed, fixedFiles } = lintFiles(files, { fix: values.fix });
   const s = score(results);
   const failed = s.errors > 0 || (max != null && s.score > max);
 
-  if (values.format === 'json') {
-    const files = results.filter((r) => r.diagnostics.length).map(({ path, diagnostics }) => ({ path, diagnostics }));
-    io.out(`${JSON.stringify({ version: VERSION, ...s, fixed, files }, null, 2)}\n`);
+  if (format === 'json') {
+    const report = results.filter((r) => r.diagnostics.length).map(({ path, diagnostics }) => ({ path, diagnostics }));
+    io.out(`${JSON.stringify({ version: VERSION, ...s, fixed, files: report }, null, 2)}\n`);
     return failed ? 1 : 0;
   }
 
+  const extra = [];
+  if (fixed) extra.push(`Applied ${fixed} autofix${fixed === 1 ? '' : 'es'} in ${plural(fixedFiles, 'file')}.`);
+  if (max != null && s.score > max) extra.push(`Score ${s.score} is above --max-score ${max}.`);
+  if (!s.files) extra.push(values.changed ? 'No changed lintable files.' : `No lintable files (${EXTENSIONS.join(', ')}).`);
+  if (format === 'compact') {
+    io.out(`${compactReport(results, s, extra)}\n`);
+    return failed ? 1 : 0;
+  }
   const c = painter(io.color && !values['no-color']);
   for (const r of results) for (const d of r.diagnostics) io.out(`${frame(d, r, c, io.columns)}\n\n`);
-  const extra = [];
-  if (fixed) extra.push(c.green(`            Applied ${fixed} autofix${fixed === 1 ? '' : 'es'} in ${fixedFiles} file${fixedFiles === 1 ? '' : 's'}.`));
-  if (max != null && s.score > max) extra.push(c.red(`            Score ${s.score} is above --max-score ${max}.`));
-  if (!s.files) extra.push(c.yellow(`            No lintable files (${EXTENSIONS.join(', ')}).`));
-  io.out(`${summary(s, c, extra)}\n`);
+  io.out(`${summary(s, c, extra.map((e) => (e.startsWith('Applied') ? c.green(e) : e.startsWith('Score') ? c.red(e) : c.yellow(e))))}\n`);
   return failed ? 1 : 0;
 }
 
@@ -262,6 +347,7 @@ function explain(argv, io) {
     wrapText(rule.fix, width - 2, '  '),
     '',
   ];
+  if (rule.design) out.push(c.dim('  Runs only in projects with a DESIGN.md token block (sloplint init writes one).'), '');
   const { slop, craft } = examplePair(rule);
   if (slop != null && craft != null) {
     const ops = diffLines(slop.split('\n'), craft.split('\n'));
@@ -287,20 +373,115 @@ function explain(argv, io) {
   return 0;
 }
 
-// ─── init ────────────────────────────────────────────────────────────────────
+// ─── init and style ──────────────────────────────────────────────────────────
+
+const STYLE_OPTIONS = { seed: { type: 'string' }, brief: { type: 'string' }, mood: { type: 'string' }, mode: { type: 'string' } };
+
+function packageInfo(dir) {
+  try {
+    return JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'));
+  } catch {
+    return null;
+  }
+}
 
 function runInit(argv, io) {
   const { values, positionals } = parseArgs({
     args: argv,
     allowPositionals: true,
-    options: { preset: { type: 'string', short: 'p' }, force: { type: 'boolean' }, 'no-color': { type: 'boolean' } },
+    options: { ...STYLE_OPTIONS, preset: { type: 'string', short: 'p' }, hooks: { type: 'boolean' }, force: { type: 'boolean' }, 'no-color': { type: 'boolean' } },
   });
+  if (values.preset && (values.seed ?? values.brief ?? values.mood ?? values.mode) != null) throw new UsageError('--preset and --seed/--brief/--mood/--mode are alternatives; pass one or the other');
   const c = painter(io.color && !values['no-color']);
-  const report = init(resolve(positionals[0] ?? '.'), { preset: values.preset, force: values.force });
-  io.out(`${c.bold('sloplint init')}  preset ${c.cyan(report.preset)}\n`);
+  const report = init(resolve(positionals[0] ?? '.'), values);
+  const what = report.style ? `style ${c.cyan(report.style.name)} ${c.dim(`(${report.style.mood}, ${report.style.mode})`)}` : `preset ${c.cyan(report.preset)}`;
+  io.out(`${c.bold('sloplint init')}  ${what}\n`);
   for (const f of report.files) io.out(`  ${f.status === 'unchanged' ? c.dim(f.status.padEnd(9)) : c.green(f.status.padEnd(9))} ${f.path}\n`);
   for (const note of report.notes) io.out(`  ${c.yellow(note)}\n`);
+  if (report.style) io.out(c.dim(`  Preview: npx @sloplint/cli style --seed "${report.style.seed}" --mood ${report.style.mood} --mode ${report.style.mode} --html design.html\n`));
   return 0;
+}
+
+function swatch(hex, on) {
+  if (!on) return '';
+  const n = parseInt(hex.slice(1), 16);
+  return `\x1b[48;2;${n >> 16};${(n >> 8) & 255};${n & 255}m    \x1b[49m `;
+}
+
+function style(argv, io) {
+  const { values } = parseArgs({ args: argv, options: { ...STYLE_OPTIONS, html: { type: 'string' }, json: { type: 'boolean' }, 'no-color': { type: 'boolean' } } });
+  const pkg = packageInfo(process.cwd());
+  const s = generateStyle({
+    seed: values.seed ?? pkg?.name ?? basename(process.cwd()),
+    brief: values.brief ?? pkg?.description ?? '',
+    mood: values.mood,
+    mode: values.mode,
+  });
+  if (values.html) writeFileSync(resolve(values.html), specimenHtml(s));
+  if (values.json) {
+    io.out(`${JSON.stringify(s, null, 2)}\n`);
+    return 0;
+  }
+  const on = io.color && !values['no-color'];
+  const c = painter(on);
+  const pad = '         ';
+  const out = [
+    `${c.bold(s.name)}  ${c.dim(`${s.mood}, ${s.mode} · seed "${s.seed}"`)}`,
+    '',
+    `${c.bold('Type')}     ${s.fonts.display.family} ${s.fonts.display.weight} / ${s.fonts.text.family} / ${s.fonts.mono.family}`,
+    `${c.bold('Color')}    ${Object.entries(s.colors).slice(0, 6).map(([k, v]) => `${swatch(v, on)}${k} ${c.dim(v)}`).join('  ')}`,
+    `${pad}${Object.entries(s.colors).slice(6).map(([k, v]) => `${swatch(v, on)}${k} ${c.dim(v)}`).join('  ')}`,
+    `${pad}${c.dim(`ink on bg ${contrast(s.colors.ink, s.colors.bg).toFixed(1)}:1 · on-accent on accent ${contrast(s.colors['on-accent'], s.colors.accent).toFixed(1)}:1`)}`,
+    `${c.bold('Layout')}   ${s.layout.name}: ${s.layout.lines[0]}`,
+    ...s.signatures.map((sig) => `${pad}${sig.replace(/`/g, '')}`),
+    `${c.bold('Motion')}   ${s.motion.ms}ms ${s.motion.ease}. ${s.motion.note}`,
+    '',
+    c.dim(`Apply it: npx @sloplint/cli init --seed "${s.seed}" --mood ${s.mood} --mode ${s.mode}`),
+  ];
+  if (values.html) out.push(c.dim(`Specimen written to ${values.html}`));
+  io.out(`${out.join('\n')}\n`);
+  return 0;
+}
+
+// ─── hook ────────────────────────────────────────────────────────────────────
+
+// Claude Code hook. PostToolUse lints the file just written; Stop lints every changed file once
+// before the agent may finish. Findings go to stderr with exit code 2, which Claude reads.
+function hook(io) {
+  let input;
+  try {
+    input = JSON.parse(io.stdin());
+  } catch {
+    return 0;
+  }
+  const cwd = input.cwd || process.cwd();
+  let files;
+  let intro;
+  if (input.hook_event_name === 'Stop' || input.hook_event_name === 'SubagentStop') {
+    if (input.stop_hook_active) return 0;
+    files = changedFiles(cwd) ?? collect(cwd);
+    intro = 'before you finish';
+  } else {
+    const file = input.tool_input?.file_path ?? input.tool_input?.path;
+    if (!file) return 0;
+    const abs = resolve(cwd, file);
+    const rel = toPosix(relative(cwd, abs));
+    if (!existsSync(abs) || !lintable(abs) || rel.startsWith('..') || ignoredPath(readIgnores(cwd), rel)) return 0;
+    files = [{ abs, rel }];
+    intro = 'in the file you just wrote';
+  }
+  const here = process.cwd();
+  process.chdir(cwd);
+  try {
+    const { results } = lintFiles(files, { fix: false });
+    const s = score(results);
+    if (!s.errors && !s.warnings) return 0;
+    const n = s.errors + s.warnings;
+    io.err(`sloplint: fix ${n === 1 ? 'this finding' : `these ${n} findings`} ${intro} (reasoning: npx @sloplint/cli explain <RULE>)\n${compactReport(results, s)}\n`);
+    return 2;
+  } finally {
+    process.chdir(here);
+  }
 }
 
 // ─── entry ───────────────────────────────────────────────────────────────────
@@ -310,6 +491,8 @@ export function main(argv, io = {}) {
   const config = {
     out: (s) => process.stdout.write(s),
     err: (s) => process.stderr.write(s),
+    stdin: () => readFileSync(0, 'utf8'),
+    tty: Boolean(process.stdout.isTTY),
     color: Boolean(process.stdout.isTTY) && !env.NO_COLOR && env.TERM !== 'dumb',
     columns: process.stdout.columns || 100,
     ...io,
@@ -325,10 +508,12 @@ export function main(argv, io = {}) {
       return 0;
     }
     if (command === 'init') return runInit(rest, config);
+    if (command === 'style') return style(rest, config);
     if (command === 'explain') return explain(rest, config);
+    if (command === 'hook') return hook(config);
     if (command === 'check') return check(rest, config);
     if (command == null || command.startsWith('-') || existsSync(command)) return check(argv, config);
-    throw new UsageError(`Unknown command "${command}". Commands: check, init, explain.`);
+    throw new UsageError(`Unknown command "${command}". Commands: check, init, style, explain, hook.`);
   } catch (error) {
     if (!(error instanceof UsageError || error.usage || error.code?.startsWith('ERR_PARSE_ARGS_'))) throw error;
     config.err(`sloplint: ${error.message}\n\n${HELP}\n`);

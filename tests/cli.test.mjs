@@ -11,10 +11,12 @@ const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const BIN = join(ROOT, 'bin', 'sloplint.mjs');
 const VERSION = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8')).version;
 
-function run(args, cwd = ROOT) {
-  const r = spawnSync(process.execPath, [BIN, ...args], { cwd, encoding: 'utf8', env: { ...process.env, NO_COLOR: '1' } });
+function run(args, cwd = ROOT, input) {
+  const r = spawnSync(process.execPath, [BIN, ...args], { cwd, input, encoding: 'utf8', env: { ...process.env, NO_COLOR: '1' } });
   return { code: r.status, out: r.stdout, err: r.stderr };
 }
+
+const SLOP_TS = "export const secret = process.env.JWT_SECRET || 'dev-secret';\n";
 
 function tempDir(t, files = {}) {
   const dir = mkdtempSync(join(tmpdir(), 'sloplint-'));
@@ -27,7 +29,7 @@ function tempDir(t, files = {}) {
 }
 
 test('check on the full-stack samples fails with compiler-style frames', () => {
-  const { code, out } = run(['check', 'examples/samples']);
+  const { code, out } = run(['check', 'examples/samples', '--format', 'pretty']);
   assert.equal(code, 1);
   assert.match(out, /^error\[SEC-001\]: /m);
   assert.match(out, /^ *--> examples\/samples\/api\.slop\.ts:\d+:\d+$/m);
@@ -36,6 +38,64 @@ test('check on the full-stack samples fails with compiler-style frames', () => {
   assert.match(out, /= fix: /);
   assert.match(out, /= autofix available \(--fix\)/);
   assert.match(out, /Slop Score .* \d+\/100 (Heavy Slop|Critical Slop)/);
+});
+
+test('piped check output is compact: one line per finding, each fix once, then the score', () => {
+  const { code, out } = run(['check', 'examples/samples']);
+  assert.equal(code, 1);
+  assert.match(out, /^examples\/samples\/api\.slop\.ts:\d+:\d+ error SEC-001 /m);
+  assert.match(out, /^How to fix:$/m);
+  assert.equal(out.match(/^ {2}SEC-001 /gm).length, 1);
+  assert.match(out, /^Slop Score \d+\/100 Critical Slop · \d+ files · /m);
+  assert.doesNotMatch(out, /-->|\x1b\[/);
+});
+
+test('check --changed lints only files changed since the last commit', (t) => {
+  const dir = tempDir(t, { 'committed.ts': SLOP_TS, 'edited.ts': 'export const a = 1;\n' });
+  const git = (...args) => spawnSync('git', ['-c', 'user.name=sloplint', '-c', 'user.email=sloplint@localhost', ...args], { cwd: dir, encoding: 'utf8' });
+  git('init', '-q');
+  git('add', '.');
+  git('commit', '-qm', 'start');
+  writeFileSync(join(dir, 'edited.ts'), SLOP_TS);
+  writeFileSync(join(dir, 'added.ts'), SLOP_TS);
+  const report = JSON.parse(run(['check', '--changed', '--format', 'json'], dir).out);
+  assert.deepEqual(report.files.map((f) => f.path).sort(), ['added.ts', 'edited.ts']);
+  assert.equal(run(['check', '--changed'], tempDir(t)).code, 2);
+});
+
+test('style previews a deterministic design system as text, JSON or a specimen page', (t) => {
+  const dir = tempDir(t);
+  const args = ['style', '--seed', 'harbor-invoices', '--brief', 'Invoicing for freelance studios'];
+  const json = JSON.parse(run([...args, '--json'], dir).out);
+  assert.equal(json.mood, 'institutional');
+  assert.deepEqual(JSON.parse(run([...args, '--json'], dir).out), json);
+  const text = run([...args, '--html', 'design.html'], dir);
+  assert.equal(text.code, 0);
+  assert.ok(text.out.startsWith(`${json.name}  institutional, ${json.mode}`), text.out);
+  assert.match(readFileSync(join(dir, 'design.html'), 'utf8'), /^<!doctype html>/);
+  assert.equal(run(['style', '--mood', 'vaporwave'], dir).code, 2);
+});
+
+test('hook: a written file with findings is reported to the agent with exit 2', (t) => {
+  const dir = tempDir(t, { 'src/auth.ts': SLOP_TS, 'src/ok.ts': 'export const ok = true;\n' });
+  const wrote = (file) => JSON.stringify({ hook_event_name: 'PostToolUse', cwd: dir, tool_name: 'Write', tool_input: { file_path: join(dir, file) } });
+  const bad = run(['hook'], dir, wrote('src/auth.ts'));
+  assert.equal(bad.code, 2);
+  assert.match(bad.err, /^sloplint: fix this finding in the file you just wrote/);
+  assert.match(bad.err, /^src\/auth\.ts:1:\d+ error SEC-001 /m);
+  assert.equal(bad.out, '');
+  assert.equal(run(['hook'], dir, wrote('src/ok.ts')).code, 0);
+  assert.equal(run(['hook'], dir, wrote('src/missing.ts')).code, 0);
+  assert.equal(run(['hook'], dir, 'not json').code, 0);
+});
+
+test('hook: Stop checks the project once, then lets the agent finish', (t) => {
+  const dir = tempDir(t, { 'auth.ts': SLOP_TS });
+  const stop = (active) => JSON.stringify({ hook_event_name: 'Stop', cwd: dir, stop_hook_active: active });
+  const first = run(['hook'], dir, stop(false));
+  assert.equal(first.code, 2);
+  assert.match(first.err, /before you finish/);
+  assert.equal(run(['hook'], dir, stop(true)).code, 0);
 });
 
 test('check --format json reports score, grade and per-file diagnostics', () => {

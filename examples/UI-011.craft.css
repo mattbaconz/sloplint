@@ -1,0 +1,14 @@
+/* DESIGN.md (examples/samples) defines --accent #286d39, --ink #11181d and a cool gray scale. */
+.invoice-row {
+  border-bottom: 1px solid var(--line);
+  color: var(--ink-2);
+}
+
+.invoice-row .status-paid {
+  color: var(--ok);
+}
+
+.send-button {
+  background: var(--accent);
+  color: var(--on-accent);
+}

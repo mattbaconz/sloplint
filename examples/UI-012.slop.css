@@ -1,0 +1,9 @@
+/* DESIGN.md (examples/samples) sets IBM Plex Sans for text and IBM Plex Mono for figures. */
+body {
+  font-family: Inter, system-ui, sans-serif;
+}
+
+.invoice-total {
+  font: 600 28px/1.1 "Space Grotesk", sans-serif;
+  font-variant-numeric: tabular-nums;
+}

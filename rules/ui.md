@@ -11,6 +11,8 @@ You are building interface code. Generated UI converges on the same handful of d
 - **UI-005 Tabular numbers.** Any number that sits in a column or changes over time gets `font-variant-numeric: tabular-nums` (Tailwind `tabular-nums`), or digits jitter and columns misalign.
 - **UI-006 Concentric radii.** A rounded child inside a rounded, padded parent uses `inner = outer − padding − border`. Equal radii pinch the corners.
 - **UI-009 No gradient text.** Headlines in solid ink. Emphasis via weight, size, or one accent-colored word.
+- **UI-011 Colors come from DESIGN.md.** Write `var(--accent)` or a theme class mapped to the token, never `#2563eb`, `bg-blue-600` or `text-gray-500`. A new color goes into DESIGN.md first. Runs only when the project has a DESIGN.md token block.
+- **UI-012 Typefaces come from DESIGN.md.** `font-family: var(--font-text)`, not Inter, Roboto or a font imported by reflex. Same condition as UI-011.
 - **No sideways scroll at 375px.** Navs wrap or collapse, stat rows stack, and wide tables scroll inside their own `overflow-x: auto` wrapper. The source rules cannot see rendered width; `verify-dom.spec.ts` can.
 
 ## Motion
@@ -25,6 +27,12 @@ You are building interface code. Generated UI converges on the same handful of d
 - **COPY-002 Errors have a cause and a next step.** Never `Something went wrong`, `An unexpected error occurred` or `Oops`. Say what failed, why if known, what the user can do now, and that their input is safe.
 - **COPY-003 Labels name the action.** Buttons and links are verb + object: "Save profile", "Export CSV", "Read the pricing guide". Never `Submit`, `OK`, `Click here`, `Learn more`.
 - **COPY-004 No template filler.** No `Lorem ipsum`, `John Doe`, `Acme Inc` or `example@example.com` in shipped components. Write realistic domain content; keep sample data in fixtures and stories.
+- **COPY-005 No invented proof.** Customer counts, uptime, ratings, `3x faster` and compliance badges need a source next to them (a footnote, a link, a date) or must come from data. No real figure yet: cut the claim.
+- **COPY-006 No emoji decoration.** Headings, buttons and links start with words. Use a real icon with an accessible label when an action needs one.
+
+## Honest behavior
+
+- **UI-010 Success only after the request succeeds.** A form that calls `preventDefault`, waits on a timer and shows "Thanks!" has dropped the submission. Send the data, show success on a successful response, and keep the input with a clear error on failure.
 
 ## Before you finish
 

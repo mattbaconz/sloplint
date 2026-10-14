@@ -21,7 +21,8 @@
   <section class="hero">
     <h1>Unleash the power of your workflow</h1>
     <p>Flowly is a next-gen, AI-powered platform that seamlessly empowers teams to delve into productivity.</p>
-    <a class="btn" href="/signup">Get started</a>
+    <p>Trusted by 10,000+ teams worldwide.</p>
+    <a class="btn" href="/signup">🚀 Get started</a>
   </section>
 
   <section class="features">
@@ -40,6 +41,13 @@
   </section>
 
   <blockquote>Lorem ipsum dolor sit amet, consectetur adipiscing elit. <cite>John Doe, Acme Corp</cite></blockquote>
+  <form id="signup"><input type="email" name="email" aria-label="Work email"><button type="submit">Join the beta</button></form>
   <p>Questions? <a href="/contact">Click here</a>.</p>
+  <script>
+    document.getElementById('signup').addEventListener('submit', (e) => {
+      e.preventDefault();
+      e.target.innerHTML = '<p>Thanks! You are on the list.</p>';
+    });
+  </script>
 </body>
 </html>

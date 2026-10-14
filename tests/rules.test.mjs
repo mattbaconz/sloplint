@@ -4,12 +4,15 @@ import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { RULES, DOMAINS, lint, findRule } from '../src/engine.mjs';
+import { parseDesign } from '../src/design.mjs';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const EXAMPLES = join(ROOT, 'examples');
 const VARIANTS = join(ROOT, 'tests', 'fixtures', 'variants');
 
-const ruleIds = (text, path) => [...new Set(lint(text, path).diagnostics.map((d) => d.rule))].sort();
+const ruleIds = (text, path, options) => [...new Set(lint(text, path, options).diagnostics.map((d) => d.rule))].sort();
+// The design system the showcase samples ignore; rules marked `design` only run against one.
+const SAMPLE_DESIGN = parseDesign(readFileSync(join(EXAMPLES, 'samples', 'DESIGN.md'), 'utf8'));
 
 test('catalog: every rule is complete and uniquely identified', () => {
   const ids = new Set();
@@ -37,18 +40,20 @@ for (const rule of RULES) {
   test(`${rule.id} ${rule.slug}: slop example triggers it, craft example is clean`, () => {
     const slop = `${rule.id}.slop.${rule.sample}`;
     const craft = `${rule.id}.craft.${rule.sample}`;
-    const slopIds = ruleIds(readFileSync(join(EXAMPLES, slop), 'utf8'), `examples/${slop}`);
+    const options = rule.design ? { design: SAMPLE_DESIGN } : {};
+    const slopIds = ruleIds(readFileSync(join(EXAMPLES, slop), 'utf8'), `examples/${slop}`, options);
     assert.deepEqual(slopIds, [rule.id], `${slop} should trigger only ${rule.id}`);
-    assert.deepEqual(ruleIds(readFileSync(join(EXAMPLES, craft), 'utf8'), `examples/${craft}`), [], `${craft} should be clean`);
+    assert.deepEqual(ruleIds(readFileSync(join(EXAMPLES, craft), 'utf8'), `examples/${craft}`, options), [], `${craft} should be clean`);
+    if (rule.design) assert.deepEqual(ruleIds(readFileSync(join(EXAMPLES, slop), 'utf8'), `examples/${slop}`), [], `${rule.id} needs a DESIGN.md`);
   });
 }
 
 test('showcase samples cover every rule', () => {
   const dir = join(EXAMPLES, 'samples');
   const seen = new Set();
-  for (const name of readdirSync(dir)) {
+  for (const name of readdirSync(dir).filter((n) => n !== 'DESIGN.md')) {
     const virtual = { 'readme.slop.md': 'README.md', 'api.slop.ts': 'src/server/api.ts' }[name] ?? name;
-    for (const id of ruleIds(readFileSync(join(dir, name), 'utf8'), virtual)) seen.add(id);
+    for (const id of ruleIds(readFileSync(join(dir, name), 'utf8'), virtual, { design: SAMPLE_DESIGN })) seen.add(id);
   }
   assert.deepEqual(RULES.map((r) => r.id).filter((id) => !seen.has(id)), []);
 });

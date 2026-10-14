@@ -79,7 +79,7 @@ function looksLikeClasses(value) {
 const NON_PROSE = /^(code|pre|kbd|samp|script|style|svg|math)$/i;
 const COPY_ATTRS = ['alt', 'title', 'placeholder', 'aria-label', 'label'];
 
-export function createContext(text, path) {
+export function createContext(text, path, { design = null } = {}) {
   const lang = langOf(path, text);
   const p = path.replace(/\\/g, '/').toLowerCase();
   const ctx = {
@@ -95,6 +95,7 @@ export function createContext(text, path) {
     comments: [],
     markup: null,
     cssRules: [],
+    design,
   };
 
   if (lang === 'js' || lang === 'jsx') {
@@ -290,8 +291,9 @@ function suppressions(ctx, starts) {
   return (rule, line) => file.has('*') || file.has(rule) || lines.get(line)?.has('*') || lines.get(line)?.has(rule);
 }
 
-export function lint(text, path) {
-  const ctx = createContext(text, path);
+// options.design: palette and typefaces from the project's DESIGN.md (see parseDesign).
+export function lint(text, path, options = {}) {
+  const ctx = createContext(text, path, options);
   const starts = lineStarts(text);
   const result = { path, lines: text ? starts.length : 0, diagnostics: [] };
   if (!ctx.lang) return result;
@@ -346,11 +348,11 @@ export function applyFixes(text, diagnostics) {
   return { text: out, applied };
 }
 
-export function fixSource(text, path, passes = 5) {
+export function fixSource(text, path, passes = 5, options = {}) {
   let current = text;
   let total = 0;
   for (let i = 0; i < passes; i++) {
-    const { text: next, applied } = applyFixes(current, lint(current, path).diagnostics);
+    const { text: next, applied } = applyFixes(current, lint(current, path, options).diagnostics);
     if (!applied) break;
     total += applied;
     current = next;

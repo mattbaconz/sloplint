@@ -3,6 +3,7 @@
 
 import { matchPair, callArgs } from './lex.mjs';
 import { colorsIn, isNeonPurple, twNeonStop, TW_RADIUS_TOKENS, classAttr, classList, cssBox } from './style.mjs';
+import { rgbaOf, isGenericFont } from './design.mjs';
 
 export const DOMAINS = {
   UI: 'UI/UX & Motion',
@@ -71,6 +72,21 @@ function statements(body) {
   }
   if (cur.trim()) out.push(cur.trim());
   return out;
+}
+
+// Start of the statement containing offset i: walks back over balanced (), [] and {} so
+// `const r = await fetch(url, { ... }).catch(...)` is one statement, not three.
+function statementStart(code, i) {
+  let depth = 0;
+  for (let j = i - 1; j >= 0; j--) {
+    const c = code[j];
+    if (c === ')' || c === ']' || (c === '}' && depth > 0)) depth++;
+    else if (c === '(' || c === '[' || c === '{') {
+      if (depth === 0) return j + 1;
+      depth--;
+    } else if (depth === 0 && (c === ';' || c === '}')) return j + 1;
+  }
+  return 0;
 }
 
 function statementEnd(code, i) {
@@ -144,6 +160,82 @@ const unsafeExpr = (src) => !SAFE_HTML.test(src) && !/\.toFixed\(/.test(src);
 // A decoy hash compared when the user is unknown keeps login timing constant; it is a defence, not mock data.
 const DECOY = /hash|digest/i;
 const TRANSITION_PROPS = ['color', 'background-color', 'border-color', 'opacity', 'transform'];
+
+// Body range of the function whose parameter list, `async` or arrow starts at `from` (masked code).
+function functionBody(code, from) {
+  let i = from;
+  const bare = /^\s*(?:async\s+)?[\w$]+\s*=>/.exec(code.slice(i));
+  if (bare) i += bare[0].length;
+  else {
+    const paren = code.indexOf('(', i);
+    const close = paren < 0 ? -1 : matchPair(code, paren, '(', ')', false);
+    if (close < 0) return null;
+    i = close + 1;
+  }
+  const rest = /^\s*(=>)?\s*/.exec(code.slice(i));
+  const arrow = Boolean(bare || rest[1]);
+  i += rest[0].length;
+  if (code[i] === '{') {
+    const close = matchPair(code, i, '{', '}', false);
+    return close > i ? { start: i + 1, end: close } : null;
+  }
+  return arrow ? { start: i, end: statementEnd(code, i) } : null;
+}
+
+// The handler a submit binding points at: an inline function, `name`, `this.name` or
+// react-hook-form's `handleSubmit(name)`. Returns the body range or null.
+function handlerBody(ctx, expr, at) {
+  const code = ctx.code;
+  if (/\bfunction\b|=>/.test(expr)) {
+    const lead = /^\s*(?:async\s+(?=function))?(?:function\s*[\w$]*\s*)?/.exec(expr)[0].length;
+    return functionBody(code, at + lead);
+  }
+  const name = (/^\s*[\w$.]+\s*\(\s*([\w$]+)\s*\)\s*$/.exec(expr) ?? /([\w$]+)\s*$/.exec(expr))?.[1];
+  if (!name) return null;
+  const n = name.replace(/\$/g, '\$');
+  const def = new RegExp(String.raw`\bfunction\s+${n}\s*(?=\()|\b(?:const|let|var)\s+${n}\s*=\s*(?:useCallback\s*\(\s*)?(?:async\s*)?(?:function\b\s*)?|(?:^|[\s,;{])(?:async\s+)?${n}\s*(?=\([^()]*\)\s*\{)`, 'm').exec(code);
+  return def ? functionBody(code, def.index + def[0].length) : null;
+}
+
+const LOCAL_CALL = /^(?:set[A-Z][\w$]*|(?:[\w$]+\.)*(?:preventDefault|stopPropagation|stopImmediatePropagation|classList\.(?:add|remove|toggle|replace)|querySelector(?:All)?|getElementById|closest|focus|blur|reset|setAttribute|removeAttribute|toggleAttribute|scrollIntoView|get|getAll|has|trim|toLowerCase|toUpperCase|includes|test|match|replace|split|join|map|filter|forEach|some|every|log|info|warn|error|debug)|setTimeout|clearTimeout|requestAnimationFrame|alert|toast(?:\.[\w$]+)?|FormData|Object\.(?:fromEntries|entries|keys|values)|String|Number|Boolean|parseInt|parseFloat|Promise|resolve|[a-z]|if|for|while|switch|catch|return|function|new|typeof|await)$/;
+const SUCCESS_SETTER = /\bset(?:Is)?(?:Submitted|Success(?:ful)?|Sent|Done|Subscribed|Joined|Completed?|SignedUp|Registered|Confirmed|ThankYou|Thanks|Finished|Status|State|Message)\s*\(\s*(?!false\b|null\b|''|"")/;
+const SUCCESS_WORDS = /thank|success|subscribed|welcome|you'?re (?:in|on the list|all set)|received|confirmed|provisioned|signed up|registered|on its way|check your (?:inbox|email)|we'?ll be in touch|(?:request|message) sent|all set/i;
+const SHOWS = /\b(?:textContent|innerText|innerHTML|alert|toast|classList|hidden|display|navigate|location|replaceWith|insertAdjacent\w*)\b/;
+
+// Inline-code offsets that hold a Tailwind palette color class (bg-blue-600, text-gray-500/80).
+const TW_PALETTE = /(?:^|:)(?:bg|text|border(?:-[trblxyse])?|ring(?:-offset)?|from|via|to|fill|stroke|shadow|outline|decoration|divide|placeholder|accent|caret)-(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-\d{2,3}(?:\/\d+)?$/;
+const COLOR_LITERAL = /#[0-9a-f]{3,8}\b|\b(?:rgba?|hsla?|oklch)\([^)]*\)/gi;
+const COLOR_ATTRS = ['fill', 'stroke', 'color', 'stop-color', 'stopColor', 'bgcolor', 'background'];
+
+function onPalette(design, rgba) {
+  if (!rgba) return true;
+  const [r, g, b, a] = rgba;
+  if (a < 1 && ((r < 8 && g < 8 && b < 8) || (r > 247 && g > 247 && b > 247))) return true; // shadows and scrims
+  return design.colors.some((c) => Math.max(Math.abs(c.rgb[0] - r), Math.abs(c.rgb[1] - g), Math.abs(c.rgb[2] - b)) <= 3);
+}
+
+function nearestToken(design, rgba) {
+  const d = (c) => (c.rgb[0] - rgba[0]) ** 2 + (c.rgb[1] - rgba[1]) ** 2 + (c.rgb[2] - rgba[2]) ** 2;
+  return design.colors.reduce((best, c) => (d(c) < d(best) ? c : best));
+}
+
+const PROOF_COUNT = String.raw`\d[\d,.]*\s*(?:k|m|million|thousand|billion)?`;
+const PROOF_WHO = String.raw`(?:happy\s+|active\s+|paying\s+)?(?:teams|companies|customers|clients|businesses|users|developers|engineers|brands|organi[sz]ations|creators|founders|agencies|startups|enterprises|merchants|banks|clinics|stores|shops|freelancers|professionals|accountants|marketers|designers|members|subscribers|readers|students|schools|hospitals|restaurants)`;
+const PROOF = new RegExp([
+  String.raw`\b${PROOF_COUNT}\+\s+${PROOF_WHO}\b`,
+  String.raw`\b(?:trusted|used|loved|chosen|relied on)\s+by\s+(?:over\s+|more than\s+)?${PROOF_COUNT}\+?(?:\s+${PROOF_WHO})?`,
+  String.raw`\bjoin(?:ed by)?\s+(?:over\s+|more than\s+)?${PROOF_COUNT}\+?\s+${PROOF_WHO}\b`,
+  String.raw`\b[3-5]\.\d\s*(?:\/\s*5|out of 5)\b|\brated\s+[3-5](?:\.\d)?\s*(?:\/\s*5|out of 5|stars?)`,
+  String.raw`★{4,5}`,
+  String.raw`\b\d{2,3}(?:\.\d+)?\s?%\s+(?:uptime|accuracy|availability|satisfaction|retention|match rate|first[- ]pass\w*|on[- ]time|of (?:teams|customers|users))\b`,
+  String.raw`\b\d+(?:\.\d+)?\s?[x×]\s+(?:faster|more|cheaper|quicker|better|higher|lower|less|roi)\b`,
+  String.raw`\b\d{1,3}\s?%\s+(?:faster|cheaper|quicker|more (?:revenue|conversions|leads|sales|productive)|less time|fewer (?:errors|bugs|tickets))`,
+  String.raw`\bsav(?:e|es|ed|ing)\s+(?:up to\s+|over\s+|an average of\s+)?\d+\+?\s+(?:hours|hrs|minutes|days)\b`,
+  String.raw`\bSOC\s?2(?:\s+Type\s+(?:II|I|1|2))?\b|\bISO\s?27001\b|\bHIPAA[- ]compliant\b|\bPCI[- ]DSS\b|\bGDPR[- ]compliant\b|\bFedRAMP\b`,
+].join('|'), 'gi');
+// A footnote, citation or external link right next to the claim counts as its source; a CTA does not.
+const SOURCED = /<sup\b|<cite\b|<a\s[^>]*href=["']https?:|\[\^?\d+\]|\]\(https?:|†|‡|\bsource:|\baccording to\b|\bas of (?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec|q[1-4]|\d{4})/i;
+const EMOJI_LEAD = /^(?:\p{Emoji_Presentation}|\p{Extended_Pictographic}️)(?:️|‍(?:\p{Emoji_Presentation}|\p{Extended_Pictographic})️?|[\u{1F3FB}-\u{1F3FF}])*\s*/u;
 
 export const RULES = [
   // ───────────────────────────── UI/UX & Motion ─────────────────────────────
@@ -468,6 +560,168 @@ export const RULES = [
     },
   },
 
+  {
+    id: 'UI-010',
+    slug: 'fake-success',
+    severity: 'error',
+    weight: 5,
+    title: 'Form shows success without sending anything',
+    rationale:
+      'Generated forms often end in preventDefault, a short timeout and a thank-you message. The visitor believes they signed up, booked or paid, but nothing left the browser. It looks like a working feature in review and silently drops every submission in production.',
+    fix: 'Send the data first (fetch to a real endpoint, a server action, or the form\'s own action) and show success only after a successful response. On failure, keep the input and say what went wrong.',
+    sample: 'tsx',
+    langs: ['js', 'jsx', 'html', 'vue'],
+    when: (ctx) => !ctx.isTest && !ctx.isFixture,
+    check(ctx) {
+      const out = [];
+      const bindings = [];
+      for (const el of ctx.markup?.elements ?? []) {
+        for (const name of ['onSubmit', 'onsubmit', '@submit', '@submit.prevent', 'v-on:submit', 'v-on:submit.prevent']) {
+          const a = el.attrs[name];
+          if (a?.value.trim()) bindings.push({ at: a.start, end: a.end, expr: a.value, raw: !a.expr && ctx.lang === 'html' });
+        }
+      }
+      for (const m of ctx.text.matchAll(/\b(?:addEventListener\s*\(\s*(['"`])submit\1\s*,|\.onsubmit\s*=)\s*/g)) {
+        if (!ctx.isCode(m.index)) continue;
+        const at = m.index + m[0].length;
+        bindings.push({ at, end: at, from: m.index, expr: ctx.code.slice(at, statementEnd(ctx.code, at)), raw: false });
+      }
+      for (const b of bindings) {
+        const body = b.raw ? { start: b.at, end: b.end } : handlerBody(ctx, b.expr, b.at);
+        if (!body) continue;
+        const raw = ctx.text.slice(body.start, body.end);
+        const masked = b.raw ? raw : ctx.code.slice(body.start, body.end);
+        if (!SUCCESS_SETTER.test(masked) && !(SUCCESS_WORDS.test(raw) && SHOWS.test(masked))) continue;
+        if ([...masked.matchAll(/([\w$][\w$.]*)\s*\(/g)].some((m) => !LOCAL_CALL.test(m[1]))) continue;
+        const start = b.from ?? b.at;
+        const message = /\bsetTimeout\s*\(/.test(masked) ? 'Fake delay, then success: nothing is sent' : 'Shows success without sending anything';
+        out.push(hit(start, firstLineEnd(ctx.text, start, Math.max(b.end, b.at + 1)), message));
+      }
+      return out;
+    },
+  },
+  {
+    id: 'UI-011',
+    slug: 'off-palette-color',
+    severity: 'warn',
+    weight: 3,
+    title: 'Color outside the DESIGN.md palette',
+    rationale:
+      'With the design system out of sight, agents reach for framework defaults: Tailwind blue-600 and gray-500, the charting library purple, a hex that is almost the brand color. Each stray value is small; together they are why generated pages look generic, and why a rebrand turns into a search through every file.',
+    fix: 'Use the token (`var(--accent)`, or `bg-accent` once the Tailwind theme maps it). If the system needs a new color, add it to DESIGN.md first.',
+    sample: 'css',
+    langs: STYLED,
+    design: true,
+    when: (ctx) => Boolean(ctx.design?.colors.length) && !ctx.isTest && !ctx.isFixture,
+    check(ctx) {
+      const out = [];
+      const seen = new Set();
+      const report = (start, end, key, message) => {
+        if (seen.has(key.toLowerCase())) return;
+        seen.add(key.toLowerCase());
+        out.push(hit(start, end, message));
+      };
+      const literal = (start, lit) => {
+        const rgba = rgbaOf(lit);
+        if (onPalette(ctx.design, rgba)) return;
+        const near = nearestToken(ctx.design, rgba);
+        report(start, start + lit.length, lit, `Off-palette color ${lit}; the nearest token is --${near.name} (${near.hex})`);
+      };
+      for (const d of ctx.cssDecls) {
+        for (const m of ctx.text.slice(d.valueStart, d.end).matchAll(COLOR_LITERAL)) literal(d.valueStart + m.index, m[0]);
+      }
+      for (const s of ctx.classStrings) {
+        for (const t of s.text.matchAll(/\S+/g)) {
+          const start = s.start + t.index;
+          if (TW_PALETTE.test(t[0])) {
+            report(start, start + t[0].length, t[0].replace(/^.*:/, ''), `Tailwind palette class ${t[0]} bypasses the DESIGN.md tokens`);
+            continue;
+          }
+          const arb = /-\[(#[0-9a-f]{3,8}|(?:rgba?|hsla?|oklch)\([^\]]*\))\]/i.exec(t[0]);
+          if (arb) literal(start + arb.index + 2, arb[1]);
+        }
+      }
+      if (ctx.lang !== 'css') {
+        for (const s of ctx.strings) {
+          const m = /^\s*(#[0-9a-f]{3,8}|(?:rgba?|hsla?|oklch)\([^)]*\))\s*$/i.exec(s.value);
+          if (m) literal(s.start + 1 + s.value.indexOf(m[1]), m[1]);
+        }
+        for (const el of ctx.markup?.elements ?? []) {
+          for (const name of COLOR_ATTRS) {
+            const a = el.attrs[name];
+            if (a && !a.expr) for (const m of a.value.matchAll(COLOR_LITERAL)) literal(a.start + m.index, m[0]);
+          }
+        }
+      }
+      return out;
+    },
+  },
+  {
+    id: 'UI-012',
+    slug: 'off-system-font',
+    severity: 'warn',
+    weight: 3,
+    title: 'Typeface outside the DESIGN.md type system',
+    rationale:
+      'Inter, Roboto and the system stack are what a page gets when nobody chose a typeface. Generated code imports them by reflex even in a project that has a type system, and the page snaps back to the look of every other generated page.',
+    fix: 'Use the DESIGN.md faces through their tokens (`font-family: var(--font-text)`). To change the type system, change DESIGN.md first.',
+    sample: 'css',
+    langs: STYLED,
+    design: true,
+    when: (ctx) => Boolean(ctx.design?.fonts.length) && !ctx.isTest && !ctx.isFixture,
+    check(ctx) {
+      const out = [];
+      const seen = new Set();
+      const allowed = new Set(ctx.design.fonts.map((f) => f.toLowerCase()));
+      const report = (name, start, end) => {
+        const key = name.toLowerCase();
+        if (!name || isGenericFont(name) || allowed.has(key) || seen.has(key)) return;
+        seen.add(key);
+        out.push(hit(start, end, `Typeface "${name}" is not in DESIGN.md (${ctx.design.fonts.slice(0, 3).join(', ')})`));
+      };
+      // The first family in a list is the one that renders; the rest are fallbacks.
+      const first = (start, list) => {
+        const raw = list.split(',')[0];
+        const name = raw.trim().replace(/^["']|["']$/g, '').trim();
+        const at = start + raw.indexOf(name);
+        report(name, at, at + name.length);
+      };
+      for (const d of ctx.cssDecls) {
+        const value = ctx.text.slice(d.valueStart, d.end);
+        if (d.prop === 'font-family') first(d.valueStart, value);
+        else if (d.prop === 'font') {
+          const m = /(?:^|\s)[\d.]+(?:px|r?em|%|pt)(?:\s*\/\s*[\w.%-]+)?\s+(\S.*)$/.exec(value);
+          if (m) first(d.valueStart + m.index + m[0].length - m[1].length, m[1]);
+        }
+      }
+      for (const m of ctx.text.matchAll(/fonts\.googleapis\.com\/css2?\?[^"'\s)<>]*/g)) {
+        for (const f of m[0].matchAll(/family=([^:&;]+)/g)) {
+          const start = m.index + f.index + 7;
+          report(decodeURIComponent(f[1]).replace(/\+/g, ' '), start, start + f[1].length);
+        }
+      }
+      for (const m of ctx.text.matchAll(/import\s*\{([^}]*)\}\s*from\s*['"]next\/font\/google['"]/g)) {
+        if (!ctx.isCode(m.index)) continue;
+        for (const n of m[1].matchAll(/[A-Z]\w*/g)) {
+          const start = m.index + m[0].indexOf(m[1]) + n.index;
+          report(n[0].replace(/_/g, ' '), start, start + n[0].length);
+        }
+      }
+      for (const s of ctx.classStrings) {
+        for (const t of s.text.matchAll(/(?:^|[\s:])font-\[['"]?([^\]'"]+)['"]?\]/g)) {
+          const start = s.start + t.index + t[0].indexOf(t[1]);
+          report(t[1].replace(/_/g, ' ').split(',')[0].trim(), start, start + t[1].length);
+        }
+      }
+      if (ctx.lang !== 'css') {
+        for (const s of ctx.strings) {
+          if (/\bfontFamily\s*:\s*(?:\{[^{}]*?[\w$'"]+\s*:\s*)?\[?\s*$/.test(ctx.code.slice(Math.max(0, s.start - 80), s.start))) first(s.start + 1, s.value);
+        }
+      }
+      return out;
+    },
+  },
+
   // ──────────────────────────────── Security ────────────────────────────────
   {
     id: 'SEC-001',
@@ -786,7 +1040,7 @@ export const RULES = [
       for (const m of code.matchAll(/\.catch\(\s*(?:console\.\w+|(?:async\s*)?(?:\(\s*[\w$]*\s*\)|[\w$]+)\s*=>\s*(?:\{\s*\}|null|undefined|void 0|console\.\w+\([^()]*\)|\{\s*console\.\w+\([^()]*\);?\s*\}))\s*\)/g)) {
         // Only a bare statement discards the rejection. `const x = await p.catch(() => null)` turns it into a value
         // the caller checks, and a failed rollback or close during cleanup has nothing left to recover.
-        const from = Math.max(code.lastIndexOf(';', m.index), code.lastIndexOf('{', m.index), code.lastIndexOf('}', m.index)) + 1;
+        const from = statementStart(code, m.index);
         const statement = text.slice(from, m.index);
         if (/(?<![=!<>])=(?![=>])|^\s*return\b/.test(statement)) continue;
         if (/\b(?:rollback|release|close|destroy|unlink|rmdir|rm|abort|disconnect|end|cancel|kill|terminate|unsubscribe)\b/i.test(statement)) continue;
@@ -1118,6 +1372,61 @@ export const RULES = [
       for (const seg of ctx.copy) {
         if (seg.kind === 'attr:placeholder') continue;
         for (const m of seg.text.matchAll(FILLER)) out.push(hit(seg.start + m.index, seg.start + m.index + m[0].length, `Placeholder content "${m[0]}"`));
+      }
+      return out;
+    },
+  },
+
+  {
+    id: 'COPY-005',
+    slug: 'invented-proof',
+    severity: 'warn',
+    weight: 3,
+    title: 'Social proof or performance claim with no source',
+    rationale:
+      'Models fill marketing pages with numbers nobody measured: thousands of happy teams, three-nines uptime, three times faster, a SOC 2 badge. Readers cannot check them, advertising regulators treat invented claims as deceptive, and one false number taints every true one on the page.',
+    fix: 'Use a real figure with its source (a footnote, a link, the date it was measured) or render it from data. If there is no figure yet, cut the claim.',
+    sample: 'html',
+    langs: ['jsx', 'html', 'vue', 'md'],
+    when: (ctx) => !ctx.isTest && !ctx.isFixture,
+    check(ctx) {
+      const out = [];
+      for (const seg of ctx.copy) {
+        for (const m of seg.text.matchAll(PROOF)) {
+          const start = seg.start + m.index;
+          const end = start + m[0].trimEnd().length;
+          if (SOURCED.test(ctx.text.slice(Math.max(0, start - 80), end + 80))) continue;
+          out.push(hit(start, end, `Unsourced claim "${m[0].trim()}"`));
+        }
+      }
+      return out;
+    },
+  },
+  {
+    id: 'COPY-006',
+    slug: 'emoji-decoration',
+    severity: 'warn',
+    weight: 2,
+    title: 'Emoji used as decoration in headings, buttons and links',
+    rationale:
+      'A rocket on the hero headline and a sparkle on the "Generate" button are among the quickest tells of a generated interface. They add no meaning, render differently on every platform, are read aloud by screen readers before the label, and push the words people scan for away from the left edge. (TEST-003 covers the same habit in READMEs.)',
+    fix: 'Delete the emoji. If a heading or button needs more than its words, the words are wrong; if an action needs an icon, use a real icon with an accessible label.',
+    sample: 'tsx',
+    langs: MARKUP,
+    when: (ctx) => !ctx.isTest && !ctx.isFixture,
+    check(ctx) {
+      const out = [];
+      const flag = (start, text, what) => {
+        const m = EMOJI_LEAD.exec(text);
+        if (m) out.push(hit(start, start + m[0].trimEnd().length, `Emoji ${what}`, { fix: { start, end: start + m[0].length, text: '' } }));
+      };
+      for (const el of ctx.markup.elements) {
+        if (!/^(h[1-6]|button|a|li|label|summary|th|dt|title)$/i.test(el.name) && !/(Button|Link|Heading|Title)$/.test(el.name)) continue;
+        const t = el.text.find((x) => ctx.text.slice(x.start, x.end).trim());
+        if (!t || el.children.some((c) => c.start < t.start)) continue;
+        const raw = ctx.text.slice(t.start, t.end);
+        const lead = raw.length - raw.trimStart().length;
+        flag(t.start + lead, raw.slice(lead), `decorating a ${el.name.toLowerCase()} label`);
       }
       return out;
     },

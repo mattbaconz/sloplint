@@ -18,7 +18,8 @@
   },
   "exports": {
     ".": "./src/engine.mjs",
-    "./init": "./src/init.mjs"
+    "./init": "./src/init.mjs",
+    "./design": "./src/design.mjs"
   },
   "files": [
     "bin",
@@ -37,7 +38,8 @@
     "site": "node ./scripts/serve.mjs",
     "verify:dom": "playwright test --config scripts/playwright.config.mjs",
     "bench": "node bench/run.mjs",
-    "bench:score": "node bench/score.mjs"
+    "bench:score": "node bench/score.mjs",
+    "check:fonts": "node ./scripts/check-fonts.mjs"
   },
   "devDependencies": {
     "@playwright/test": "1.63.0"

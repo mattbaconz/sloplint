@@ -1,34 +1,42 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync, readFileSync, readdirSync, existsSync, rmSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, readdirSync, existsSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { RULES } from '../src/engine.mjs';
-import { init, PRESETS, ruleBlock, resolvePreset } from '../src/init.mjs';
+import { RULES, DOMAINS } from '../src/engine.mjs';
+import { init, PRESETS, ruleBlock, resolvePreset, projectDomains } from '../src/init.mjs';
+import { designDoc, MOODS } from '../src/design.mjs';
 import { parseCss, maskCss } from '../src/lex.mjs';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const AGENT_FILES = ['CLAUDE.md', 'GEMINI.md', 'AGENTS.md', '.cursor/rules/sloplint.mdc'];
+const PACKAGE = { 'package.json': JSON.stringify({ name: 'harbor-invoices', description: 'Invoicing for freelance studios' }) };
 
-function tempDir(t) {
+function tempDir(t, files = {}) {
   const dir = mkdtempSync(join(tmpdir(), 'sloplint-init-'));
   t.after(() => rmSync(dir, { recursive: true, force: true }));
+  for (const [name, text] of Object.entries(files)) {
+    mkdirSync(join(dir, name, '..'), { recursive: true });
+    writeFileSync(join(dir, name), text);
+  }
   return dir;
 }
 
 const read = (dir, name) => readFileSync(join(dir, name), 'utf8');
 
-test('init writes DESIGN.md and syncs every agent file', (t) => {
-  const dir = tempDir(t);
+test('init generates DESIGN.md from the package and syncs every agent file', (t) => {
+  const dir = tempDir(t, PACKAGE);
   const report = init(dir);
-  assert.equal(report.preset, 'obsidian-telemetry');
+  assert.equal(report.preset, null);
+  assert.equal(report.style.seed, 'harbor-invoices');
   assert.deepEqual(report.files.map((f) => f.status), Array(5).fill('created'));
-  assert.match(read(dir, 'DESIGN.md'), /^<!-- sloplint:preset obsidian-telemetry -->\n# DESIGN\.md: Obsidian Telemetry/);
+  assert.equal(read(dir, 'DESIGN.md'), designDoc(report.style));
+  const block = ruleBlock(`${report.style.name}: ${report.style.mood}, ${report.style.mode}`);
   for (const name of AGENT_FILES) {
     const text = read(dir, name);
-    assert.ok(text.includes(ruleBlock('obsidian-telemetry')), name);
+    assert.ok(text.includes(block), name);
     for (const r of RULES) assert.ok(text.includes(`**${r.id}**`), `${name} lists ${r.id}`);
   }
   assert.match(read(dir, '.cursor/rules/sloplint.mdc'), /^---\ndescription: .+\nalwaysApply: true\n---\n/);
@@ -41,6 +49,19 @@ test('init is idempotent', (t) => {
   assert.deepEqual(again.files.map((f) => f.status), Array(5).fill('unchanged'));
 });
 
+test('a generated style survives reruns until a new seed replaces it', (t) => {
+  const dir = tempDir(t, PACKAGE);
+  const first = init(dir, { seed: 'orchard', mood: 'warm', mode: 'dark' });
+  assert.equal(first.style.mood, 'warm');
+  assert.equal(first.style.mode, 'dark');
+  const again = init(dir);
+  assert.deepEqual(again.files.map((f) => f.status), Array(5).fill('unchanged'));
+  assert.deepEqual(again.style, first.style);
+  const other = init(dir, { seed: 'quarry' });
+  assert.equal(other.files.find((f) => f.path === 'DESIGN.md').status, 'updated');
+  assert.notEqual(other.style.colors.accent, first.style.colors.accent);
+});
+
 test('init keeps user content in agent files and replaces only its own block', (t) => {
   const dir = tempDir(t);
   writeFileSync(join(dir, 'CLAUDE.md'), '# House rules\n\nUse pnpm.\n');
@@ -49,7 +70,7 @@ test('init keeps user content in agent files and replaces only its own block', (
   const text = read(dir, 'CLAUDE.md');
   assert.ok(text.startsWith('# House rules\n\nUse pnpm.\n\n<!-- sloplint:start -->'));
   assert.equal(text.split('<!-- sloplint:start -->').length, 2, 'exactly one managed block');
-  assert.match(text, /preset: Swiss Brutalist/);
+  assert.match(text, /Swiss Brutalist preset/);
 });
 
 test('init --preset switches DESIGN.md, and a later run keeps the chosen preset', (t) => {
@@ -74,13 +95,44 @@ test('init leaves a hand-written DESIGN.md alone unless forced', (t) => {
 
 test('files written by init pass sloplint check', (t) => {
   const dir = tempDir(t);
-  for (const preset of Object.keys(PRESETS)) {
-    init(dir, { preset, force: true });
+  const runs = [
+    ...Object.keys(PRESETS).map((preset) => ({ preset })),
+    ...MOODS.flatMap((mood) => ['light', 'dark'].map((mode) => ({ seed: `check-${mood}`, mood, mode }))),
+  ];
+  for (const options of runs) {
+    init(dir, { ...options, force: true });
     const r = spawnSync(process.execPath, [join(ROOT, 'bin', 'sloplint.mjs'), 'check', '.', '--format', 'json'], { cwd: dir, encoding: 'utf8' });
     const report = JSON.parse(r.stdout);
-    assert.equal(report.score, 0, `${preset}: ${JSON.stringify(report.files)}`);
+    assert.equal(report.score, 0, `${JSON.stringify(options)}: ${JSON.stringify(report.files)}`);
     assert.ok(existsSync(join(dir, '.cursor/rules/sloplint.mdc')));
   }
+});
+
+test('the rule block covers only the parts of the catalog a project uses', (t) => {
+  const domains = (deps, files = {}) => projectDomains(tempDir(t, { 'package.json': JSON.stringify({ dependencies: deps }), ...files }));
+  const all = Object.keys(DOMAINS);
+  assert.deepEqual(domains({}), all);
+  assert.deepEqual(domains({ express: '^5.0.0' }, { 'src/server.ts': '' }), all.filter((d) => d !== 'UI' && d !== 'MOTION'));
+  assert.deepEqual(domains({ react: '^19.0.0' }), all.filter((d) => d !== 'MOTION'));
+  assert.deepEqual(domains({ remotion: '^4.0.0' }), all);
+  const dir = tempDir(t, { 'package.json': JSON.stringify({ dependencies: { express: '^5.0.0' } }) });
+  init(dir);
+  assert.doesNotMatch(read(dir, 'CLAUDE.md'), /\*\*UI-001\*\*/);
+  assert.match(read(dir, 'CLAUDE.md'), /\*\*BE-001\*\*/);
+});
+
+test('init --hooks wires the Claude Code hooks and keeps existing settings', (t) => {
+  const settings = { permissions: { allow: ['Bash(npm test)'] }, hooks: { PostToolUse: [{ matcher: 'Bash', hooks: [{ type: 'command', command: 'echo ran' }] }] } };
+  const dir = tempDir(t, { '.claude/settings.json': JSON.stringify(settings) });
+  init(dir, { hooks: true });
+  const after = JSON.parse(read(dir, '.claude/settings.json'));
+  assert.deepEqual(after.permissions, settings.permissions);
+  assert.deepEqual(after.hooks.PostToolUse.map((e) => e.matcher), ['Bash', 'Write|Edit|MultiEdit']);
+  assert.equal(after.hooks.Stop[0].hooks[0].command, 'npx -y @sloplint/cli hook');
+  assert.match(read(dir, 'CLAUDE.md'), /a hook lints every file you write/);
+  assert.equal(init(dir, { hooks: true }).files.find((f) => f.path === '.claude/settings.json').status, 'unchanged');
+  writeFileSync(join(dir, '.claude/settings.json'), '{ not json');
+  assert.match(init(dir, { hooks: true }).notes.join(' '), /not valid JSON/);
 });
 
 test('preset names and aliases resolve; unknown names are rejected', () => {
@@ -128,5 +180,12 @@ test('every rule ID is covered by its brief', () => {
 });
 
 test('init block keeps rule prose in sync with the catalog', () => {
-  for (const r of RULES) assert.ok(ruleBlock('swiss-brutalist').includes(`- **${r.id}** ${r.title}. ${r.fix}`), r.id);
+  const lines = ruleBlock('Swiss Brutalist preset').split('\n');
+  for (const r of RULES) {
+    const head = `- **${r.id}** ${r.title}. `;
+    const line = lines.find((l) => l.startsWith(head));
+    assert.ok(line, r.id);
+    const fix = line.slice(head.length);
+    assert.ok(r.fix.startsWith(fix) && /[.!?]$/.test(fix), `${r.id}: ${fix}`);
+  }
 });
