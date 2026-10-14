@@ -3,7 +3,8 @@
 Does dropping sloplint into a project change what coding agents write? This benchmark gives the same prompt to the same agent twice, in fresh directories:
 
 - **baseline**: the task and its seed files, nothing else.
-- **sloplint**: the same, plus `sloplint init` (DESIGN.md and the rule block in `CLAUDE.md`, `GEMINI.md` and `AGENTS.md`) and a local install so `npx @sloplint/cli` works. The prompt does not mention sloplint; the agent sees it only through the instruction files it already reads.
+- **sloplint**: the same, plus `sloplint init --brief <the prompt's first sentence>` (a generated DESIGN.md and the rule block in `CLAUDE.md`, `GEMINI.md` and `AGENTS.md`) and a local install so `npx @sloplint/cli` works. The prompt does not mention sloplint; the agent sees it only through the instruction files it already reads.
+- **hooks** (Claude Code only): `sloplint` plus `--hooks`, so every file the agent writes is linted on the spot and the project is checked when it stops.
 
 ## Tasks
 
@@ -37,6 +38,7 @@ Claude runs load project settings only, and user-level memory (`~/.claude/CLAUDE
 ## What the numbers mean, and what they do not
 
 - The Slop Score is sloplint's own metric, and the sloplint arm is told to drive it to zero. A lower score there shows the agent followed the instructions; it does not prove the code is better. The task checks exist to catch the ways that can go wrong: suppressions, deleted features, broken syntax, weaker tests.
-- Only files the agent wrote are scored. sloplint's own files, unchanged seeds and `node_modules` are excluded from both arms.
+- Only files the agent wrote are scored. sloplint's own files, unchanged seeds and `node_modules` are excluded from every arm. As with `sloplint check`, a run with a DESIGN.md is also held to its tokens (UI-011, UI-012), which only makes the sloplint arms stricter.
+- Score a run with the rules it was given: `git worktree add` the commit the run used and run that checkout's `bench/score.mjs`.
 - Agents are not deterministic. Each cell is run more than once and every individual result is reported next to the mean. Small differences are noise.
 - Model availability changes. Results name the exact model and CLI versions they used; rerun before quoting them.
