@@ -235,6 +235,8 @@ const PROOF = new RegExp([
 ].join('|'), 'gi');
 // A footnote, citation or external link right next to the claim counts as its source; a CTA does not.
 const SOURCED = /<sup\b|<cite\b|<a\s[^>]*href=["']https?:|\[\^?\d+\]|\]\(https?:|†|‡|\bsource:|\baccording to\b|\bas of (?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec|q[1-4]|\d{4})/i;
+// Random avatar and photo services: what fills an image slot when nobody has the real picture.
+const PLACEHOLDER_IMAGE = /(?:https?:)?\/\/((?:i\.)?pravatar\.cc|via\.placeholder\.com|placehold\.(?:co|it)|picsum\.photos|randomuser\.me|dummyimage\.com|placekitten\.com|loremflickr\.com|source\.unsplash\.com|fakeimg\.pl|placeimg\.com)\b[^\s"'`)<>]*/gi;
 const EMOJI_LEAD = /^(?:\p{Emoji_Presentation}|\p{Extended_Pictographic}️)(?:️|‍(?:\p{Emoji_Presentation}|\p{Extended_Pictographic})️?|[\u{1F3FB}-\u{1F3FF}])*\s*/u;
 
 export const RULES = [
@@ -717,6 +719,33 @@ export const RULES = [
         for (const s of ctx.strings) {
           if (/\bfontFamily\s*:\s*(?:\{[^{}]*?[\w$'"]+\s*:\s*)?\[?\s*$/.test(ctx.code.slice(Math.max(0, s.start - 80), s.start))) first(s.start + 1, s.value);
         }
+      }
+      return out;
+    },
+  },
+  {
+    id: 'UI-013',
+    slug: 'dead-link',
+    severity: 'warn',
+    weight: 2,
+    title: 'Link that goes nowhere',
+    rationale:
+      'Generated pages fill navigation, footers and pricing cards with `href="#"`: Privacy, Careers, Twitter, Get started. Each one jumps the visitor to the top of the page or does nothing, which reads as an unfinished product, and an anchor that runs a script is announced to screen readers as a link.',
+    fix: 'Link to the real page, or leave the link out until the page exists. An action that is not navigation is a `<button>`.',
+    sample: 'html',
+    langs: MARKUP,
+    when: (ctx) => !ctx.isTest && !ctx.isFixture,
+    check(ctx) {
+      const out = [];
+      for (const el of ctx.markup.elements) {
+        if (el.name.toLowerCase() !== 'a' && !/Link$/.test(el.name)) continue;
+        const href = el.attrs.href ?? el.attrs.to;
+        if (!href || href.expr || !/^(#|javascript:.*)?$/i.test(href.value.trim())) continue;
+        // A logo linking to "#" returns to the top of a one-page site, which is where it promises to go.
+        const names = ['class', 'className', 'id', 'aria-label'].map((name) => el.attrs[name]?.value ?? '').join(' ');
+        if (href.value.trim() === '#' && /\b(logo|brand|home|wordmark)\b/i.test(names)) continue;
+        const handled = ['onClick', 'onclick', '@click', 'v-on:click'].some((name) => el.attrs[name]);
+        out.push(hit(el.start, el.openEnd, handled ? `Link used as a button (href="${href.value.trim()}"); use <button>` : `Link to nowhere (href="${href.value.trim()}")`));
       }
       return out;
     },
@@ -1361,8 +1390,8 @@ export const RULES = [
     weight: 2,
     title: 'Template placeholder content shipped as real copy',
     rationale:
-      'Filler Latin, stock person names and fictional company names are what models fill blanks with. Shipped to users they read as an unfinished product, and in screenshots they hide layout problems that real data would expose.',
-    fix: 'Use realistic, specific content from your domain. Keep sample data in fixtures and stories, not in components.',
+      'Filler Latin, stock person names, fictional company names and random avatar or photo services are what models fill blanks with. Shipped to users they read as an unfinished product, and in screenshots they hide layout problems that real data would expose.',
+    fix: 'Use realistic, specific content from your domain: real names, real product screenshots, no random avatars. Keep sample data in fixtures and stories, not in components.',
     sample: 'html',
     langs: COPY,
     when: (ctx) => !ctx.isTest && !ctx.isFixture,
@@ -1372,6 +1401,10 @@ export const RULES = [
       for (const seg of ctx.copy) {
         if (seg.kind === 'attr:placeholder') continue;
         for (const m of seg.text.matchAll(FILLER)) out.push(hit(seg.start + m.index, seg.start + m.index + m[0].length, `Placeholder content "${m[0]}"`));
+      }
+      for (const m of ctx.text.matchAll(PLACEHOLDER_IMAGE)) {
+        if (ctx.comments.some((c) => m.index >= c.start && m.index < c.end)) continue;
+        out.push(hit(m.index, m.index + m[0].length, `Placeholder image from ${m[1]}`));
       }
       return out;
     },

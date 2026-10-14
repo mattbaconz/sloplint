@@ -4,7 +4,7 @@ A zero-dependency linter for the patterns AI coding assistants leave behind: pur
 
 sloplint ships four things:
 
-- **A CLI** that reports 41 deterministic rules with compiler-style diagnostics, a fix for every finding, autofixes where the fix is mechanical, and a weighted Slop Score from `0/100 Studio Grade` to `100/100 Critical Slop`.
+- **A CLI** that reports 42 deterministic rules with compiler-style diagnostics, a fix for every finding, autofixes where the fix is mechanical, and a weighted Slop Score from `0/100 Studio Grade` to `100/100 Critical Slop`.
 - **A design-system generator** that gives every project its own `DESIGN.md`: a typeface trio, a contrast-checked palette, shape, motion and a layout archetype picked from a seed and a one-line brief, so agents stop converging on the same look. Two rules then hold the code to it.
 - **A brief pack** for coding agents: master briefs per discipline, rule blocks synced into `CLAUDE.md`, `GEMINI.md`, `AGENTS.md` and Cursor rules, Claude Code hooks that lint every file as it is written, and a Playwright suite that audits the rendered page.
 - **A docs site** with the rule catalog, worked examples, a style generator and an in-browser grader that runs the same engine as the CLI.
@@ -21,8 +21,8 @@ error[SEC-001]: JWT_SECRET silently falls back to a hard-coded value
   = autofix available (--fix)
 
 Slop Score  ████████████████████████  100/100 Critical Slop
-            8 files · 411 lines · 11 errors · 93 warnings · 18 autofixable
-            UI 36  SEC 9  BE 14  COPY 27  TEST 9  MOTION 9
+            8 files · 412 lines · 11 errors · 96 warnings · 18 autofixable
+            UI 38  SEC 9  BE 14  COPY 28  TEST 9  MOTION 9
 ```
 
 ## Quick start
@@ -152,6 +152,7 @@ The command behind the Claude Code hooks that `init --hooks` installs. After eve
 | UI-010 | Form shows success without sending anything | error |
 | UI-011 | Color outside the DESIGN.md palette | warn |
 | UI-012 | Typeface outside the DESIGN.md type system | warn |
+| UI-013 | Link that goes nowhere | warn |
 | SEC-001 | Secret falls back to a hard-coded value | error |
 | SEC-002 | CORS allows every origin | error |
 | SEC-003 | SQL assembled from interpolated strings | error |
