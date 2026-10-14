@@ -284,6 +284,7 @@ const MOOD = {
     motion: { ms: 200, ease: 'cubic-bezier(0.2, 0, 0, 1)', note: 'Fades only; nothing moves on load.' },
     names: ['Folio', 'Quire', 'Vellum', 'Broadsheet', 'Colophon', 'Gazette'],
     avoid: ['Stock hero photos and abstract 3D shapes: show the writing itself.', 'Centered body text: set prose ragged-right in one column.'],
+    voice: ['Write like an editor: short declarative sentences, concrete nouns, no exclamation marks.', 'Headlines state a finding ("Reading time fell by half"), not a promise.'],
   },
   technical: {
     words: /\b(dev(?:eloper)?s?|apis?|cli|sdk|infra\w*|databases?|devops|terminal|monitor\w*|observability|logs?|metrics|kubernetes|cloud|servers?|code|compiler|git|deploy\w*|data|analytics|queues?|latency|uptime|edge|cache|hardware|open[- ]source)\b/gi,
@@ -314,6 +315,7 @@ const MOOD = {
     motion: { ms: 120, ease: 'cubic-bezier(0.2, 0, 0, 1)', note: 'Feedback is instant; numbers update in place without animating.' },
     names: ['Signal', 'Relay', 'Telemetry', 'Circuit', 'Vector', 'Kernel'],
     avoid: ['Glowing borders, mesh gradients and fake terminal typing effects.', 'Code screenshots that are not the product\'s real API.'],
+    voice: ['Write like a changelog: exact names, numbers with units, and commands in the mono face.', 'Say what it does in one line; show how in a code sample, not an adjective.'],
   },
   warm: {
     words: /\b(food|recipes?|bakery|cafe|coffee|restaurants?|garden\w*|plants?|wellness|yoga|therapy|famil(?:y|ies)|community|crafts?|pottery|ceramics?|local|home|pets?|dogs?|cats?|farms?|kitchen|tea|care|parenting|knit\w*|bread)\b/gi,
@@ -342,6 +344,7 @@ const MOOD = {
     motion: { ms: 220, ease: 'cubic-bezier(0.3, 0, 0, 1)', note: 'Soft fades for images; controls respond instantly.' },
     names: ['Kiln', 'Hearth', 'Loam', 'Larder', 'Orchard', 'Meadow'],
     avoid: ['Clip-art illustrations and stock smiles: use real photos of the work.', 'Script fonts.'],
+    voice: ['Write like a neighbor: "we" and "you", plain words, one specific detail per section (a place, a person, a time).', 'Warm, never cute: no puns on buttons and no exclamation marks in errors.'],
   },
   brutalist: {
     words: /\b(art|artists?|galler(?:y|ies)|studios?|architecture|agency|portfolio|music|festival|zines?|clubs?|records|label|posters?|exhibitions?|streetwear|skate\w*|print\w*|type(?:face|foundry))\b/gi,
@@ -372,6 +375,7 @@ const MOOD = {
     motion: { ms: 80, ease: 'linear', note: 'States switch almost instantly; hover inverts ink and background.' },
     names: ['Concrete', 'Rebar', 'Slab', 'Stencil', 'Bulletin', 'Plinth'],
     avoid: ['Soft shadows, rounded corners and pastel tints.', 'Grain or noise overlays that hide the type.'],
+    voice: ['Write in fragments and imperatives: few words, set large, no hedging.', 'Labels are single nouns or verbs; numbers carry the argument.'],
   },
   luxe: {
     words: /\b(luxury|hotels?|resorts?|wines?|winery|jewel(?:ry|lery)|watch(?:es)?|perfumes?|fragrance|fashion|couture|spa|real estate|boutique|bespoke|tailor\w*|yachts?|champagne|interiors?)\b/gi,
@@ -400,6 +404,7 @@ const MOOD = {
     motion: { ms: 320, ease: 'cubic-bezier(0.2, 0.7, 0.1, 1)', note: 'Slow crossfades for imagery only; text never animates.' },
     names: ['Atelier', 'Velvet', 'Marble', 'Linen', 'Brass', 'Salon'],
     avoid: ['Gold gradients, foil textures and script fonts.', 'More than one accent per view.'],
+    voice: ['Write sparingly: fewer sentences, no superlatives, no urgency.', 'Name materials, places and makers instead of piling up adjectives.'],
   },
   playful: {
     words: /\b(kids?|children|games?|gaming|toys?|learn(?:ing)?|quiz\w*|social|party|parties|fun|dating|stickers?|creators?|memes?|camps?|schools?|students?)\b/gi,
@@ -429,6 +434,7 @@ const MOOD = {
     motion: { ms: 180, ease: 'cubic-bezier(0.34, 1.3, 0.64, 1)', note: 'A small overshoot on press and toggle only; nothing loops.' },
     names: ['Kite', 'Pogo', 'Confetti', 'Doodle', 'Jelly', 'Sprout'],
     avoid: ['Purple-to-pink gradients, 3D blobs and floating emoji.', 'Bounce on every element: motion marks interaction, not decoration.'],
+    voice: ['Write like a friendly guide: second person, short sentences, active verbs.', 'Jokes belong in examples and empty states, never in errors or prices.'],
   },
   institutional: {
     words: /\b(banks?|banking|financ\w*|fintech|accounting|accountants?|invoic\w*|tax(?:es)?|insurance|legal|law|health\w*|clinics?|hospitals?|medical|patients?|government|gov|civic|compliance|payroll|hr|enterprise|b2b|crm|erp|procurement|audits?|pensions?|loans?|mortgages?|bookkeeping)\b/gi,
@@ -457,6 +463,7 @@ const MOOD = {
     motion: { ms: 150, ease: 'cubic-bezier(0.2, 0, 0, 1)', note: 'Motion only confirms an action; it is never decorative.' },
     names: ['Charter', 'Harbor', 'Bastion', 'Registry', 'Almanac', 'Treasury'],
     avoid: ['Stock photos of handshakes and people pointing at screens.', 'Security or compliance badges without the certificate behind them.'],
+    voice: ['Write like a careful advisor: plain words, exact figures, the consequence before the feature.', 'State fees, limits and dates outright; a "from" price always has the full price nearby.'],
   },
 };
 
@@ -563,6 +570,7 @@ export function generateStyle({ seed = 'sloplint', brief = '', mood, mode } = {}
     motion: m.motion,
     layout: { key: layout, ...LAYOUTS[layout] },
     signatures: rnd('signature').take(m.signatures, 2).map((k) => SIGNATURES[k]),
+    voice: m.voice,
     avoid: m.avoid,
   };
 }
@@ -645,6 +653,12 @@ ${style.signatures.map((s) => `- Signature: ${s}`).join('\n')}
 - Inputs: 40px tall, \`--surface\` fill, \`--border\` in \`--line\`, a visible label above and the error below in \`--danger\`.
 - Tables: hairline rows, right-aligned mono figures, inside an \`overflow-x: auto\` wrapper.
 - Nested corners: inner radius = outer radius minus the padding between them (\`--radius-lg\` outside, \`--radius-sm\` inside).
+
+## Voice
+
+${style.voice.map((v) => `- ${v}`).join('\n')}
+- Buttons and links name the action ("Send invoice", not "Submit"); headings and buttons start with words, never emoji.
+- Every figure, customer count or certification has a source next to it. No real figure yet: leave the claim out.
 
 ## Motion
 

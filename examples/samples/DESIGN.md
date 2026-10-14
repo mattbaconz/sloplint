@@ -76,6 +76,13 @@ With Tailwind, map the tokens in the theme (`colors: { accent: 'var(--accent)' }
 - Tables: hairline rows, right-aligned mono figures, inside an `overflow-x: auto` wrapper.
 - Nested corners: inner radius = outer radius minus the padding between them (`--radius-lg` outside, `--radius-sm` inside).
 
+## Voice
+
+- Write like a careful advisor: plain words, exact figures, the consequence before the feature.
+- State fees, limits and dates outright; a "from" price always has the full price nearby.
+- Buttons and links name the action ("Send invoice", not "Submit"); headings and buttons start with words, never emoji.
+- Every figure, customer count or certification has a source next to it. No real figure yet: leave the claim out.
+
 ## Motion
 
 - 150ms with `--ease` for hover, focus and state changes. Name the properties; never `transition: all`.
