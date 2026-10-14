@@ -5,7 +5,7 @@ import { readFileSync, writeFileSync, readdirSync, statSync, existsSync, realpat
 import { basename, dirname, join, relative, resolve, sep } from 'node:path';
 import { parseArgs } from 'node:util';
 import { RULES, DOMAINS, EXTENSIONS, findRule, lint, fixSource, score, diffLines, pairRows } from './engine.mjs';
-import { init, PRESETS } from './init.mjs';
+import { init, defaultSeed, PRESETS } from './init.mjs';
 import { generateStyle, specimenHtml, parseDesign, contrast, MOODS } from './design.mjs';
 
 const ROOT = new URL('../', import.meta.url);
@@ -23,7 +23,7 @@ Usage
       --max-score <n>           Exit 1 when the score is above n
       --no-color                Plain output (also honours NO_COLOR)
   sloplint init [dir]             Write DESIGN.md and sync the agent rule files
-      --seed <text>             Generate the design system from this seed (default: the package name)
+      --seed <text>             Generate the design system from this seed (default: package name + random suffix)
       --brief <text>            One line about the product; its words steer the mood
       --mood <name>             Force a mood: ${MOODS.join(', ')}
       --mode light|dark         Force light or dark
@@ -412,7 +412,7 @@ function style(argv, io) {
   const { values } = parseArgs({ args: argv, options: { ...STYLE_OPTIONS, html: { type: 'string' }, json: { type: 'boolean' }, 'no-color': { type: 'boolean' } } });
   const pkg = packageInfo(process.cwd());
   const s = generateStyle({
-    seed: values.seed ?? pkg?.name ?? basename(process.cwd()),
+    seed: values.seed ?? defaultSeed(process.cwd()),
     brief: values.brief ?? pkg?.description ?? '',
     mood: values.mood,
     mode: values.mode,

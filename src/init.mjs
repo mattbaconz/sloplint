@@ -46,7 +46,7 @@ export function ruleBlock(design, { domains = Object.keys(DOMAINS), hooks = fals
     '',
     `- Design: follow DESIGN.md (${design}) for every color, typeface, radius and duration.`,
     hooks
-      ? '- Check: a hook lints every file you write; fix what it reports. Before you finish, `npx @sloplint/cli check .` must report 0/100.'
+      ? '- Check: hooks lint every file you write and check the project when you stop; fix what they report. You do not need to run the check yourself.'
       : '- Check: before you finish, `npx @sloplint/cli check .` must report 0/100. Fix every finding.',
     '- `npx @sloplint/cli explain <RULE>` gives the reasoning and a worked example.',
     '- Pages never scroll sideways at 375px: wrap navigation, stack rows, and put wide tables in an `overflow-x: auto` wrapper.',
@@ -117,8 +117,16 @@ function withHooks(existing) {
   return `${JSON.stringify(settings, null, 2)}\n`;
 }
 
+// The default seed: the package or directory name, whose words can steer the mood, plus a random
+// suffix so two projects called "my-app" still look different. DESIGN.md records it.
+export function defaultSeed(dir) {
+  const pkg = readJson(join(dir, 'package.json'));
+  const name = String(pkg?.name ?? basename(resolve(dir))).replace(/^@[^/]+\//, '');
+  return `${name}-${Math.random().toString(36).slice(2, 6)}`;
+}
+
 // seed, brief, mood and mode pick a generated design system; preset picks a curated one. With
-// neither, init keeps whatever an earlier run chose, or generates one from the package name.
+// neither, init keeps whatever an earlier run chose, or generates a new one.
 export function init(dir, { preset, seed, brief, mood, mode, force = false, hooks = false } = {}) {
   const read = (rel) => (existsSync(join(dir, rel)) ? readFileSync(join(dir, rel), 'utf8') : null);
   const files = [];
@@ -151,7 +159,7 @@ export function init(dir, { preset, seed, brief, mood, mode, force = false, hook
   } else {
     const previous = !styled && markedStyle ? JSON.parse(markedStyle) : {};
     const style = generateStyle({
-      seed: seed ?? previous.seed ?? pkg?.name ?? basename(resolve(dir)),
+      seed: seed ?? previous.seed ?? defaultSeed(dir),
       brief: brief ?? previous.brief ?? pkg?.description ?? '',
       mood: mood ?? previous.mood,
       mode: mode ?? previous.mode,

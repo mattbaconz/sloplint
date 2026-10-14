@@ -30,7 +30,9 @@ test('init generates DESIGN.md from the package and syncs every agent file', (t)
   const dir = tempDir(t, PACKAGE);
   const report = init(dir);
   assert.equal(report.preset, null);
-  assert.equal(report.style.seed, 'harbor-invoices');
+  assert.match(report.style.seed, /^harbor-invoices-[a-z0-9]+$/);
+  assert.equal(report.style.brief, 'Invoicing for freelance studios');
+  assert.notEqual(init(tempDir(t, PACKAGE)).style.seed, report.style.seed, 'two projects with the same name get different seeds');
   assert.deepEqual(report.files.map((f) => f.status), Array(5).fill('created'));
   assert.equal(read(dir, 'DESIGN.md'), designDoc(report.style));
   const block = ruleBlock(`${report.style.name}: ${report.style.mood}, ${report.style.mode}`);
@@ -129,7 +131,7 @@ test('init --hooks wires the Claude Code hooks and keeps existing settings', (t)
   assert.deepEqual(after.permissions, settings.permissions);
   assert.deepEqual(after.hooks.PostToolUse.map((e) => e.matcher), ['Bash', 'Write|Edit|MultiEdit']);
   assert.equal(after.hooks.Stop[0].hooks[0].command, 'npx -y @sloplint/cli hook');
-  assert.match(read(dir, 'CLAUDE.md'), /a hook lints every file you write/);
+  assert.match(read(dir, 'CLAUDE.md'), /hooks lint every file you write and check the project when you stop/);
   assert.equal(init(dir, { hooks: true }).files.find((f) => f.path === '.claude/settings.json').status, 'unchanged');
   writeFileSync(join(dir, '.claude/settings.json'), '{ not json');
   assert.match(init(dir, { hooks: true }).notes.join(' '), /not valid JSON/);

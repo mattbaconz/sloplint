@@ -4,9 +4,11 @@
 //   node bench/run.mjs --out ../bench-runs/2026-10-14
 //   node bench/run.mjs --out ../bench-runs/pilot --tasks readme --agents claude
 //
-// "baseline" gets the task seed only. "sloplint" also gets `sloplint init` (DESIGN.md plus the
-// rule block in CLAUDE.md, GEMINI.md and AGENTS.md) and a local install so `npx @sloplint/cli` works.
-// Prompts are identical in both arms. Successful runs are skipped and failed ones redone, so a rerun resumes.
+// "baseline" gets the task seed only. "sloplint" also gets `sloplint init --brief <the prompt's
+// first sentence>` (a generated DESIGN.md plus the rule block in CLAUDE.md, GEMINI.md and AGENTS.md)
+// and a local install so `npx @sloplint/cli` works. "hooks" is "sloplint" plus `--hooks` (Claude Code
+// only). Prompts are identical in every arm. Successful runs are skipped and failed ones redone, so a
+// rerun resumes.
 
 import { spawn, execFileSync } from 'node:child_process';
 import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
@@ -102,11 +104,11 @@ async function runOne(job, { out, modules, timeoutMs }) {
   mkdirSync(work, { recursive: true });
   const seed = join(TASKS, task, 'seed');
   if (existsSync(seed)) cpSync(seed, work, { recursive: true });
-  if (arm === 'sloplint') {
-    init(work, {});
+  const prompt = readFileSync(join(TASKS, task, 'prompt.md'), 'utf8').trim();
+  if (arm !== 'baseline') {
+    init(work, { brief: /^.*?[.!?](?=\s|$)/.exec(prompt)?.[0], hooks: arm === 'hooks' });
     cpSync(modules, join(work, 'node_modules'), { recursive: true });
   }
-  const prompt = readFileSync(join(TASKS, task, 'prompt.md'), 'utf8').trim();
   const started = Date.now();
   const r = await exec(agent, def.args(prompt, def.model), { cwd: work, timeoutMs });
   writeFileSync(join(dir, 'stdout.txt'), r.stdout);
@@ -151,7 +153,7 @@ async function main() {
   for (let rep = 1; rep <= Number(values.reps); rep++) {
     for (const task of values.tasks.split(',')) for (const arm of values.arms.split(',')) for (const agent of agents) jobs.push({ agent, arm, task, rep });
   }
-  const modules = values.arms.includes('sloplint') ? sloplintModules(out) : null;
+  const modules = values.arms.split(',').some((arm) => arm !== 'baseline') ? sloplintModules(out) : null;
   const options = { out, modules, timeoutMs: Number(values['timeout-min']) * 60_000 };
   console.log(`${jobs.length} runs -> ${out}`);
   await Promise.all(agents.map((agent) => pool(jobs.filter((j) => j.agent === agent), AGENTS[agent].concurrency, async (job) => {

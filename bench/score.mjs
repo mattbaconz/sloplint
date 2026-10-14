@@ -4,9 +4,13 @@
 //   node bench/score.mjs --runs ../bench-runs/2026-10-14 --out bench/results/2026-10-14
 //
 // Every run is scored on what the agent wrote: seed files it left alone, sloplint's own files
-// (DESIGN.md, CLAUDE.md, GEMINI.md, AGENTS.md, .cursor/) and node_modules are excluded, so both
-// arms are measured on the same footing. Task checks do not use sloplint: syntax, a test-suite
-// mutation score, README accuracy against the real CLI flags, and a rendered screenshot.
+// (DESIGN.md, CLAUDE.md, GEMINI.md, AGENTS.md, .cursor/, .claude/) and node_modules are excluded,
+// so the arms are measured on the same footing. As with `sloplint check`, a run that has a
+// DESIGN.md is also held to its tokens (UI-011, UI-012), which only makes the sloplint arms
+// stricter. Task checks do not use sloplint: syntax, a test-suite mutation score, README accuracy
+// against the real CLI flags, and a rendered landing page (overflow, typefaces, CTA color).
+//
+//   --runs takes several directories, comma-separated, when arms were run separately.
 
 import { spawnSync } from 'node:child_process';
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
@@ -15,11 +19,14 @@ import { extname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { parseArgs } from 'node:util';
 import { EXTENSIONS, RULE_BY_ID, lint, score } from '../src/engine.mjs';
+import { parseDesign, rgbaOf } from '../src/design.mjs';
+import { colorsIn, isNeonPurple } from '../src/style.mjs';
 import { MUTANTS } from './tasks/tests/mutants.mjs';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const TASKS = join(ROOT, 'bench', 'tasks');
-const SLOPLINT_FILES = /^(DESIGN\.md|CLAUDE\.md|GEMINI\.md|AGENTS\.md|\.cursor\/.*)$/;
+const SLOPLINT_FILES = /^(DESIGN\.md|CLAUDE\.md|GEMINI\.md|AGENTS\.md|\.cursor\/.*|\.claude\/.*)$/;
+const ARMS = ['baseline', 'sloplint', 'hooks'];
 const SKIP_DIRS = new Set(['node_modules', '.git', 'dist', 'build', '.next', 'coverage']);
 const TEXT = /\.(m?[jt]sx?|cjs|json|html?|css|scss|md|mdx|vue|svelte|py|txt|ya?ml)$/i;
 
@@ -101,7 +108,27 @@ async function landing(work, shots, name) {
     await tab.goto(pathToFileURL(page).href, { waitUntil: 'load', timeout: 20_000 }).catch((e) => errors.push(e.message));
     mkdirSync(shots, { recursive: true });
     await tab.screenshot({ path: join(shots, `${name}.jpg`), type: 'jpeg', quality: 72 });
-    const info = await tab.evaluate(() => ({ forms: document.forms.length, height: document.documentElement.scrollHeight }));
+    // The look: declared typefaces of the headline and body text, and the first colored fill on a
+    // link or button, which is the primary call to action on nearly every landing page.
+    const { fills, ...info } = await tab.evaluate(() => {
+      const face = (el) => (el ? getComputedStyle(el).fontFamily.split(',')[0].replace(/["']/g, '').trim() : null);
+      const clear = /^(transparent|rgba\(0, 0, 0, 0\))$/;
+      return {
+        forms: document.forms.length,
+        height: document.documentElement.scrollHeight,
+        display: face(document.querySelector('h1')),
+        text: face(document.querySelector('p') ?? document.body),
+        fills: [...document.querySelectorAll('a, button')]
+          .filter((el) => el.getBoundingClientRect().width > 0 && !clear.test(getComputedStyle(el).backgroundColor))
+          .map((el) => getComputedStyle(el).backgroundColor),
+      };
+    });
+    const hexes = fills.map(rgbaOf).filter(Boolean).map((c) => `#${c.slice(0, 3).map((v) => v.toString(16).padStart(2, '0')).join('')}`);
+    const colored = (hex) => {
+      const c = colorsIn(hex)[0];
+      return c && c.s >= 0.25 && c.l >= 0.15 && c.l <= 0.88;
+    };
+    info.cta = hexes.find(colored) ?? hexes[0] ?? null;
     await tab.setViewportSize({ width: 375, height: 812 });
     const overflow = await tab.evaluate(() => document.documentElement.scrollWidth > 375);
     await tab.screenshot({ path: join(shots, `${name}-375.jpg`), type: 'jpeg', quality: 72 });
@@ -121,7 +148,9 @@ async function scoreRun(dir, ctx) {
   const meta = JSON.parse(readFileSync(join(dir, 'meta.json'), 'utf8'));
   const work = join(dir, 'work');
   const { files, seedModified } = authored(work, meta.task);
-  const results = files.filter((f) => EXTENSIONS.includes(extname(f.rel).slice(1).toLowerCase())).map((f) => lint(f.text, f.rel));
+  const designText = existsSync(join(work, 'DESIGN.md')) ? readFileSync(join(work, 'DESIGN.md'), 'utf8') : null;
+  const design = parseDesign(designText);
+  const results = files.filter((f) => EXTENSIONS.includes(extname(f.rel).slice(1).toLowerCase())).map((f) => lint(f.text, f.rel, { design }));
   const s = score(results);
   const findings = results.flatMap((r) => r.diagnostics.map((d) => ({ file: r.path, line: d.line, rule: d.rule, message: d.message })));
   const check = {};
@@ -138,6 +167,7 @@ async function scoreRun(dir, ctx) {
   }
   return {
     ...meta,
+    system: designText && /^# DESIGN\.md: (.+)$/m.exec(designText)?.[1],
     files: files.length,
     lines: s.lines,
     score: s.score,
@@ -154,48 +184,47 @@ async function scoreRun(dir, ctx) {
 
 const mean = (xs) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null);
 const fmt = (x, digits = 0) => (x == null ? 'n/a' : x.toFixed(digits));
+const hueOf = (hex) => colorsIn(hex)[0];
 
 function report(runs, meta) {
   const agents = [...new Set(runs.map((r) => r.agent))];
   const tasks = [...new Set(runs.map((r) => r.task))];
   const pick = (agent, arm, task) => runs.filter((r) => r.agent === agent && r.arm === arm && (!task || r.task === task));
+  const armsOf = (agent) => ARMS.filter((arm) => pick(agent, arm).length);
+  const cols = agents.flatMap((a) => armsOf(a).map((arm) => [a, arm]));
+  const head = (first) => [`| ${first} | ${cols.map(([a, arm]) => `${a} ${arm}`).join(' | ')} |`, `| ${first.split(' | ').map(() => '---').join(' | ')} | ${cols.map(() => '---').join(' | ')} |`];
   const out = [];
   out.push(`# Benchmark: ${meta.date}`, '');
-  out.push(`Same prompt, same model, fresh directory per run. The \`baseline\` arm gets the task only; the \`sloplint\` arm also gets \`sloplint init\` and a local install. ${runs.length} scored runs, up to ${meta.reps} per cell. Method and caveats: [bench/README.md](../../README.md).`, '');
+  out.push(`Same prompt, same model, fresh directory per run. \`baseline\` gets the task only; \`sloplint\` also gets \`sloplint init --brief <the prompt's first sentence>\` and a local install; \`hooks\` is \`sloplint\` plus \`--hooks\` (Claude Code only). ${runs.length} scored runs, up to ${meta.reps} per cell. Method and caveats: [bench/README.md](../../README.md).`, '');
   if (meta.failed.length) out.push(`Not scored (agent CLI error or timeout): ${meta.failed.map((f) => `${f.agent}/${f.arm}/${f.task} run ${f.rep}`).join(', ')}.`, '');
   out.push('## Summary', '');
-  out.push('| Agent | Model | Arm | Mean Slop Score | Findings | Errors | Suppressions | Mean time | Mean tokens in/out |', '| --- | --- | --- | --- | --- | --- | --- | --- | --- |');
-  for (const agent of agents) {
-    for (const arm of ['baseline', 'sloplint']) {
-      const rs = pick(agent, arm);
-      if (!rs.length) continue;
-      out.push(`| ${agent} | \`${rs[0].model}\` | ${arm} | ${fmt(mean(rs.map((r) => r.score)), 1)} | ${rs.reduce((n, r) => n + r.findings.length, 0)} | ${rs.reduce((n, r) => n + r.errors, 0)} | ${rs.reduce((n, r) => n + r.suppressions, 0)} | ${fmt(mean(rs.map((r) => r.durationMs / 1000)))}s | ${fmt(mean(rs.map((r) => r.inputTokens ?? 0)) / 1000)}k / ${fmt(mean(rs.map((r) => r.outputTokens ?? 0)) / 1000, 1)}k |`);
-    }
+  out.push('| Agent | Model | Arm | Mean Slop Score | Findings | Errors | Suppressions | Mean time | Mean turns | Mean tokens in/out | Mean cost |', '| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |');
+  for (const [agent, arm] of cols) {
+    const rs = pick(agent, arm);
+    const cost = mean(rs.filter((r) => r.costUsd != null).map((r) => r.costUsd));
+    out.push(`| ${agent} | \`${rs[0].model}\` | ${arm} | ${fmt(mean(rs.map((r) => r.score)), 1)} | ${rs.reduce((n, r) => n + r.findings.length, 0)} | ${rs.reduce((n, r) => n + r.errors, 0)} | ${rs.reduce((n, r) => n + r.suppressions, 0)} | ${fmt(mean(rs.map((r) => r.durationMs / 1000)))}s | ${fmt(mean(rs.filter((r) => r.turns != null).map((r) => r.turns)), 1)} | ${fmt(mean(rs.map((r) => r.inputTokens ?? 0)) / 1000)}k / ${fmt(mean(rs.map((r) => r.outputTokens ?? 0)) / 1000, 1)}k | ${cost == null ? 'n/a' : `$${cost.toFixed(3)}`} |`);
   }
   out.push('');
-  for (const agent of agents) {
+  for (const [agent, arm] of cols.filter(([, arm]) => arm !== 'baseline')) {
     const verdicts = tasks.map((task) => {
       const b = mean(pick(agent, 'baseline', task).map((r) => r.score));
-      const s = mean(pick(agent, 'sloplint', task).map((r) => r.score));
+      const s = mean(pick(agent, arm, task).map((r) => r.score));
       return b == null || s == null ? null : Math.sign(s - b);
     }).filter((v) => v != null);
-    out.push(`- **${agent}**: with sloplint, the mean score was lower on ${verdicts.filter((v) => v < 0).length} of ${verdicts.length} tasks, equal on ${verdicts.filter((v) => v === 0).length} and higher on ${verdicts.filter((v) => v > 0).length}.`);
+    out.push(`- **${agent} ${arm}** against baseline: the mean score was lower on ${verdicts.filter((v) => v < 0).length} of ${verdicts.length} tasks, equal on ${verdicts.filter((v) => v === 0).length} and higher on ${verdicts.filter((v) => v > 0).length}.`);
   }
   out.push('', '## Slop Score by task', '', 'Mean score per cell, lower is better; individual runs in brackets.', '');
-  out.push(`| Task | ${agents.flatMap((a) => [`${a} baseline`, `${a} sloplint`]).join(' | ')} |`, `| --- | ${agents.flatMap(() => ['---', '---']).join(' | ')} |`);
+  out.push(...head('Task'));
   for (const task of tasks) {
-    const cells = agents.flatMap((a) => ['baseline', 'sloplint'].map((arm) => {
+    const cells = cols.map(([a, arm]) => {
       const rs = pick(a, arm, task);
       return rs.length ? `${fmt(mean(rs.map((r) => r.score)))} [${rs.map((r) => r.score).join(', ')}]` : 'n/a';
-    }));
+    });
     out.push(`| ${task} | ${cells.join(' | ')} |`);
   }
   out.push('', '## Checks that do not use sloplint', '');
-  out.push('| Task | Check | ' + agents.flatMap((a) => [`${a} baseline`, `${a} sloplint`]).join(' | ') + ' |', `| --- | --- | ${agents.flatMap(() => ['---', '---']).join(' | ')} |`);
-  const row = (task, label, f) => {
-    const cells = agents.flatMap((a) => ['baseline', 'sloplint'].map((arm) => pick(a, arm, task).map(f).join(', ') || 'n/a'));
-    out.push(`| ${task} | ${label} | ${cells.join(' | ')} |`);
-  };
+  out.push(...head('Task | Check'));
+  const row = (task, label, f) => out.push(`| ${task} | ${label} | ${cols.map(([a, arm]) => pick(a, arm, task).map(f).join(', ') || 'n/a').join(' | ')} |`);
   row('tests', 'Suite passes', (r) => (r.check.passes ? 'yes' : 'no'));
   row('tests', 'Mutants killed', (r) => `${r.check.killed}/${r.check.total}`);
   row('readme', 'Real flags documented', (r) => (r.check.exists ? `${r.check.documented}/${r.check.of}` : 'missing'));
@@ -205,20 +234,38 @@ function report(runs, meta) {
   row('landing', 'Page errors', (r) => String(r.check.pageErrors ?? 'n/a'));
   row('video', 'Files present', (r) => (r.check.exists ? 'yes' : 'no'));
   row('dashboard', 'File present', (r) => (r.check.exists ? 'yes' : 'no'));
+
+  const pages = runs.filter((r) => r.task === 'landing' && r.check.exists);
+  if (pages.length) {
+    out.push('', '## Landing page look', '', 'Declared headline and body typefaces, and the fill of the first filled link or button (the primary call to action), read from the rendered page. "AI purple" is the saturated indigo-to-violet band of UI-001.', '');
+    out.push('| Agent | Arm | Run | Design system | Headline face | Body face | CTA fill |', '| --- | --- | --- | --- | --- | --- | --- |');
+    for (const r of pages) {
+      const c = r.check.cta && hueOf(r.check.cta);
+      const fill = r.check.cta ? `\`${r.check.cta}\` hue ${Math.round(c.h)}${isNeonPurple(c) ? ', AI purple' : ''}` : 'none';
+      out.push(`| ${r.agent} | ${r.arm} | ${r.rep} | ${r.system ?? 'none'} | ${r.check.display ?? 'n/a'} | ${r.check.text ?? 'n/a'} | ${fill} |`);
+    }
+    out.push('');
+    for (const [agent, arm] of cols) {
+      const ps = pick(agent, arm, 'landing').filter((r) => r.check.exists);
+      if (!ps.length) continue;
+      const faces = new Set(ps.map((r) => r.check.display));
+      const purple = ps.filter((r) => r.check.cta && isNeonPurple(hueOf(r.check.cta))).length;
+      out.push(`- **${agent} ${arm}**: ${faces.size} distinct headline face${faces.size === 1 ? '' : 's'} in ${ps.length} page${ps.length === 1 ? '' : 's'} (${[...faces].join(', ')}); ${purple} AI-purple call${purple === 1 ? '' : 's'} to action.`);
+    }
+  }
+
   out.push('', '## Rules hit', '', 'Findings per rule across all runs of each arm.', '');
-  const ids = [...new Set(runs.flatMap((r) => r.findings.map((f) => f.rule)))].sort();
-  out.push(`| Rule | ${agents.flatMap((a) => [`${a} baseline`, `${a} sloplint`]).join(' | ')} |`, `| --- | ${agents.flatMap(() => ['---', '---']).join(' | ')} |`);
-  for (const id of ids) {
-    const cells = agents.flatMap((a) => ['baseline', 'sloplint'].map((arm) => String(pick(a, arm).reduce((n, r) => n + r.findings.filter((f) => f.rule === id).length, 0))));
-    out.push(`| ${id} ${RULE_BY_ID.get(id)?.slug ?? ''} | ${cells.join(' | ')} |`);
+  out.push(...head('Rule'));
+  for (const id of [...new Set(runs.flatMap((r) => r.findings.map((f) => f.rule)))].sort()) {
+    out.push(`| ${id} ${RULE_BY_ID.get(id)?.slug ?? ''} | ${cols.map(([a, arm]) => String(pick(a, arm).reduce((n, r) => n + r.findings.filter((f) => f.rule === id).length, 0))).join(' | ')} |`);
   }
   if (existsSync(join(meta.outDir, 'shots'))) {
     out.push('', '## Landing pages', '', 'First viewport at 1280px. Full outputs are under `runs/`.', '');
     for (const agent of agents) {
       for (const rep of [...new Set(runs.map((r) => r.rep))]) {
-        const b = `shots/${agent}-baseline-r${rep}.jpg`;
-        const s = `shots/${agent}-sloplint-r${rep}.jpg`;
-        if (existsSync(join(meta.outDir, b)) && existsSync(join(meta.outDir, s))) out.push(`**${agent}, run ${rep}**`, '', '| baseline | sloplint |', '| --- | --- |', `| ![baseline](${b}) | ![sloplint](${s}) |`, '');
+        const shots = armsOf(agent).map((arm) => [arm, `shots/${agent}-${arm}-r${rep}.jpg`]).filter(([, s]) => existsSync(join(meta.outDir, s)));
+        if (shots.length < 2) continue;
+        out.push(`**${agent}, run ${rep}**`, '', `| ${shots.map(([arm]) => arm).join(' | ')} |`, `| ${shots.map(() => '---').join(' | ')} |`, `| ${shots.map(([arm, s]) => `![${arm}](${s})`).join(' | ')} |`, '');
       }
     }
   }
@@ -236,13 +283,14 @@ async function main() {
     process.exitCode = r.passes && r.killed === r.total ? 0 : 1;
     return;
   }
-  if (!values.runs || !values.out) throw new Error('--runs <dir> and --out <dir> are required');
-  const runsDir = resolve(values.runs);
+  if (!values.runs || !values.out) throw new Error('--runs <dir[,dir...]> and --out <dir> are required');
   const out = resolve(values.out);
   mkdirSync(out, { recursive: true });
   const dirs = [];
-  for (const agent of readdirSync(runsDir).filter((n) => !n.startsWith('_') && statSync(join(runsDir, n)).isDirectory())) {
-    for (const arm of readdirSync(join(runsDir, agent))) for (const run of readdirSync(join(runsDir, agent, arm))) dirs.push(join(runsDir, agent, arm, run));
+  for (const runsDir of values.runs.split(',').map((d) => resolve(d))) {
+    for (const agent of readdirSync(runsDir).filter((n) => !n.startsWith('_') && statSync(join(runsDir, n)).isDirectory())) {
+      for (const arm of readdirSync(join(runsDir, agent))) for (const run of readdirSync(join(runsDir, agent, arm))) dirs.push(join(runsDir, agent, arm, run));
+    }
   }
   const runs = [];
   const failed = [];
@@ -253,7 +301,7 @@ async function main() {
     else runs.push(await scoreRun(dir, { out, shots: join(out, 'shots') }));
     process.stdout.write('.');
   }
-  runs.sort((a, b) => a.agent.localeCompare(b.agent) || a.task.localeCompare(b.task) || a.arm.localeCompare(b.arm) || a.rep - b.rep);
+  runs.sort((a, b) => a.agent.localeCompare(b.agent) || a.task.localeCompare(b.task) || ARMS.indexOf(a.arm) - ARMS.indexOf(b.arm) || a.rep - b.rep);
   const date = new Date().toISOString().slice(0, 10);
   writeFileSync(join(out, 'results.json'), `${JSON.stringify({ date, runs, failed }, null, 2)}\n`);
   writeFileSync(join(out, 'README.md'), report(runs, { date, failed, reps: Math.max(...runs.map((r) => r.rep)), outDir: out }));
