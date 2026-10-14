@@ -625,7 +625,7 @@ ${tokensCss(style)}
 
 Contrast on \`--bg\`: ink ${ratio(c.ink, c.bg)}, ink-2 ${ratio(c['ink-2'], c.bg)}, accent-ink ${ratio(c['accent-ink'], c.bg)}. \`--on-accent\` on \`--accent\`: ${ratio(c['on-accent'], c.accent)}.
 
-With Tailwind, map the tokens in the theme (\`colors: { accent: 'var(--accent)' }\`) and write \`bg-accent\`, never palette classes such as \`bg-blue-600\`.
+With Tailwind, expose the tokens to the theme (v4: \`@theme { --color-accent: var(--accent); }\`; v3: \`colors: { accent: 'var(--accent)' }\`) and write \`bg-accent\`, never palette classes such as \`bg-blue-600\`.
 
 ## Type
 
