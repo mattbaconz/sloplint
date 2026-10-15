@@ -167,6 +167,15 @@ export function createContext(text, path, { design = null } = {}) {
     return decls;
   });
 
+  // Substitutes this file's custom properties into a value. The first definition wins: it is usually
+  // :root, and later ones tend to be dark-mode or state overrides.
+  let vars = null;
+  ctx.resolveVars = (value, depth = 0) => {
+    if (depth > 4 || !value.includes('var(')) return value;
+    vars ??= new Map(ctx.cssDecls.filter((d) => d.prop.startsWith('--')).reverse().map((d) => [d.prop, d.value]));
+    return ctx.resolveVars(value.replace(/var\(\s*(--[\w-]+)\s*(?:,\s*([^()]*))?\)/g, (m, name, fallback) => vars.get(name) ?? fallback ?? m), depth + 1);
+  };
+
   const markupAttrStarts = () => {
     const starts = new Set();
     for (const el of ctx.markup?.elements ?? []) for (const a of Object.values(el.attrs)) if (!a.expr) starts.add(a.start);

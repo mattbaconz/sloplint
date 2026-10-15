@@ -255,11 +255,14 @@ export const RULES = [
     check(ctx) {
       const out = [];
       for (const d of ctx.cssDecls) {
+        // Gradient-ness comes from the declaration itself, so `background: var(--grad)` is left to --grad's own
+        // definition; colors and blur come through custom properties, so `0 8px 24px var(--brand)` is a glow.
         const gradient = /gradient\(/i.test(d.value);
         if (!gradient && !/^(box-shadow|text-shadow|filter)$/.test(d.prop)) continue;
-        if (!colorsIn(d.value).some(isNeonPurple)) continue;
+        const value = ctx.resolveVars(d.value);
+        if (!colorsIn(value).some(isNeonPurple)) continue;
         if (gradient) out.push(hit(d.start, d.end, 'Purple/indigo gradient: the stock AI accent'));
-        else if (blurOf(d.value) >= 16) out.push(hit(d.start, d.end, 'Neon purple glow shadow'));
+        else if (blurOf(value) >= 16) out.push(hit(d.start, d.end, 'Neon purple glow shadow'));
       }
       for (const s of ctx.classStrings) {
         const tokens = [...s.text.matchAll(/\S+/g)];

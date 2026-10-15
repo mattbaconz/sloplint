@@ -1,0 +1,23 @@
+<!-- expect: UI-001 -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Ledgerly</title>
+<style>
+  /* Stock indigo behind a token: the glow and the backdrop blob are still the AI accent. */
+  :root { --brand: #4f46e5; --mint: #10b981; }
+  @media (prefers-color-scheme: dark) { :root { --brand: #8b86ff; } }
+  .btn { background: var(--brand); color: #fff; box-shadow: 0 8px 20px -8px var(--brand); }
+  .hero { background: radial-gradient(500px 300px at 20% 30%, color-mix(in srgb, var(--brand) 22%, transparent), transparent 70%); }
+  .note { box-shadow: 0 8px 24px var(--mint); }
+</style>
+</head>
+<body>
+  <section class="hero">
+    <h1>Every payment matched to its invoice</h1>
+    <a class="btn" href="/signup">Start your trial</a>
+    <p class="note">Bank feeds update hourly.</p>
+  </section>
+</body>
+</html>
