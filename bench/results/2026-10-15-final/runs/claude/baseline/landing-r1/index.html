@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ledgerly — Invoicing that reconciles itself</title>
+<meta name="description" content="Ledgerly matches incoming bank payments to open invoices automatically, so small agencies spend less time chasing and more time billing.">
+<style>
+:root{
+  --bg:#fafaf7; --surface:#fff; --ink:#14201b; --muted:#5b6862; --line:#e4e7e1;
+  --brand:#0f766e; --brand-dark:#0b5a54; --brand-soft:#e3f3f0; --accent:#f59e0b;
+  --radius:16px; --shadow:0 1px 2px rgba(20,32,27,.06),0 12px 32px -12px rgba(20,32,27,.18);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased}
+h1,h2,h3{line-height:1.15;margin:0;letter-spacing:-.02em}
+p{margin:0}
+a{color:inherit}
+.wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+section{padding:96px 0}
+.eyebrow{display:inline-block;font-size:.8rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--brand)}
+.section-head{max-width:640px;margin:0 auto 56px;text-align:center}
+.section-head h2{font-size:clamp(1.9rem,4vw,2.6rem);margin:12px 0 14px}
+.section-head p{color:var(--muted);font-size:1.1rem}
+
+.btn{display:inline-block;padding:13px 24px;border-radius:999px;font-weight:600;text-decoration:none;border:1px solid transparent;cursor:pointer;font-size:1rem;font-family:inherit;transition:transform .15s,background .15s,box-shadow .15s}
+.btn:hover{transform:translateY(-1px)}
+.btn-primary{background:var(--brand);color:#fff;box-shadow:0 6px 18px -6px rgba(15,118,110,.6)}
+.btn-primary:hover{background:var(--brand-dark)}
+.btn-ghost{background:transparent;border-color:var(--line);color:var(--ink)}
+.btn-ghost:hover{background:var(--surface)}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+/* nav */
+header{position:sticky;top:0;z-index:10;background:rgba(250,250,247,.85);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+nav{display:flex;align-items:center;justify-content:space-between;height:68px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.2rem;text-decoration:none;letter-spacing:-.02em}
+.logo-mark{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--brand),#14b8a6);display:grid;place-items:center;color:#fff;font-size:1rem}
+.nav-links{display:flex;gap:28px;align-items:center}
+.nav-links a{text-decoration:none;color:var(--muted);font-weight:500;font-size:.95rem}
+.nav-links a:hover{color:var(--ink)}
+.nav-links .btn{color:#fff;padding:9px 18px}
+
+/* hero */
+.hero{padding:88px 0 72px;background:radial-gradient(800px 400px at 85% -10%,var(--brand-soft),transparent 70%)}
+.hero-grid{display:grid;grid-template-columns:1.05fr 1fr;gap:56px;align-items:center}
+.pill{display:inline-flex;gap:8px;align-items:center;background:var(--brand-soft);color:var(--brand-dark);padding:6px 14px;border-radius:999px;font-size:.85rem;font-weight:600}
+.hero h1{font-size:clamp(2.4rem,5.4vw,3.9rem);margin:20px 0 20px}
+.hero h1 span{color:var(--brand)}
+.hero p.lead{font-size:1.2rem;color:var(--muted);max-width:30em}
+.cta-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:32px}
+.fine{margin-top:16px;font-size:.88rem;color:var(--muted)}
+
+.mock{background:var(--surface);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);padding:20px}
+.mock-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;font-weight:700}
+.mock-top small{color:var(--muted);font-weight:500}
+.row{display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center;padding:12px 4px;border-top:1px solid var(--line);font-size:.92rem}
+.row b{display:block}
+.row span.sub{color:var(--muted);font-size:.8rem}
+.amt{font-variant-numeric:tabular-nums;font-weight:600}
+.tag{font-size:.74rem;font-weight:700;padding:3px 10px;border-radius:999px}
+.tag.ok{background:#dcfce7;color:#166534}
+.tag.wait{background:#fef3c7;color:#92400e}
+.match{margin-top:14px;padding:12px 14px;border-radius:12px;background:var(--brand-soft);color:var(--brand-dark);font-size:.88rem;font-weight:600}
+
+.logos{padding:0 0 24px;text-align:center;color:var(--muted);font-size:.9rem}
+.logos div{display:flex;gap:36px;justify-content:center;flex-wrap:wrap;margin-top:14px;font-weight:700;font-size:1.05rem;color:#9aa5a0;letter-spacing:-.01em}
+
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:56px}
+.stat{text-align:center;padding:24px;border-radius:var(--radius);background:var(--surface);border:1px solid var(--line)}
+.stat strong{display:block;font-size:2.3rem;letter-spacing:-.03em;color:var(--brand)}
+.stat span{color:var(--muted);font-size:.95rem}
+
+/* features */
+.features{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:28px;transition:box-shadow .2s,transform .2s}
+.card:hover{box-shadow:var(--shadow);transform:translateY(-3px)}
+.icon{width:46px;height:46px;border-radius:12px;background:var(--brand-soft);display:grid;place-items:center;font-size:1.3rem;margin-bottom:18px}
+.card h3{font-size:1.15rem;margin-bottom:8px}
+.card p{color:var(--muted);font-size:.97rem}
+
+/* pricing */
+.pricing-bg{background:var(--ink);color:#fff}
+.pricing-bg .section-head p{color:#b6c2bc}
+.pricing-bg .eyebrow{color:#5eead4}
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;align-items:stretch}
+.plan{background:#1c2b25;border:1px solid #2b3d35;border-radius:20px;padding:32px;display:flex;flex-direction:column}
+.plan.featured{background:var(--surface);color:var(--ink);border-color:var(--surface);transform:scale(1.03);box-shadow:0 24px 48px -16px rgba(0,0,0,.5)}
+.plan h3{font-size:1.2rem}
+.plan .badge{align-self:flex-start;margin-bottom:12px;background:var(--accent);color:#3b2400;font-size:.72rem;font-weight:800;padding:4px 10px;border-radius:999px;text-transform:uppercase;letter-spacing:.05em}
+.price{font-size:3rem;font-weight:800;letter-spacing:-.04em;margin:14px 0 4px}
+.price small{font-size:1rem;font-weight:500;opacity:.65;letter-spacing:0}
+.plan .desc{opacity:.75;font-size:.95rem;margin-bottom:22px}
+.plan ul{list-style:none;padding:0;margin:0 0 28px;display:grid;gap:11px;flex:1;font-size:.96rem}
+.plan li{padding-left:28px;position:relative}
+.plan li::before{content:"✓";position:absolute;left:0;color:#5eead4;font-weight:800}
+.plan.featured li::before{color:var(--brand)}
+.plan .btn{text-align:center}
+.plan:not(.featured) .btn{background:transparent;border-color:#3c5147;color:#fff}
+.plan:not(.featured) .btn:hover{background:#2b3d35}
+
+/* testimonials */
+.quotes{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.quote{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:28px;display:flex;flex-direction:column;gap:20px}
+.stars{color:var(--accent);letter-spacing:2px}
+.quote blockquote{margin:0;font-size:1.02rem;flex:1}
+.who{display:flex;gap:12px;align-items:center}
+.avatar{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:700}
+.who b{display:block;line-height:1.3}
+.who span{color:var(--muted);font-size:.85rem}
+
+/* signup */
+.signup{background:linear-gradient(135deg,var(--brand),#115e59);color:#fff;border-radius:28px;padding:56px;display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
+.signup h2{font-size:clamp(1.8rem,3.6vw,2.5rem);margin-bottom:14px}
+.signup p{opacity:.88;font-size:1.05rem}
+.signup ul{list-style:none;padding:0;margin:22px 0 0;display:grid;gap:8px}
+.signup li::before{content:"✓ ";font-weight:800}
+form{background:var(--surface);color:var(--ink);border-radius:20px;padding:28px;display:grid;gap:16px}
+label{display:grid;gap:6px;font-weight:600;font-size:.9rem}
+input,select{font:inherit;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
+input:focus,select:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-soft)}
+form .btn{width:100%}
+.form-note{font-size:.82rem;color:var(--muted);text-align:center}
+.success{display:none;text-align:center;padding:20px 0}
+.success.show{display:block}
+.success h3{color:var(--brand);margin-bottom:8px}
+
+footer{padding:40px 0;border-top:1px solid var(--line);color:var(--muted);font-size:.9rem}
+footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+
+@media (max-width:900px){
+  section{padding:72px 0}
+  .hero-grid,.signup{grid-template-columns:1fr}
+  .features,.plans,.quotes,.stats{grid-template-columns:1fr}
+  .plan.featured{transform:none}
+  .signup{padding:32px 24px}
+  .nav-links a:not(.btn){display:none}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <nav aria-label="Main">
+      <a class="logo" href="#top"><span class="logo-mark" aria-hidden="true">L</span>Ledgerly</a>
+      <div class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#testimonials">Customers</a>
+        <a class="btn btn-primary" href="#signup">Start free</a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <span class="pill">✦ Automatic payment matching</span>
+        <h1>Invoices that <span>mark themselves paid.</span></h1>
+        <p class="lead">Ledgerly watches your bank feed and matches every incoming payment to the right open invoice, so your agency stops chasing spreadsheets and starts getting paid faster.</p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="#signup">Start your free trial</a>
+          <a class="btn btn-ghost" href="#features">See how it works</a>
+        </div>
+        <p class="fine">14-day free trial · No credit card required</p>
+      </div>
+      <div class="mock" aria-label="Product preview">
+        <div class="mock-top">Incoming payments <small>Today</small></div>
+        <div class="row"><div><b>Northwind Studio</b><span class="sub">Matched to INV-1042</span></div><span class="amt">$4,800.00</span><span class="tag ok">Reconciled</span></div>
+        <div class="row"><div><b>Pixel &amp; Pine</b><span class="sub">Matched to INV-1039</span></div><span class="amt">$1,250.00</span><span class="tag ok">Reconciled</span></div>
+        <div class="row"><div><b>Harbor Co.</b><span class="sub">Partial payment on INV-1037</span></div><span class="amt">$2,000.00</span><span class="tag wait">Review</span></div>
+        <div class="match">⚡ 14 of 15 payments matched automatically this week</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="logos wrap">
+    Trusted by growing agencies
+    <div><span>Brightwave</span><span>Olive&amp;Oak</span><span>Fieldnote</span><span>Kiln Digital</span><span>Parallax</span></div>
+  </div>
+
+  <section id="features">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Features</span>
+        <h2>Everything between “sent” and “paid”</h2>
+        <p>Built for agencies with a handful of people and a lot of clients, not a finance department.</p>
+      </div>
+      <div class="features">
+        <article class="card"><div class="icon" aria-hidden="true">🔗</div><h3>Smart payment matching</h3><p>Reads references, amounts and payer names to link each deposit to the right invoice, even when clients forget the invoice number.</p></article>
+        <article class="card"><div class="icon" aria-hidden="true">🏦</div><h3>Live bank feeds</h3><p>Connect your business accounts securely and see new transactions within minutes, with read-only access.</p></article>
+        <article class="card"><div class="icon" aria-hidden="true">🧾</div><h3>Beautiful invoices</h3><p>Send branded invoices in seconds, with recurring retainers, tax lines and multiple currencies handled for you.</p></article>
+        <article class="card"><div class="icon" aria-hidden="true">⏰</div><h3>Gentle reminders</h3><p>Polite, automatic nudges go out on a schedule you set, and stop the moment a payment lands.</p></article>
+        <article class="card"><div class="icon" aria-hidden="true">🧩</div><h3>Partial &amp; split payments</h3><p>One payment covering three invoices? Or three payments for one? Ledgerly suggests the split and you confirm in a click.</p></article>
+        <article class="card"><div class="icon" aria-hidden="true">📊</div><h3>Cash flow at a glance</h3><p>See what’s outstanding, what’s overdue and what’s expected this month, all in one clean dashboard.</p></article>
+      </div>
+      <div class="stats">
+        <div class="stat"><strong>94%</strong><span>of payments matched without a human</span></div>
+        <div class="stat"><strong>6 hrs</strong><span>saved per month on reconciliation</span></div>
+        <div class="stat"><strong>11 days</strong><span>faster average time to payment</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="pricing" class="pricing-bg">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Pricing</span>
+        <h2>Simple plans that scale with your studio</h2>
+        <p>Start free for 14 days. Change or cancel any time.</p>
+      </div>
+      <div class="plans">
+        <div class="plan">
+          <h3>Solo</h3>
+          <div class="price">$19<small>/month</small></div>
+          <p class="desc">For freelancers and one-person studios.</p>
+          <ul><li>Up to 25 invoices a month</li><li>1 bank account</li><li>Automatic payment matching</li><li>Email reminders</li></ul>
+          <a class="btn" href="#signup">Start free trial</a>
+        </div>
+        <div class="plan featured">
+          <span class="badge">Most popular</span>
+          <h3>Studio</h3>
+          <div class="price">$49<small>/month</small></div>
+          <p class="desc">For agencies of 2–15 people.</p>
+          <ul><li>Unlimited invoices</li><li>3 bank accounts</li><li>Split &amp; partial payment matching</li><li>Recurring retainers</li><li>Up to 5 team members</li></ul>
+          <a class="btn btn-primary" href="#signup">Start free trial</a>
+        </div>
+        <div class="plan">
+          <h3>Agency</h3>
+          <div class="price">$99<small>/month</small></div>
+          <p class="desc">For multi-team agencies with complex billing.</p>
+          <ul><li>Everything in Studio</li><li>Unlimited bank accounts</li><li>Multi-currency &amp; tax rules</li><li>Accountant access</li><li>Priority support</li></ul>
+          <a class="btn" href="#signup">Start free trial</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="testimonials">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Customers</span>
+        <h2>Agencies that stopped chasing payments</h2>
+      </div>
+      <div class="quotes">
+        <figure class="quote" style="margin:0">
+          <div class="stars" aria-label="5 out of 5 stars">★★★★★</div>
+          <blockquote>“Month-end used to eat a full Friday. Now I open Ledgerly, glance at two flagged payments and I’m done in ten minutes.”</blockquote>
+          <figcaption class="who"><span class="avatar" style="background:#0f766e">MR</span><div><b>Maya Reyes</b><span>Founder, Fieldnote Creative</span></div></figcaption>
+        </figure>
+        <figure class="quote" style="margin:0">
+          <div class="stars" aria-label="5 out of 5 stars">★★★★★</div>
+          <blockquote>“Clients never put the invoice number in the reference. Ledgerly figures it out anyway. It’s almost spooky how accurate it is.”</blockquote>
+          <figcaption class="who"><span class="avatar" style="background:#b45309">JO</span><div><b>Jonas Okafor</b><span>Operations lead, Kiln Digital</span></div></figcaption>
+        </figure>
+        <figure class="quote" style="margin:0">
+          <div class="stars" aria-label="5 out of 5 stars">★★★★★</div>
+          <blockquote>“We cut our average days-to-paid nearly in half. The automatic reminders alone paid for the subscription in the first month.”</blockquote>
+          <figcaption class="who"><span class="avatar" style="background:#4338ca">PL</span><div><b>Priya Lindqvist</b><span>Managing partner, Parallax</span></div></figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section id="signup" style="padding-top:0">
+    <div class="wrap">
+      <div class="signup">
+        <div>
+          <h2>Get paid faster, starting today.</h2>
+          <p>Create your account in under two minutes and connect your first bank feed.</p>
+          <ul><li>14-day free trial</li><li>No credit card required</li><li>Cancel any time</li></ul>
+        </div>
+        <div>
+          <form id="signup-form" novalidate>
+            <label>Full name<input type="text" name="name" autocomplete="name" required placeholder="Alex Morgan"></label>
+            <label>Work email<input type="email" name="email" autocomplete="email" required placeholder="alex@youragency.com"></label>
+            <label>Agency size
+              <select name="size">
+                <option>Just me</option><option>2–5 people</option><option>6–15 people</option><option>16+ people</option>
+              </select>
+            </label>
+            <button class="btn btn-primary" type="submit">Create free account</button>
+            <p class="form-note">By signing up you agree to our Terms and Privacy Policy.</p>
+          </form>
+          <div class="success" id="success" role="status" style="background:#fff;color:#14201b;border-radius:20px;padding:40px 28px">
+            <h3>You’re on the list 🎉</h3>
+            <p>Thanks! Check your inbox for a link to finish setting up Ledgerly.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 Ledgerly. All rights reserved.</span>
+    <span>Privacy · Terms · Contact</span>
+  </div>
+</footer>
+
+<script>
+document.getElementById('signup-form').addEventListener('submit', function (e) {
+  e.preventDefault();
+  var f = e.target;
+  if (!f.checkValidity()) { f.reportValidity(); return; }
+  f.style.display = 'none';
+  document.getElementById('success').classList.add('show');
+});
+</script>
+</body>
+</html>

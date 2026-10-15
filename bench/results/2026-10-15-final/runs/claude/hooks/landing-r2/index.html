@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ledgerly: bank payments matched to open invoices</title>
+<meta name="description" content="Ledgerly matches incoming bank payments to open invoices for small agencies, so nobody reconciles by hand.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f4f7f4;
+  --surface: #fafbfa;
+  --surface-2: #e8ebe8;
+  --line: #c9cdc9;
+  --ink: #111411;
+  --ink-2: #636764;
+  --accent: #026325;
+  --accent-ink: #026325;
+  --on-accent: #f5fcf6;
+  --ok: #1d7d3e;
+  --warn: #8d5e05;
+  --danger: #a7463e;
+  --font-display: "Libre Franklin", system-ui, sans-serif;
+  --font-text: "Libre Franklin", system-ui, sans-serif;
+  --font-mono: "DM Mono", ui-monospace, Menlo, Consolas, monospace;
+  --step-0: 1rem;
+  --step-1: 1.25rem;
+  --step-2: 1.563rem;
+  --step-3: 1.953rem;
+  --step-4: clamp(1.953rem, 3.05vw, 2.441rem);
+  --step-5: clamp(1.953rem, 3.81vw, 3.052rem);
+  --step--1: 0.8rem;
+  --leading: 1.6;
+  --measure: 62ch;
+  --radius-sm: 4px;
+  --radius: 6px;
+  --radius-lg: 8px;
+  --border: 1px;
+  --shadow: 0 1px 2px rgb(17 20 17 / 0.06), 0 8px 24px rgb(17 20 17 / 0.06);
+  --duration: 150ms;
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-text);
+  font-size: var(--step-0);
+  line-height: var(--leading);
+}
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+h1 { font-size: var(--step-5); }
+h2 { font-size: var(--step-4); }
+h3 { font-size: var(--step-1); line-height: 1.2; }
+p { margin: 0; max-width: var(--measure); }
+a { color: var(--accent-ink); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.wrap {
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-inline: 24px;
+}
+.mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+.label {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-2);
+}
+
+/* Header */
+.site-header { border-bottom: var(--border) solid var(--line); }
+.site-header .wrap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 24px;
+  padding-block: 16px;
+}
+.brand {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--step-1);
+  color: var(--ink);
+  text-decoration: none;
+}
+nav ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 24px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+nav a {
+  display: inline-block;
+  padding-block: 4px;
+  border-bottom: 2px solid transparent;
+  color: var(--ink);
+  text-decoration: none;
+  transition: border-color var(--duration) var(--ease), color var(--duration) var(--ease);
+}
+nav a:hover { border-bottom-color: var(--line); }
+nav a[aria-current="true"] { border-bottom-color: var(--accent); }
+
+/* Split layout */
+.split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 40px 24px;
+  padding-block: 56px;
+  border-bottom: var(--border) solid var(--line);
+}
+.split > .lead,
+.split > .proof { min-width: 0; }
+.lead { display: grid; gap: 20px; align-content: start; }
+@media (min-width: 768px) {
+  .split {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    padding-block: 88px;
+  }
+  .split > .lead {
+    grid-column: 1 / span 5;
+    position: sticky;
+    top: 24px;
+    align-self: start;
+  }
+  .split > .proof { grid-column: 6 / span 7; }
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  padding-inline: 16px;
+  border: var(--border) solid transparent;
+  border-radius: var(--radius);
+  font: 600 var(--step-0)/1 var(--font-text);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color var(--duration) var(--ease), border-color var(--duration) var(--ease);
+}
+.btn-primary { background: var(--accent); color: var(--on-accent); }
+.btn-primary:hover { background: var(--ink); }
+.btn-secondary { background: transparent; border-color: var(--line); color: var(--ink); }
+.btn-secondary:hover { border-color: var(--ink); }
+.actions { display: flex; flex-wrap: wrap; gap: 12px; }
+
+/* Ledger table */
+.table-wrap {
+  overflow-x: auto;
+  border: var(--border) solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+caption {
+  text-align: left;
+  padding: 12px 16px;
+  border-bottom: var(--border) solid var(--line);
+}
+th, td { padding: 10px 16px; text-align: left; white-space: nowrap; }
+tbody tr + tr td { border-top: var(--border) solid var(--line); }
+thead th {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: var(--step--1);
+  color: var(--ink-2);
+  border-bottom: var(--border) solid var(--line);
+}
+td.num, th.num { text-align: right; font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.st { font-weight: 600; }
+.st-ok { color: var(--ok); }
+.st-warn { color: var(--warn); }
+.note { margin-top: 12px; font-size: 0.9rem; color: var(--ink-2); }
+
+/* Feature rows */
+.rows { list-style: none; margin: 0; padding: 0; }
+.rows > li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px 24px;
+  padding-block: 24px;
+  border-top: var(--border) solid var(--line);
+}
+.rows > li:first-child { border-top: 0; padding-top: 0; }
+.rows .n { font-family: var(--font-mono); font-variant-numeric: tabular-nums; color: var(--accent-ink); }
+
+/* Pricing */
+.plan {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px 24px;
+  padding-block: 24px;
+  border-top: var(--border) solid var(--line);
+}
+.plan:first-of-type { border-top: 0; padding-top: 0; }
+.plan .price { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: var(--step-3); font-weight: 500; line-height: 1.1; }
+.plan .price small { font-size: var(--step--1); color: var(--ink-2); }
+.plan.featured .price { color: var(--accent-ink); }
+.plan ul { margin: 0; padding-left: 1.1em; }
+.plan li + li { margin-top: 4px; }
+@media (min-width: 640px) {
+  .plan { grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); }
+  .rows > li { grid-template-columns: 3rem minmax(0, 1fr); }
+}
+
+/* Form */
+form { display: grid; gap: 20px; max-width: 32rem; }
+.field { display: grid; gap: 6px; }
+.field label { font-weight: 600; }
+.field input, .field select {
+  height: 40px;
+  padding-inline: 12px;
+  background: var(--surface);
+  border: var(--border) solid var(--line);
+  border-radius: var(--radius);
+  color: var(--ink);
+  font: inherit;
+  width: 100%;
+  transition: border-color var(--duration) var(--ease);
+}
+.field input:hover, .field select:hover { border-color: var(--ink-2); }
+.hint { font-size: 0.9rem; color: var(--ink-2); }
+
+footer { padding-block: 32px; color: var(--ink-2); font-size: 0.9rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="#top">Ledgerly</a>
+    <nav aria-label="Primary">
+      <ul>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#pricing">Pricing</a></li>
+        <li><a href="#testimonials">Customers</a></li>
+        <li><a href="#signup">Sign up</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <div class="wrap">
+
+    <section class="split" aria-labelledby="hero-h">
+      <div class="lead">
+        <p class="label">Invoicing for small agencies</p>
+        <h1 id="hero-h">Every bank payment, matched to the invoice it pays</h1>
+        <p>Ledgerly reads your bank feed, finds the open invoice each payment belongs to, and marks it paid. You review only the payments it cannot place.</p>
+        <div class="actions">
+          <a class="btn btn-primary" href="#signup">Start free trial</a>
+          <a class="btn btn-secondary" href="#features">See how matching works</a>
+        </div>
+      </div>
+      <div class="proof">
+        <div class="table-wrap" tabindex="0" role="region" aria-label="Example reconciliation table">
+          <table>
+            <caption class="label">Example: one morning of incoming payments</caption>
+            <thead>
+              <tr><th>Bank reference</th><th>Matched invoice</th><th class="num">Amount</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>NORTHFIELD DESIGN</td><td>INV-0412</td><td class="num">2,400.00</td><td class="st st-ok">Matched</td></tr>
+              <tr><td>J OKAFOR TRANSFER</td><td>INV-0415</td><td class="num">850.00</td><td class="st st-ok">Matched</td></tr>
+              <tr><td>PAYMENT REF 88213</td><td>INV-0409, INV-0410</td><td class="num">3,100.00</td><td class="st st-warn">Needs review</td></tr>
+              <tr><td>HARBOUR &amp; CO</td><td>INV-0418</td><td class="num">1,275.50</td><td class="st st-ok">Matched</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note">Sample data, shown to illustrate the layout.</p>
+      </div>
+    </section>
+
+    <section class="split" id="features" aria-labelledby="features-h">
+      <div class="lead">
+        <h2 id="features-h">Reconciliation without the spreadsheet</h2>
+        <p>Matching comes first. The rest of the invoicing tool exists to make matching accurate.</p>
+      </div>
+      <div class="proof">
+        <ol class="rows">
+          <li>
+            <span class="n">01</span>
+            <div>
+              <h3>Automatic payment matching</h3>
+              <p>Each payment is compared with open invoices by amount, payer name and the reference your client typed. Exact matches are marked paid without a click.</p>
+            </div>
+          </li>
+          <li>
+            <span class="n">02</span>
+            <div>
+              <h3>Split and combined payments</h3>
+              <p>When a client pays two invoices in one transfer, or one invoice in two parts, Ledgerly proposes the allocation and waits for your approval.</p>
+            </div>
+          </li>
+          <li>
+            <span class="n">03</span>
+            <div>
+              <h3>A review queue for the rest</h3>
+              <p>Unplaced payments land in one list with the closest invoice candidates beside each, so a human decision takes seconds.</p>
+            </div>
+          </li>
+          <li>
+            <span class="n">04</span>
+            <div>
+              <h3>Invoices and reminders</h3>
+              <p>Send invoices by email or link, and schedule reminders that stop the moment the matching payment arrives.</p>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="split" id="pricing" aria-labelledby="pricing-h">
+      <div class="lead">
+        <h2 id="pricing-h">Three plans, priced per month</h2>
+        <p>All prices are in US dollars, billed monthly, with no setup fee. Cancel from your account page at any time.</p>
+      </div>
+      <div class="proof">
+        <div class="plan">
+          <div>
+            <h3>Solo</h3>
+            <p class="price mono">$19 <small>/ month</small></p>
+          </div>
+          <div>
+            <ul>
+              <li>1 user, 1 bank connection</li>
+              <li>Up to 50 invoices a month</li>
+              <li>Automatic matching and review queue</li>
+            </ul>
+          </div>
+        </div>
+        <div class="plan featured">
+          <div>
+            <h3>Studio</h3>
+            <p class="price mono">$49 <small>/ month</small></p>
+          </div>
+          <div>
+            <ul>
+              <li>Up to 5 users, 3 bank connections</li>
+              <li>Unlimited invoices</li>
+              <li>Split-payment allocation and scheduled reminders</li>
+            </ul>
+          </div>
+        </div>
+        <div class="plan">
+          <div>
+            <h3>Agency</h3>
+            <p class="price mono">$99 <small>/ month</small></p>
+          </div>
+          <div>
+            <ul>
+              <li>Up to 20 users, 10 bank connections</li>
+              <li>Unlimited invoices</li>
+              <li>CSV export of every match decision</li>
+            </ul>
+          </div>
+        </div>
+        <div class="actions">
+          <a class="btn btn-primary" href="#signup">Start free trial</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="split" id="testimonials" aria-labelledby="testimonials-h">
+      <div class="lead">
+        <h2 id="testimonials-h">What customers say</h2>
+      </div>
+      <div class="proof">
+        <p>Ledgerly has not published customer quotes yet. We will list them here with the person, the agency and the date, once customers have agreed to be named.</p>
+        <p class="note">Want to try it with your own invoices first? <a href="#signup">Request a trial account</a>.</p>
+      </div>
+    </section>
+
+    <section class="split" id="signup" aria-labelledby="signup-h" style="border-bottom:0">
+      <div class="lead">
+        <h2 id="signup-h">Start your free trial</h2>
+        <p>Tell us where to send your login. You connect a bank account after you sign in, not before.</p>
+      </div>
+      <div class="proof">
+        <form method="post" action="/signup">
+          <div class="field">
+            <label for="name">Your name</label>
+            <input id="name" name="name" type="text" autocomplete="name" required>
+          </div>
+          <div class="field">
+            <label for="email">Work email</label>
+            <input id="email" name="email" type="email" autocomplete="email" required>
+          </div>
+          <div class="field">
+            <label for="agency">Agency name</label>
+            <input id="agency" name="agency" type="text" autocomplete="organization" required>
+          </div>
+          <div class="field">
+            <label for="plan">Plan to trial</label>
+            <select id="plan" name="plan">
+              <option value="solo">Solo, $19 / month</option>
+              <option value="studio" selected>Studio, $49 / month</option>
+              <option value="agency">Agency, $99 / month</option>
+            </select>
+          </div>
+          <div>
+            <button class="btn btn-primary" type="submit">Create trial account</button>
+          </div>
+          <p class="hint">We use your email to send the login link and nothing else.</p>
+        </form>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">Ledgerly. Invoicing for small agencies.</div>
+</footer>
+
+</body>
+</html>

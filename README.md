@@ -43,30 +43,48 @@ npx @sloplint/cli explain SEC-001
 
 ## Benchmark
 
-Six tasks (landing page, REST API, dashboard, test suite, CLI README, launch video), run headless by two agents, twice per cell, each in a fresh directory. The `sloplint` arm gets `sloplint init` and a local install; the baseline gets the prompt alone.
+Six tasks (landing page, REST API, dashboard, test suite, CLI README, launch video), run headless twice per cell, each in a fresh directory. `baseline` gets the prompt alone. `sloplint` adds `sloplint init --brief "<the prompt's first sentence>"` and a local install. `hooks` (Claude Code only) is `sloplint` plus `--hooks`. No prompt mentions sloplint.
 
-| Agent and model | Arm | Mean Slop Score | Findings | Mean time | Mean input tokens |
-| --- | --- | --- | --- | --- | --- |
-| Claude Code, `claude-sonnet-5-5`, medium effort | baseline | 15.3 | 19 | 47s | 176k |
-| Claude Code, `claude-sonnet-5-5`, medium effort | sloplint | 1.0 | 1 | 65s | 263k |
-| Antigravity, `gemini-3.8-flash-high` | baseline | 13.7 | 60 | 352s | 149k |
-| Antigravity, `gemini-3.8-flash-high` | sloplint | 0.0 | 0 | 473s | 197k |
+2026-10-15, sloplint at `bf5982c`:
 
-With sloplint, Claude scored lower on 4 of 6 tasks and Gemini on 2 of 6; neither scored higher on any task, and neither suppressed a rule. The cost was about a third more wall time and a third to a half more input tokens.
+| Agent and model | Arm | Mean Slop Score | Findings | Mean turns | Mean cost | Mean time |
+| --- | --- | --- | --- | --- | --- | --- |
+| Claude Code, `claude-sonnet-5-5`, medium effort | baseline | 15.3 | 15 | 3.7 | $0.219 | 45s |
+| | sloplint | 0.0 | 0 | 6.6 | $0.275 | 63s |
+| | hooks | 0.0 | 0 | 6.1 | $0.277 | 66s |
+| Antigravity, `gemini-3.8-flash-high` | baseline | 16.0 | 53 | n/a | n/a | 321s |
+| | sloplint | 0.0 | 0 | n/a | n/a | 441s |
+
+The same day, after fixing what the transcripts of that run showed (below):
+
+| Agent and model | Arm | Mean Slop Score | Findings | Mean turns | Mean cost | Mean time |
+| --- | --- | --- | --- | --- | --- | --- |
+| Claude Code, `claude-sonnet-5-5`, medium effort | baseline | 18.4 | 24 | 4.0 | $0.210 | 45s |
+| | hooks | 0.0 | 0 | 5.3 | $0.242 | 58s |
+
+Every sloplint arm scored lower than its baseline on 3 or 4 of the 6 tasks and higher on none, with no suppressions. The baselines are where the findings come from: invented proof, filler copy, placeholder names, `transition: all`, proportional figures in tables, hard-coded secret fallbacks.
+
+**Distinct looks.** Every baseline landing page used the system UI font or Plus Jakarta Sans, the two Gemini baselines were one template twice, once light and once dark (Plus Jakarta Sans, emerald `#10b981` glowing pill buttons, a version badge, the last headline word in a gradient), and one Claude baseline used Tailwind's indigo-600. The eight landing pages from sloplint arms used eight generated systems: four headline faces (Newsreader, Source Serif 4, Public Sans, Libre Franklin), call-to-action hues from 11° to 214°, no AI purple. All eight share one mood, since every brief was about invoicing, so they are related rather than random: the institutional mood now draws on six layouts instead of four, and the after-fix pages used Letter and Split.
+
+**Cost.** In the first run sloplint added $0.056 a run (+26%): $0.029 of cache writes (the instruction block, DESIGN.md, check output), $0.014 of cache reads for 2.4 to 2.9 more turns, and $0.012 of output. The transcripts showed where the turns went. Three false positives (UI-005 on a price styled by `.plan .price`, UI-012 on the Tailwind token class `font-[family-name:var(--font-mono)]`, SEC-003 on a constant column list) sent agents into fix loops that made the code worse: inline styles, expanded queries. Agents also re-ran the check after a fix because the hook said nothing when a file was clean. With those fixed, hooks cost $0.032 a run (+15%) and 1.3 more turns. Most of every run's cost is Claude Code itself: its system prompt and tools put about 33k tokens into the cache at the start of each session, $0.13 of the baseline's $0.21. Antigravity reports no cost; with sloplint it took 37% longer and read 32% more input tokens.
 
 What the numbers do not show:
 
-- **The metric is ours.** The sloplint arm is graded on the check it was told to pass. Checks that do not use sloplint barely moved: generated tests killed 16 of 16 seeded mutants in 7 of 8 runs (one Claude sloplint run killed 15), and the only invented CLI flag in a README came from a Gemini baseline run.
-- **New layout bugs.** Both Gemini sloplint-arm landing pages scroll sideways at 375px, through a nav that does not wrap and wide data tables (Gemini baseline: 1 of 2; Claude: none). The briefs now cover this; the runs have not been repeated.
-- **Invented proof.** Both arms of both agents wrote made-up metrics and certifications into marketing copy. No rule catches that yet.
-- **One look.** Every sloplint-arm landing page took the default preset's look.
-- **Small samples.** Two runs per cell; treat small differences as noise. The first scoring pass found four false positives in sloplint's own rules (BE-001, BE-005, UI-002, UI-006); they were fixed before the final scoring, which uses the same rules for both arms.
+- **The metric is ours.** The sloplint arms are graded on the check they were told to pass. Checks that do not use sloplint held: suites killed 16 of 16 seeded mutants in 11 of 14 runs (one baseline, one Gemini sloplint and one Claude hooks run killed 15), every README documented all five real flags and invented none, and every API file parsed.
+- **Invented proof, dressed up.** Gemini's sloplint pages put footnote markers on made-up figures ("98.4% first-pass match rate [1]") and credited a named testimonial to a "verified studio audit". That satisfies COPY-005's source check, which cannot tell a real source from an invented one. Claude's sloplint pages labelled their tables as sample data and left testimonials out or marked as drafts.
+- **Layout at 375px.** Both Gemini baselines scroll sideways at 375px; neither Gemini sloplint page does. One Claude sloplint page did: its 12-column grid kept eleven 32px gaps on phones, 352px of gutter in a 327px column. UI-014 now flags that, DESIGN.md says to collapse grids below 768px, and no after-fix page overflowed.
+- **Rules have moved since.** Each run is scored with the rules it was given. UI-013 (links to `#`), UI-014 and the badge check in COPY-006 came later; under today's rules the Gemini baseline pages would also carry 21 and 13 dead links.
+- **Small samples.** Two runs per cell; treat small differences as noise. In the first run the runner's own Claude Code skills were available in every arm; the after-fix runs disable them.
+
+| Claude Code baseline | Claude Code with `sloplint init --hooks` |
+| --- | --- |
+| ![Claude baseline landing page](bench/results/2026-10-15-final/shots/claude-baseline-r1.jpg) | ![Claude hooks landing page](bench/results/2026-10-15-final/shots/claude-hooks-r1.jpg) |
 
 | Gemini baseline | Gemini with sloplint |
 | --- | --- |
-| ![Gemini baseline landing page](bench/results/2026-10-14/shots/agy-baseline-r1.jpg) | ![Gemini sloplint landing page](bench/results/2026-10-14/shots/agy-sloplint-r1.jpg) |
+| ![Gemini baseline landing page](bench/results/2026-10-15/shots/agy-baseline-r1.jpg) | ![Gemini sloplint landing page](bench/results/2026-10-15/shots/agy-sloplint-r2.jpg) |
 
-Full results, every screenshot pair and the agent outputs: [bench/results/2026-10-14](bench/results/2026-10-14/README.md). Method and how to rerun it: [bench/README.md](bench/README.md).
+Full results, every screenshot and the agent outputs: [2026-10-15](bench/results/2026-10-15/README.md) and [after the fixes](bench/results/2026-10-15-final/README.md); the earlier [2026-10-14](bench/results/2026-10-14/README.md) run predates the generated design systems. Method and how to rerun it: [bench/README.md](bench/README.md).
 
 ## Commands
 

@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ledgerly: bank payments matched to open invoices</title>
+<meta name="description" content="Ledgerly is an invoicing tool for small agencies. It matches incoming bank payments to open invoices automatically.">
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600&family=Source+Sans+3:wght@400;600&family=Source+Code+Pro:wght@400;500&display=swap");
+
+:root {
+  --bg: #fcf5f4;
+  --surface: #fffbfa;
+  --surface-2: #f2e9e7;
+  --line: #d4cac8;
+  --ink: #191110;
+  --ink-2: #706664;
+  --accent: #8d4b3d;
+  --accent-ink: #8d4b3d;
+  --on-accent: #fef9f7;
+  --ok: #1d7d3e;
+  --warn: #8d5e05;
+  --danger: #a7463e;
+  --font-display: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --font-text: "Source Sans 3", system-ui, sans-serif;
+  --font-mono: "Source Code Pro", ui-monospace, Menlo, Consolas, monospace;
+  --step-0: 1rem;
+  --step-1: 1.25rem;
+  --step-2: 1.563rem;
+  --step-3: 1.953rem;
+  --step-4: clamp(1.953rem, 3.05vw, 2.441rem);
+  --step-5: clamp(1.953rem, 3.81vw, 3.052rem);
+  --step--1: 0.8rem;
+  --leading: 1.6;
+  --measure: 62ch;
+  --radius-sm: 4px;
+  --radius: 6px;
+  --radius-lg: 8px;
+  --border: 1px;
+  --shadow: 0 1px 2px rgb(25 17 16 / 0.06), 0 8px 24px rgb(25 17 16 / 0.06);
+  --duration: 150ms;
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-text);
+  font-size: var(--step-0);
+  line-height: var(--leading);
+}
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+h1 { font-size: var(--step-5); }
+h2 { font-size: var(--step-4); }
+h3 { font-size: var(--step-1); line-height: 1.2; }
+p { margin: 0; max-width: var(--measure); }
+a { color: var(--accent-ink); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.wrap { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+section { padding: 88px 0 0; }
+.grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; }
+.label {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  font-variant-numeric: tabular-nums;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-2);
+}
+
+/* Navigation */
+header { border-bottom: var(--border) solid var(--line); background: var(--surface); }
+.bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 24px; padding-top: 12px; padding-bottom: 12px; }
+.brand { font-family: var(--font-display); font-weight: 600; font-size: var(--step-1); color: var(--ink); text-decoration: none; }
+nav { display: flex; flex-wrap: wrap; gap: 4px 24px; }
+nav a {
+  color: var(--ink);
+  text-decoration: none;
+  padding: 6px 0;
+  border-bottom: 2px solid transparent;
+  transition: border-color var(--duration) var(--ease);
+}
+nav a:hover, nav a[aria-current] { border-bottom-color: var(--accent); }
+
+/* Buttons */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  height: 40px; padding: 0 16px;
+  border-radius: var(--radius);
+  border: var(--border) solid var(--line);
+  background: transparent; color: var(--ink);
+  font: 600 var(--step-0)/1 var(--font-text);
+  text-decoration: none; cursor: pointer;
+  transition: background-color var(--duration) var(--ease), border-color var(--duration) var(--ease);
+}
+.btn:hover { background: var(--surface-2); }
+.btn-primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.btn-primary:hover { background: var(--accent); filter: brightness(0.92); }
+
+/* Hero */
+.hero { padding-top: 56px; }
+.hero-copy { grid-column: span 5; display: flex; flex-direction: column; gap: 24px; align-self: start; }
+.hero-copy p { font-size: var(--step-1); }
+.hero-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.hero-table { grid-column: span 7; min-width: 0; }
+.panel {
+  background: var(--surface);
+  border: var(--border) solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.panel-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 16px; padding: 12px 16px; border-bottom: var(--border) solid var(--line); background: var(--surface-2); }
+.scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+th, td { padding: 10px 16px; text-align: left; border-bottom: var(--border) solid var(--line); white-space: nowrap; }
+tbody tr:last-child td { border-bottom: 0; }
+th { font-family: var(--font-mono); font-size: var(--step--1); font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-2); }
+.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; text-align: right; }
+td.status { font-weight: 600; }
+.ok { color: var(--ok); }
+.warn { color: var(--warn); }
+.panel-foot { padding: 10px 16px; border-top: var(--border) solid var(--line); }
+
+/* Features index */
+.section-head { grid-column: span 4; }
+.index { grid-column: span 8; margin: 0; padding: 0; list-style: none; border-top: var(--border) solid var(--line); }
+.index li { display: grid; grid-template-columns: 1fr 2fr; gap: 24px; padding: 20px 0; border-bottom: var(--border) solid var(--line); }
+.index p { max-width: none; }
+
+/* Pricing */
+.plans { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.plan {
+  background: var(--surface);
+  border: var(--border) solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  display: flex; flex-direction: column; gap: 16px;
+}
+.plan.featured { border-color: var(--accent); }
+.price { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: var(--step-3); font-weight: 500; }
+.price small { font-size: var(--step-0); color: var(--ink-2); }
+.plan.featured .price { color: var(--accent-ink); }
+.plan ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+.plan li { padding-top: 8px; border-top: var(--border) solid var(--line); }
+.note { grid-column: 1 / -1; }
+
+/* Testimonials */
+.quotes { grid-column: span 8; }
+.quotes blockquote { margin: 0; padding-left: 20px; border-left: 2px solid var(--accent); font-family: var(--font-display); font-size: var(--step-2); line-height: 1.3; }
+.quotes p + p { margin-top: 16px; }
+.quotes-aside { grid-column: span 4; }
+
+/* Signup */
+.signup-form { grid-column: span 6; display: flex; flex-direction: column; gap: 16px; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label { font-weight: 600; }
+.field input, .field select {
+  height: 40px; padding: 0 12px;
+  background: var(--surface);
+  border: var(--border) solid var(--line);
+  border-radius: var(--radius);
+  color: var(--ink);
+  font: var(--step-0) var(--font-text);
+}
+.field input:focus-visible, .field select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.field .hint { font-size: 0.9rem; color: var(--ink-2); }
+.signup-copy { grid-column: span 5; grid-column-start: 8; }
+.signup-copy ol { margin: 16px 0 0; padding-left: 20px; display: flex; flex-direction: column; gap: 8px; }
+
+footer { margin-top: 88px; border-top: var(--border) solid var(--line); background: var(--surface); }
+footer .wrap { padding-top: 24px; padding-bottom: 24px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; }
+
+@media (max-width: 900px) {
+  .hero-copy, .hero-table, .section-head, .index, .quotes, .quotes-aside, .signup-form, .signup-copy { grid-column: 1 / -1; }
+  .plans { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  section { padding-top: 56px; }
+  .hero { padding-top: 40px; }
+  .index li { grid-template-columns: 1fr; gap: 8px; }
+  footer { margin-top: 56px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { transition: none !important; }
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap bar">
+    <a class="brand" href="#top">Ledgerly</a>
+    <nav aria-label="Primary">
+      <a href="#features">Features</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#testimonials">Testimonials</a>
+      <a href="#signup">Sign up</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="wrap grid">
+      <div class="hero-copy">
+        <h1>Every bank payment, matched to the invoice it settles.</h1>
+        <p>Ledgerly reads your bank feed, finds the open invoice each payment belongs to, and marks it paid. You review only the ones it could not place.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#signup">Create your account</a>
+          <a class="btn" href="#pricing">Compare plans</a>
+        </div>
+      </div>
+      <div class="hero-table">
+        <div class="panel">
+          <div class="panel-head">
+            <span class="label">Incoming payments</span>
+            <span class="label">Example data</span>
+          </div>
+          <div class="scroll">
+            <table>
+              <thead>
+                <tr><th>Received</th><th>Bank reference</th><th>Invoice</th><th class="num">Amount</th><th>Status</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>12 Oct</td><td>NORTHFIELD DESIGN INV 1042</td><td>#1042</td><td class="num">4,800.00</td><td class="status ok">Matched</td></tr>
+                <tr><td>12 Oct</td><td>HARBOUR &amp; CO</td><td>#1038</td><td class="num">1,250.00</td><td class="status ok">Matched</td></tr>
+                <tr><td>11 Oct</td><td>FASTLANE STUDIO RET OCT</td><td>#1040</td><td class="num">3,000.00</td><td class="status ok">Matched</td></tr>
+                <tr><td>11 Oct</td><td>J OKAFOR TRANSFER</td><td>#1035, #1037</td><td class="num">2,175.50</td><td class="status warn">Needs review</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="panel-foot label">Invoices #1035 and #1037 total 2,175.50; the payment arrived as one transfer.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="features">
+    <div class="wrap grid">
+      <div class="section-head">
+        <h2>What Ledgerly does with each payment</h2>
+      </div>
+      <ul class="index">
+        <li>
+          <h3>Automatic matching</h3>
+          <p>Compares amount, payer name and the invoice number in the bank reference, then marks the invoice paid when one open invoice fits.</p>
+        </li>
+        <li>
+          <h3>Split and combined payments</h3>
+          <p>One transfer that covers two invoices, or two transfers that cover one, are grouped and shown together for a single confirmation.</p>
+        </li>
+        <li>
+          <h3>Review queue</h3>
+          <p>Payments with no confident match wait in a list with the closest open invoices beside them. Confirm with one click or assign by hand.</p>
+        </li>
+        <li>
+          <h3>Payment reminders</h3>
+          <p>Overdue invoices send reminders on a schedule you set, and stop the moment the matching payment lands.</p>
+        </li>
+        <li>
+          <h3>Bank-feed connection</h3>
+          <p>Read-only access to your business account. Ledgerly can see transactions; it cannot move money.</p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="pricing">
+    <div class="wrap grid">
+      <div class="section-head">
+        <h2>Pricing</h2>
+      </div>
+      <div class="plans">
+        <article class="plan">
+          <h3>Solo</h3>
+          <p class="price">$12<small> / month</small></p>
+          <ul>
+            <li>1 user</li>
+            <li>1 connected bank account</li>
+            <li>Automatic matching</li>
+            <li>Review queue</li>
+          </ul>
+          <a class="btn" href="#signup">Choose Solo</a>
+        </article>
+        <article class="plan featured">
+          <h3>Studio</h3>
+          <p class="price">$39<small> / month</small></p>
+          <ul>
+            <li>Up to 5 users</li>
+            <li>3 connected bank accounts</li>
+            <li>Split and combined payments</li>
+            <li>Payment reminders</li>
+          </ul>
+          <a class="btn btn-primary" href="#signup">Choose Studio</a>
+        </article>
+        <article class="plan">
+          <h3>Agency</h3>
+          <p class="price">$99<small> / month</small></p>
+          <ul>
+            <li>Unlimited users</li>
+            <li>10 connected bank accounts</li>
+            <li>Everything in Studio</li>
+            <li>Export for your accountant</li>
+          </ul>
+          <a class="btn" href="#signup">Choose Agency</a>
+        </article>
+        <p class="note label">Launch prices in USD, billed monthly. Subject to change before general availability.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="testimonials">
+    <div class="wrap grid">
+      <div class="section-head">
+        <h2>Customer testimonials</h2>
+      </div>
+      <div class="quotes">
+        <blockquote>
+          <p>No customer quotes are published yet.</p>
+        </blockquote>
+        <p>Ledgerly is in early access. We publish a customer's words only with their written permission and their name beside them, so this section stays empty until the first agencies in the pilot have agreed.</p>
+      </div>
+      <div class="quotes-aside">
+        <a class="btn" href="#signup">Join the pilot</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="signup">
+    <div class="wrap grid">
+      <form class="signup-form" method="post" action="/signup">
+        <h2>Create your Ledgerly account</h2>
+        <div class="field">
+          <label for="name">Your name</label>
+          <input id="name" name="name" type="text" autocomplete="name" required>
+        </div>
+        <div class="field">
+          <label for="email">Work email</label>
+          <input id="email" name="email" type="email" autocomplete="email" required>
+        </div>
+        <div class="field">
+          <label for="agency">Agency name</label>
+          <input id="agency" name="agency" type="text" autocomplete="organization" required>
+        </div>
+        <div class="field">
+          <label for="plan">Plan</label>
+          <select id="plan" name="plan">
+            <option value="solo">Solo, $12 / month</option>
+            <option value="studio" selected>Studio, $39 / month</option>
+            <option value="agency">Agency, $99 / month</option>
+          </select>
+        </div>
+        <div>
+          <button class="btn btn-primary" type="submit">Create account</button>
+        </div>
+      </form>
+      <div class="signup-copy">
+        <h3>After you submit</h3>
+        <ol>
+          <li>Confirm your email address.</li>
+          <li>Connect a bank account with read-only access.</li>
+          <li>Import your open invoices or create new ones.</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Ledgerly</span>
+    <span class="label">Prices and plan limits are launch values</span>
+  </div>
+</footer>
+</body>
+</html>

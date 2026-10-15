@@ -1,0 +1,1405 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ledgerly — Automated Invoice Reconciliation for Small Agencies</title>
+<meta name="description" content="Ledgerly connects directly to your agency bank feeds and automatically matches incoming BACS, Faster Payments, and SEPA transfers to open invoices.">
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Newsreader:wght@400;600&family=Atkinson+Hyperlegible:wght@400;700&family=IBM+Plex+Mono:wght@400;500&display=swap");
+
+:root {
+  --bg: #eff5fa;
+  --surface: #f6f9fc;
+  --surface-2: #e2e9ef;
+  --line: #c2cad1;
+  --ink: #0f161b;
+  --ink-2: #5f676e;
+  --accent: #236797;
+  --accent-ink: #236797;
+  --on-accent: #f7fbfe;
+  --ok: #1d7d3e;
+  --warn: #8d5e05;
+  --danger: #a7463e;
+  --font-display: "Newsreader", Georgia, "Times New Roman", serif;
+  --font-text: "Atkinson Hyperlegible", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  --step-0: 1rem;
+  --step-1: 1.25rem;
+  --step-2: 1.563rem;
+  --step-3: 1.953rem;
+  --step-4: clamp(1.953rem, 3.05vw, 2.441rem);
+  --step-5: clamp(1.953rem, 3.81vw, 3.052rem);
+  --step--1: 0.8rem;
+  --leading: 1.6;
+  --measure: 62ch;
+  --radius-sm: 4px;
+  --radius: 6px;
+  --radius-lg: 8px;
+  --border: 1px;
+  --shadow: 0 1px 2px rgb(15 22 27 / 0.06), 0 8px 24px rgb(15 22 27 / 0.06);
+  --duration: 150ms;
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  background-color: var(--bg);
+  color: var(--ink);
+  scroll-behavior: smooth;
+  overflow-x: clip;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-text);
+  font-size: var(--step-0);
+  line-height: var(--leading);
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+  overflow-wrap: break-word;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+.site-header {
+  border-bottom: var(--border) solid var(--line);
+  background-color: var(--surface);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.brand {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+  text-decoration: none;
+  color: var(--ink);
+}
+
+.brand-title {
+  font-family: var(--font-display);
+  font-size: var(--step-2);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1;
+}
+
+.brand-tag {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  color: var(--ink-2);
+}
+
+.site-nav {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.nav-link {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  color: var(--ink);
+  text-decoration: none;
+  padding: 4px 0;
+  border-bottom: 2px solid transparent;
+  transition: border-color var(--duration) var(--ease), color var(--duration) var(--ease);
+}
+
+.nav-link:hover,
+.nav-link.current {
+  border-bottom-color: var(--accent);
+  color: var(--accent-ink);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  padding: 0 16px;
+  border-radius: var(--radius);
+  border: var(--border) solid var(--line);
+  background-color: var(--surface);
+  color: var(--ink);
+  font-family: var(--font-text);
+  font-size: var(--step-0);
+  font-weight: 700;
+  line-height: 1;
+  text-decoration: none;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  transition: background-color var(--duration) var(--ease), border-color var(--duration) var(--ease), color var(--duration) var(--ease);
+}
+
+.btn:hover {
+  background-color: var(--surface-2);
+  border-color: var(--ink-2);
+}
+
+.btn.primary {
+  background-color: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
+}
+
+.btn.primary:hover {
+  background-color: var(--accent-ink);
+  border-color: var(--accent-ink);
+}
+
+.btn.secondary {
+  background-color: var(--surface);
+  border-color: var(--line);
+  color: var(--ink);
+}
+
+.main-wrap {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px 96px;
+}
+
+.hero-block {
+  padding: 64px 0 48px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: 48px;
+  align-items: start;
+}
+
+.hero-headline {
+  font-family: var(--font-display);
+  font-size: var(--step-5);
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin: 0 0 24px;
+}
+
+.hero-statement {
+  max-width: var(--measure);
+  font-size: var(--step-1);
+  line-height: var(--leading);
+  color: var(--ink);
+  margin: 0 0 32px;
+}
+
+.hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 40px;
+}
+
+.hero-stats {
+  border-top: var(--border) solid var(--line);
+  padding-top: 24px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.stat-cell {
+  display: grid;
+  gap: 4px;
+}
+
+.stat-value {
+  font-family: var(--font-mono);
+  font-size: var(--step-2);
+  font-weight: 500;
+  color: var(--accent-ink);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.stat-caption {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  color: var(--ink-2);
+  line-height: 1.4;
+}
+
+.stat-caption a {
+  color: var(--accent-ink);
+  text-decoration: none;
+}
+
+.ledger-card {
+  background-color: var(--surface);
+  border: var(--border) solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+}
+
+.card-header {
+  padding: 14px 18px;
+  border-bottom: var(--border) solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.card-title {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.card-feed-status {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  color: var(--ok);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--ok);
+  display: inline-block;
+}
+
+.table-wrap {
+  overflow-x: auto;
+  width: 100%;
+  -webkit-overflow-scrolling: touch;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 540px;
+  font-variant-numeric: tabular-nums;
+}
+
+th, td {
+  padding: 10px 14px;
+  text-align: left;
+  border-bottom: var(--border) solid var(--line);
+  vertical-align: top;
+}
+
+th {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  font-weight: 500;
+  color: var(--ink-2);
+  background-color: var(--surface-2);
+}
+
+td {
+  font-size: var(--step-0);
+  color: var(--ink);
+}
+
+td.num, th.num {
+  text-align: right;
+  font-family: var(--font-mono);
+}
+
+.mono {
+  font-family: var(--font-mono);
+}
+
+.entity-name {
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.3;
+}
+
+.entity-sub {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  color: var(--ink-2);
+  margin-top: 2px;
+}
+
+.badge-tag {
+  display: inline-block;
+  padding: 2px 6px;
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  color: var(--ink);
+  background-color: var(--surface-2);
+}
+
+.badge-status {
+  display: inline-block;
+  padding: 2px 6px;
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  color: var(--on-accent);
+  background-color: var(--ok);
+}
+
+.card-footer {
+  padding: 12px 18px;
+  background-color: var(--surface);
+  border-top: var(--border) solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  color: var(--ink-2);
+}
+
+.card-link {
+  color: var(--accent-ink);
+  text-decoration: none;
+}
+
+.card-link:hover {
+  text-decoration: underline;
+}
+
+.ledger-row {
+  border-top: var(--border) solid var(--line);
+  padding: 88px 0 0;
+  margin-top: 88px;
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  gap: 48px;
+}
+
+.claim-col {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+}
+
+.row-index {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  font-weight: 500;
+  color: var(--accent-ink);
+  letter-spacing: 0.04em;
+  margin: 0;
+}
+
+.claim-heading {
+  font-family: var(--font-display);
+  font-size: var(--step-3);
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin: 0;
+}
+
+.claim-summary {
+  font-size: var(--step-0);
+  line-height: var(--leading);
+  color: var(--ink);
+  margin: 0;
+}
+
+.evidence-col {
+  display: grid;
+  gap: 32px;
+}
+
+.deep-panel {
+  background-color: var(--surface);
+  border: var(--border) solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+}
+
+.deep-title {
+  font-family: var(--font-display);
+  font-size: var(--step-2);
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--ink);
+  margin: 0 0 16px;
+}
+
+.deep-prose {
+  font-size: var(--step-0);
+  line-height: var(--leading);
+  color: var(--ink);
+  margin: 0 0 24px;
+  max-width: var(--measure);
+}
+
+.step-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 16px;
+}
+
+.step-item {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.step-number {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  font-weight: 500;
+  color: var(--accent-ink);
+  background-color: var(--surface-2);
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.step-body strong {
+  display: block;
+  font-family: var(--font-text);
+  font-size: var(--step-0);
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+
+.step-body p {
+  margin: 0;
+  font-size: var(--step-0);
+  line-height: var(--leading);
+  color: var(--ink);
+}
+
+.feature-table-card {
+  background-color: var(--surface);
+  border: var(--border) solid var(--line);
+  border-radius: var(--radius-lg);
+}
+
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.plan-card {
+  background-color: var(--surface);
+  border: var(--border) solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  display: grid;
+  align-content: space-between;
+  gap: 24px;
+}
+
+.plan-card.featured {
+  background-color: var(--surface);
+  border-color: var(--accent);
+}
+
+.plan-head {
+  display: grid;
+  gap: 12px;
+}
+
+.plan-tier-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.plan-name {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  font-weight: 500;
+  color: var(--ink);
+  margin: 0;
+  letter-spacing: 0.02em;
+}
+
+.plan-badge {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  padding: 2px 6px;
+  background-color: var(--accent);
+  color: var(--on-accent);
+}
+
+.plan-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.plan-price {
+  font-family: var(--font-mono);
+  font-size: var(--step-4);
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1;
+}
+
+.plan-period {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  color: var(--ink-2);
+}
+
+.plan-intro {
+  font-size: var(--step-0);
+  line-height: var(--leading);
+  color: var(--ink);
+  margin: 0;
+}
+
+.plan-feature-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+  border-top: var(--border) solid var(--line);
+  padding-top: 16px;
+}
+
+.plan-feature-list li {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  line-height: 1.5;
+  color: var(--ink);
+  padding-left: 14px;
+  position: relative;
+}
+
+.plan-feature-list li::before {
+  content: "—";
+  position: absolute;
+  left: 0;
+  color: var(--accent-ink);
+}
+
+.comparison-card {
+  background-color: var(--surface);
+  border: var(--border) solid var(--line);
+  border-radius: var(--radius-lg);
+  margin-top: 24px;
+}
+
+.testimonials-stack {
+  display: grid;
+  gap: 20px;
+}
+
+.testimonial-card {
+  background-color: var(--surface);
+  border: var(--border) solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  display: grid;
+  gap: 16px;
+}
+
+.testimonial-text {
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  line-height: 1.4;
+  color: var(--ink);
+  margin: 0;
+}
+
+.testimonial-cite {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  border-top: var(--border) solid var(--line);
+  padding-top: 14px;
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+}
+
+.cite-person {
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.cite-source {
+  color: var(--ink-2);
+}
+
+.cite-source a {
+  color: var(--accent-ink);
+  text-decoration: none;
+}
+
+.signup-box {
+  background-color: var(--surface);
+  border: var(--border) solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+}
+
+.form-layout {
+  display: grid;
+  gap: 20px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.field-group {
+  display: grid;
+  gap: 6px;
+}
+
+label {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  font-weight: 500;
+  color: var(--ink);
+}
+
+input, select {
+  height: 40px;
+  padding: 0 12px;
+  border-radius: var(--radius);
+  border: var(--border) solid var(--line);
+  background-color: var(--surface);
+  color: var(--ink);
+  font-family: var(--font-text);
+  font-size: var(--step-0);
+  box-shadow: var(--shadow);
+  width: 100%;
+}
+
+input:focus, select:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.form-submit-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.form-disclaimer {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  color: var(--ink-2);
+}
+
+.form-feedback {
+  margin-top: 16px;
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  line-height: 1.5;
+  display: none;
+}
+
+.form-feedback.visible {
+  display: block;
+}
+
+.form-feedback.success {
+  color: var(--ok);
+}
+
+.form-feedback.alert {
+  color: var(--danger);
+}
+
+.footnotes-card {
+  background-color: var(--surface);
+  border: var(--border) solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+}
+
+.citations-list {
+  margin: 0;
+  padding-left: 20px;
+  display: grid;
+  gap: 10px;
+}
+
+.citations-list li {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  color: var(--ink-2);
+  line-height: 1.5;
+}
+
+.site-footer {
+  border-top: var(--border) solid var(--line);
+  background-color: var(--surface);
+  padding: 40px 24px 56px;
+  margin-top: 88px;
+}
+
+.footer-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.footer-brand {
+  display: grid;
+  gap: 4px;
+}
+
+.footer-copy {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  color: var(--ink-2);
+}
+
+.footer-nav {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.footer-nav a {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.footer-nav a:hover {
+  color: var(--accent-ink);
+  text-decoration: underline;
+}
+
+@media (max-width: 960px) {
+  .hero-block {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 36px;
+    padding: 40px 0 32px;
+  }
+  .ledger-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+    padding-top: 56px;
+    margin-top: 56px;
+  }
+  .pricing-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .form-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .hero-stats {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+  }
+  .site-header .header-inner {
+    padding: 12px 16px;
+  }
+  .main-wrap {
+    padding: 0 16px 64px;
+  }
+}
+</style>
+</head>
+<body id="top">
+
+<header class="site-header">
+  <div class="header-inner">
+    <a href="#top" class="brand">
+      <span class="brand-title">Ledgerly</span>
+      <span class="brand-tag">Agency Bank Feed Reconciliation</span>
+    </a>
+    <nav class="site-nav" aria-label="Main Navigation">
+      <a href="#features" class="nav-link">View reconciliation features</a>
+      <a href="#pricing" class="nav-link">Inspect pricing tiers</a>
+      <a href="#evidence" class="nav-link">Read agency evidence</a>
+      <a href="#signup" class="nav-link">Open agency trial</a>
+    </nav>
+    <a href="#signup" class="btn primary">Start 14-day trial</a>
+  </div>
+</header>
+
+<main class="main-wrap">
+
+  <section class="hero-block">
+    <div class="hero-content">
+      <h1 class="hero-headline">Invoices that reconcile against incoming bank payments automatically.</h1>
+      <p class="hero-statement">
+        Ledgerly connects to UK and European business bank feeds via Open Banking. When a client transfers funds, Ledgerly parses the reference, matches the transaction amount and counterparty account to your open billing records, and marks invoices paid without manual data entry.
+      </p>
+      <div class="hero-actions">
+        <a href="#signup" class="btn primary">Start 14-day trial</a>
+        <a href="#feed-preview" class="btn secondary">Inspect reconciliation table</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat-cell">
+          <span class="stat-value">98.4%</span>
+          <span class="stat-caption">First-pass match rate on cleared BACS and Faster Payments transfers.<sup><a href="#fn-1">[1]</a></sup></span>
+        </div>
+        <div class="stat-cell">
+          <span class="stat-value">4.2 hrs</span>
+          <span class="stat-caption">Median bookkeeping hours saved weekly across pilot design studios.<sup><a href="#fn-2">[2]</a></sup></span>
+        </div>
+        <div class="stat-cell">
+          <span class="stat-value">0.00%</span>
+          <span class="stat-caption">Unallocated bank receipts remaining at month-end close.<sup><a href="#fn-3">[3]</a></sup></span>
+        </div>
+      </div>
+    </div>
+
+    <aside id="feed-preview" class="ledger-card" aria-label="Live bank feed reconciliation preview">
+      <div class="card-header">
+        <span class="card-title">Barclays Corporate Feed · Live Reconciliation</span>
+        <span class="card-feed-status"><span class="status-dot"></span> Feed Active · Synced 3m ago</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Counterparty &amp; Reference</th>
+              <th>Channel</th>
+              <th class="num">Credit</th>
+              <th>Invoice Match</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="mono">2026-10-14</td>
+              <td>
+                <div class="entity-name">Mercer Logistics Ltd</div>
+                <div class="entity-sub">REF: INV-2026-084-MERCER</div>
+              </td>
+              <td><span class="badge-tag">BACS</span></td>
+              <td class="num">£14,850.00</td>
+              <td>
+                <div class="entity-name">INV-2026-084</div>
+                <div class="entity-sub">Logistics Web Portal · Milestone 2</div>
+              </td>
+              <td><span class="badge-status">Matched</span></td>
+            </tr>
+            <tr>
+              <td class="mono">2026-10-13</td>
+              <td>
+                <div class="entity-name">Vanguard Health Partners</div>
+                <div class="entity-sub">REF: VANGUARD-OCT26-RETAINER</div>
+              </td>
+              <td><span class="badge-tag">Faster Pmt</span></td>
+              <td class="num">£6,400.00</td>
+              <td>
+                <div class="entity-name">INV-2026-091</div>
+                <div class="entity-sub">Brand Identity Retainer · Oct 2026</div>
+              </td>
+              <td><span class="badge-status">Matched</span></td>
+            </tr>
+            <tr>
+              <td class="mono">2026-10-12</td>
+              <td>
+                <div class="entity-name">Stirling Architecture</div>
+                <div class="entity-sub">REF: STIRLING ARCH BULK 078/079</div>
+              </td>
+              <td><span class="badge-tag">CHAPS</span></td>
+              <td class="num">£21,500.00</td>
+              <td>
+                <div class="entity-name">INV-078 &amp; INV-079</div>
+                <div class="entity-sub">Split allocation (£12.5k + £9.0k)</div>
+              </td>
+              <td><span class="badge-status">Split Match</span></td>
+            </tr>
+            <tr>
+              <td class="mono">2026-10-11</td>
+              <td>
+                <div class="entity-name">Beacon Hill Advisory</div>
+                <div class="entity-sub">REF: BEACON-BRANDING-DEP</div>
+              </td>
+              <td><span class="badge-tag">SEPA</span></td>
+              <td class="num">€8,200.00</td>
+              <td>
+                <div class="entity-name">INV-2026-095</div>
+                <div class="entity-sub">Spot rate 1.1540 (£7,105.72)</div>
+              </td>
+              <td><span class="badge-status">FX Match</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card-footer">
+        <span>Cleared today: £49,855.72 across 4 items · 0 unassigned items</span>
+        <a href="#features" class="card-link">Review matching rules</a>
+      </div>
+    </aside>
+  </section>
+
+  <section id="features" class="ledger-row">
+    <div class="claim-col">
+      <p class="row-index">02 / RECONCILIATION ENGINE</p>
+      <h2 class="claim-heading">Three-tier resolution for messy client references</h2>
+      <p class="claim-summary">
+        Accounts payable teams frequently truncate agency invoice numbers, append internal purchase orders, or pay multiple milestones in single lump-sum transfers. Ledgerly applies three successive resolution tiers to clear open balances without manual cross-checking.
+      </p>
+    </div>
+
+    <div class="evidence-col">
+      <article class="deep-panel">
+        <h3 class="deep-title">Ranked matching pipeline</h3>
+        <p class="deep-prose">
+          When transactions land from your Open Banking feed, the matching engine tests candidate records against three deterministic gates:
+        </p>
+        <ol class="step-list">
+          <li class="step-item">
+            <span class="step-number">01</span>
+            <div class="step-body">
+              <strong>Deterministic Reference Extraction</strong>
+              <p>The parser normalizes incoming reference strings by removing punctuation, ignoring bank routing prefixes, and matching alphanumeric invoice numbers directly against open receivables.</p>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-number">02</span>
+            <div class="step-body">
+              <strong>Counterparty Account &amp; Net Balance Verification</strong>
+              <p>If the client entered a blank or internal purchase order reference, Ledgerly verifies the sending IBAN or sort code against known client bank details and checks for exact net invoice totals.</p>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-number">03</span>
+            <div class="step-body">
+              <strong>Split &amp; Combined Payment Allocation</strong>
+              <p>When a client combines a project milestone with an ongoing monthly retainer in one transfer, the system matches the total against combined open balances and marks both invoices paid with an linked audit record.</p>
+            </div>
+          </li>
+        </ol>
+      </article>
+
+      <div class="feature-table-card">
+        <div class="card-header">
+          <span class="card-title">Operational Capabilities &amp; Accounting Integrations</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Capability</th>
+                <th>Implementation Specification</th>
+                <th>Supported Standard</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Direct Open Banking</strong></td>
+                <td>Read-only bank data connection refreshed every four hours.</td>
+                <td><span class="badge-tag">FCA AISP Protocol</span></td>
+              </tr>
+              <tr>
+                <td><strong>Multi-Currency Matching</strong></td>
+                <td>Daily European Central Bank spot conversion for EUR and USD client remittances.</td>
+                <td><span class="badge-tag">ECB Reference Rates</span></td>
+              </tr>
+              <tr>
+                <td><strong>Accounting Synchronization</strong></td>
+                <td>Bi-directional payment status sync to Xero, QuickBooks Online, and Sage Business Cloud.</td>
+                <td><span class="badge-tag">REST API &amp; Webhooks</span></td>
+              </tr>
+              <tr>
+                <td><strong>Remittance Receipts</strong></td>
+                <td>Instant branded PDF receipts dispatched to client billing contacts upon fund clearance.</td>
+                <td><span class="badge-tag">Automated SMTP / API</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="evidence" class="ledger-row">
+    <div class="claim-col">
+      <p class="row-index">03 / CASE EVIDENCE</p>
+      <h2 class="claim-heading">Operational records from verified agency finance leads</h2>
+      <p class="claim-summary">
+        Production accounts recorded during the 2026 agency benchmarking study across independent design and digital studios.
+      </p>
+    </div>
+
+    <div class="evidence-col">
+      <div class="testimonials-stack">
+        <article class="testimonial-card">
+          <blockquote class="testimonial-text">
+            “Before Ledgerly, our studio coordinator spent Monday mornings checking bank statements against our invoice tracker. Clients frequently truncated invoice numbers on bank transfers. Ledgerly automatically matched 98.4% of our client payments on first sync across Q2 2026.<sup><a href="#fn-1">[1]</a></sup>”
+          </blockquote>
+          <footer class="testimonial-cite">
+            <span class="cite-person">Elena Rostova · Operations Director, Kite &amp; Gable Design Ltd (London)</span>
+            <span class="cite-source">Verified studio audit, August 2026</span>
+          </footer>
+        </article>
+
+        <article class="testimonial-card">
+          <blockquote class="testimonial-text">
+            “When clients pay a project milestone and a monthly retainer in one transfer, Ledgerly splits the allocation across both open invoices. Our project leads receive cleared-funds notifications in five minutes instead of three days.<sup><a href="#fn-2">[2]</a></sup>”
+          </blockquote>
+          <footer class="testimonial-cite">
+            <span class="cite-person">Marcus Vance · Managing Partner, Tandem Creative Studio (Manchester)</span>
+            <span class="cite-source">Operations review, July 2026</span>
+          </footer>
+        </article>
+
+        <article class="testimonial-card">
+          <blockquote class="testimonial-text">
+            “The audit log exports straight into Xero with complete counterparty bank references and payment timestamps. Our year-end reconciliation was completed with zero unallocated receipts.<sup><a href="#fn-3">[3]</a></sup>”
+          </blockquote>
+          <footer class="testimonial-cite">
+            <span class="cite-person">Sarah Chen · Head of Finance, Finch &amp; Miller Media (Bristol)</span>
+            <span class="cite-source">Chartered accounting review, September 2026</span>
+          </footer>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="pricing" class="ledger-row">
+    <div class="claim-col">
+      <p class="row-index">04 / SUBSCRIPTION TIERS</p>
+      <h2 class="claim-heading">Simple monthly pricing for growing agencies</h2>
+      <p class="claim-summary">
+        Three plans tailored to agency billing volume. All tiers include Open Banking feeds, automated matching rules, and CSV ledger exports.
+      </p>
+    </div>
+
+    <div class="evidence-col">
+      <div class="pricing-grid">
+        <div class="plan-card">
+          <div class="plan-head">
+            <div class="plan-tier-label">
+              <h3 class="plan-name">Solo Studio</h3>
+            </div>
+            <div class="plan-price-row">
+              <span class="plan-price">£29</span>
+              <span class="plan-period">/month</span>
+            </div>
+            <p class="plan-intro">For independent design and engineering practices billing up to 30 client invoices monthly.</p>
+          </div>
+          <ul class="plan-feature-list">
+            <li>Up to 30 monthly client invoices</li>
+            <li>2 Open Banking feed connections</li>
+            <li>Deterministic reference matching</li>
+            <li>CSV and Excel ledger exports</li>
+            <li>Standard email support (24h response)</li>
+          </ul>
+          <a href="#signup" class="btn secondary">Select Solo plan</a>
+        </div>
+
+        <div class="plan-card featured">
+          <div class="plan-head">
+            <div class="plan-tier-label">
+              <h3 class="plan-name">Studio Practice</h3>
+              <span class="plan-badge">Recommended</span>
+            </div>
+            <div class="plan-price-row">
+              <span class="plan-price">£69</span>
+              <span class="plan-period">/month</span>
+            </div>
+            <p class="plan-intro">For agencies with 5 to 25 staff managing ongoing retainer and milestone invoices.</p>
+          </div>
+          <ul class="plan-feature-list">
+            <li>Up to 150 monthly client invoices</li>
+            <li>Unlimited Open Banking bank feeds</li>
+            <li>Split payment &amp; bulk allocation</li>
+            <li>Multi-currency EUR &amp; USD conversion</li>
+            <li>Live sync to Xero &amp; QuickBooks</li>
+            <li>Automated remittance receipts</li>
+          </ul>
+          <a href="#signup" class="btn primary">Select Studio plan</a>
+        </div>
+
+        <div class="plan-card">
+          <div class="plan-head">
+            <div class="plan-tier-label">
+              <h3 class="plan-name">Agency Network</h3>
+            </div>
+            <div class="plan-price-row">
+              <span class="plan-price">£149</span>
+              <span class="plan-period">/month</span>
+            </div>
+            <p class="plan-intro">For multi-entity agencies and holding groups managing multiple trading brands.</p>
+          </div>
+          <ul class="plan-feature-list">
+            <li>Up to 600 monthly client invoices</li>
+            <li>Multi-brand ledger consolidation</li>
+            <li>Custom reference regex rules</li>
+            <li>Dedicated account onboarding lead</li>
+            <li>Webhook triggers &amp; REST API access</li>
+            <li>Priority 2-hour support SLA</li>
+          </ul>
+          <a href="#signup" class="btn secondary">Select Network plan</a>
+        </div>
+      </div>
+
+      <div class="comparison-card">
+        <div class="card-header">
+          <span class="card-title">Comprehensive Tier Feature Matrix</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Feature Specification</th>
+                <th>Solo Studio (£29)</th>
+                <th>Studio Practice (£69)</th>
+                <th>Agency Network (£149)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Monthly Invoice Volume</td>
+                <td class="mono">30</td>
+                <td class="mono">150</td>
+                <td class="mono">600</td>
+              </tr>
+              <tr>
+                <td>Open Banking Feeds</td>
+                <td class="mono">2</td>
+                <td class="mono">Unlimited</td>
+                <td class="mono">Unlimited</td>
+              </tr>
+              <tr>
+                <td>Split Payment Parsing</td>
+                <td>Standard</td>
+                <td>Automated</td>
+                <td>Automated + Custom Rules</td>
+              </tr>
+              <tr>
+                <td>Accounting Sync (Xero/QuickBooks)</td>
+                <td>Manual CSV</td>
+                <td>Live Bi-Directional</td>
+                <td>Live Bi-Directional</td>
+              </tr>
+              <tr>
+                <td>Audit Log History</td>
+                <td class="mono">12 Months</td>
+                <td class="mono">7 Years</td>
+                <td class="mono">7 Years (Immutable Archive)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="signup" class="ledger-row">
+    <div class="claim-col">
+      <p class="row-index">05 / ONBOARDING</p>
+      <h2 class="claim-heading">Open your agency trial</h2>
+      <p class="claim-summary">
+        Evaluate Ledgerly against your live bank feed for 14 days. Connecting your commercial account through read-only Open Banking takes four minutes.
+      </p>
+    </div>
+
+    <div class="evidence-col">
+      <div class="signup-box">
+        <form id="agency-signup-form" class="form-layout" action="/api/signup" method="post">
+          <div class="form-row">
+            <div class="field-group">
+              <label for="work-email">Work email address</label>
+              <input id="work-email" name="email" type="email" required placeholder="elena@kiteandgable.com">
+            </div>
+            <div class="field-group">
+              <label for="agency-name">Agency registered legal name</label>
+              <input id="agency-name" name="agency" type="text" required placeholder="Kite &amp; Gable Design Ltd">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="field-group">
+              <label for="monthly-volume">Monthly client invoice volume</label>
+              <select id="monthly-volume" name="volume" required>
+                <option value="solo">1 to 30 client invoices</option>
+                <option value="studio" selected>31 to 150 client invoices</option>
+                <option value="network">151 to 600 client invoices</option>
+                <option value="enterprise">Over 600 client invoices</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label for="primary-bank">Primary commercial bank</label>
+              <select id="primary-bank" name="bank" required>
+                <option value="barclays">Barclays Corporate &amp; Business</option>
+                <option value="natwest">NatWest / Royal Bank of Scotland</option>
+                <option value="hsbc">HSBC UK Business Banking</option>
+                <option value="lloyds">Lloyds Bank Commercial</option>
+                <option value="monzo">Monzo Business</option>
+                <option value="revolut">Revolut Business</option>
+                <option value="other">Other Open Banking institution</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-submit-row">
+            <button type="submit" class="btn primary">Start 14-day trial</button>
+            <span class="form-disclaimer">FCA-regulated Open Banking. No payment card required.</span>
+          </div>
+
+          <div id="signup-status" class="form-feedback" role="status" aria-live="polite"></div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <section id="citations" class="ledger-row">
+    <div class="claim-col">
+      <p class="row-index">06 / CITATIONS</p>
+      <h2 class="claim-heading">Methodology and audit sources</h2>
+      <p class="claim-summary">
+        Documentation supporting figures referenced throughout this report.
+      </p>
+    </div>
+
+    <div class="evidence-col">
+      <div class="footnotes-card">
+        <ol class="citations-list">
+          <li id="fn-1"><cite>Source: Ledgerly benchmark report, August 2026. Analysis of 14,200 incoming BACS and Faster Payments transactions across 42 UK digital agency accounts.</cite></li>
+          <li id="fn-2"><cite>Source: Agency Operations Time Study, July 2026. Self-reported weekly bookkeeping time among 35 agency finance leads before and after automated matching.</cite></li>
+          <li id="fn-3"><cite>Source: Finch &amp; Miller Media FY2026 Year-End Accounting Audit, conducted by Harrison &amp; Cole Chartered Accountants, September 2026.</cite></li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <span class="brand-title">Ledgerly</span>
+      <span class="footer-copy">© 2026 Ledgerly Systems Ltd. Regulated Open Banking Technical Service Provider.</span>
+    </div>
+    <nav class="footer-nav" aria-label="Footer Navigation">
+      <a href="#top">Return to page top</a>
+      <a href="#citations">Review audit methodology</a>
+      <a href="#signup">Open agency trial</a>
+    </nav>
+  </div>
+</footer>
+
+<script>
+(function() {
+  var form = document.getElementById('agency-signup-form');
+  var status = document.getElementById('signup-status');
+  if (!form || !status) return;
+
+  form.addEventListener('submit', async function(event) {
+    event.preventDefault();
+    var submitButton = form.querySelector('button[type="submit"]');
+    if (submitButton) submitButton.disabled = true;
+
+    status.className = 'form-feedback visible';
+    status.textContent = 'Contacting registration server and provisioning trial environment...';
+
+    try {
+      var response = await fetch('/api/signup', {
+        method: 'POST',
+        body: new FormData(form),
+        signal: AbortSignal.timeout(10000)
+      });
+
+      if (response.ok) {
+        status.className = 'form-feedback visible success';
+        status.textContent = 'Agency trial reserved. Verification link dispatched to your work email. Check your inbox to connect your bank feed.';
+        form.reset();
+      } else {
+        status.className = 'form-feedback visible alert';
+        status.textContent = 'Unable to complete trial registration. Server responded with status ' + response.status + '. Please verify your email and retry.';
+      }
+    } catch (err) {
+      status.className = 'form-feedback visible alert';
+      status.textContent = 'Network request timed out after 10 seconds. Your form values were preserved; please select Start 14-day trial again.';
+    } finally {
+      if (submitButton) submitButton.disabled = false;
+    }
+  });
+
+  // Maintain 2px accent underline on active navigation item (Charter Ledger signature)
+  var navLinks = Array.from(document.querySelectorAll('.site-nav .nav-link'));
+  var observedSections = ['features', 'pricing', 'evidence', 'signup']
+    .map(function(id) { return document.getElementById(id); })
+    .filter(Boolean);
+
+  function syncNavOnScroll() {
+    var threshold = window.scrollY + 140;
+    var activeId = '';
+    for (var i = 0; i < observedSections.length; i++) {
+      var section = observedSections[i];
+      if (section.offsetTop <= threshold) {
+        activeId = section.id;
+      }
+    }
+    navLinks.forEach(function(link) {
+      if (activeId && link.getAttribute('href') === '#' + activeId) {
+        link.classList.add('current');
+      } else {
+        link.classList.remove('current');
+      }
+    });
+  }
+
+  window.addEventListener('scroll', syncNavOnScroll, { passive: true });
+  syncNavOnScroll();
+})();
+</script>
+
+</body>
+</html>

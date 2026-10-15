@@ -1,0 +1,3056 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ledgerly — Automatic Bank-to-Invoice Reconciliation for Agencies</title>
+  <meta name="description" content="Never chase a payment that's already in your bank. Ledgerly matches incoming wires, ACH, and card payments to open agency invoices automatically with 99.8% precision.">
+  
+  <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==========================================================================
+       CSS RESET & DESIGN TOKENS
+       ========================================================================== */
+    :root {
+      --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace;
+
+      --bg-base: #f8fafc;
+      --bg-surface: #ffffff;
+      --bg-surface-elevated: #ffffff;
+      --bg-subtle: #f1f5f9;
+      --bg-dark: #090d16;
+      --bg-dark-card: #131b2e;
+      --bg-dark-subtle: #1e293b;
+
+      --text-main: #0f172a;
+      --text-body: #334155;
+      --text-muted: #64748b;
+      --text-light: #94a3b8;
+      --text-on-dark: #f8fafc;
+      --text-on-dark-muted: #94a3b8;
+
+      --primary: #0f172a;
+      --primary-hover: #1e293b;
+      --accent: #10b981;
+      --accent-hover: #059669;
+      --accent-soft: #ecfdf5;
+      --accent-border: #a7f3d0;
+      --accent-glow: rgba(16, 185, 129, 0.25);
+
+      --indigo: #6366f1;
+      --indigo-soft: #eef2ff;
+      --indigo-border: #c7d2fe;
+
+      --border-subtle: #e2e8f0;
+      --border-strong: #cbd5e1;
+      --border-dark: rgba(255, 255, 255, 0.08);
+
+      --radius-sm: 6px;
+      --radius-md: 12px;
+      --radius-lg: 18px;
+      --radius-xl: 24px;
+      --radius-full: 9999px;
+
+      --shadow-sm: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.07), 0 2px 4px -2px rgba(15, 23, 42, 0.05);
+      --shadow-lg: 0 12px 24px -4px rgba(15, 23, 42, 0.08), 0 4px 6px -2px rgba(15, 23, 42, 0.03);
+      --shadow-xl: 0 20px 35px -5px rgba(15, 23, 42, 0.1), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+      --shadow-dark: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+
+      --container-max: 1200px;
+      --transition-smooth: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      font-size: 16px;
+      scroll-behavior: smooth;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg-base);
+      color: var(--text-body);
+      line-height: 1.6;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+      transition: var(--transition-smooth);
+    }
+
+    button, input, select {
+      font-family: inherit;
+      font-size: inherit;
+    }
+
+    /* Container */
+    .container {
+      width: 100%;
+      max-width: var(--container-max);
+      margin-left: auto;
+      margin-right: auto;
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+
+    /* Typography Utilities */
+    h1, h2, h3, h4 {
+      color: var(--text-main);
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.025em;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 0.85rem;
+      border-radius: var(--radius-full);
+      font-size: 0.8125rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+    .badge-accent {
+      background: var(--accent-soft);
+      color: var(--accent-hover);
+      border: 1px solid var(--accent-border);
+    }
+
+    .badge-dark {
+      background: rgba(255, 255, 255, 0.08);
+      color: #34d399;
+      border: 1px solid rgba(52, 211, 153, 0.3);
+    }
+
+    .badge-indigo {
+      background: var(--indigo-soft);
+      color: var(--indigo);
+      border: 1px solid var(--indigo-border);
+    }
+
+    .mono {
+      font-family: var(--font-mono);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.4rem;
+      font-weight: 600;
+      font-size: 0.9375rem;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: var(--transition-smooth);
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.15);
+    }
+    .btn-primary:hover {
+      background: var(--primary-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(15, 23, 42, 0.22);
+    }
+
+    .btn-accent {
+      background: var(--accent);
+      color: #ffffff;
+      box-shadow: 0 4px 14px var(--accent-glow);
+    }
+    .btn-accent:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+    }
+
+    .btn-outline {
+      background: var(--bg-surface);
+      color: var(--text-main);
+      border-color: var(--border-subtle);
+      box-shadow: var(--shadow-sm);
+    }
+    .btn-outline:hover {
+      border-color: var(--border-strong);
+      background: var(--bg-subtle);
+    }
+
+    .btn-lg {
+      padding: 0.9rem 1.8rem;
+      font-size: 1.0625rem;
+      border-radius: var(--radius-md);
+    }
+
+    /* ==========================================================================
+       HEADER & NAVIGATION
+       ========================================================================== */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(248, 250, 252, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+      transition: var(--transition-smooth);
+    }
+
+    .nav-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 4.5rem;
+    }
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      font-weight: 800;
+      font-size: 1.35rem;
+      color: var(--text-main);
+      letter-spacing: -0.03em;
+    }
+
+    .brand-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #10b981 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 0.9375rem;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+
+    .nav-links a:hover {
+      color: var(--text-main);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .nav-actions .login-link {
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: var(--text-main);
+      padding: 0.5rem 0.85rem;
+    }
+
+    .nav-actions .login-link:hover {
+      color: var(--accent-hover);
+    }
+
+    .mobile-menu-btn {
+      display: none;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      color: var(--text-main);
+      padding: 0.5rem;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .mobile-nav-drawer {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 1.5rem;
+      box-shadow: var(--shadow-lg);
+      flex-direction: column;
+      gap: 1rem;
+      z-index: 99;
+    }
+
+    .mobile-nav-drawer.open {
+      display: flex;
+    }
+
+    .mobile-nav-drawer a {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text-main);
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .mobile-nav-drawer a:last-child {
+      border-bottom: none;
+    }
+
+    /* ==========================================================================
+       HERO SECTION
+       ========================================================================== */
+    .hero-section {
+      position: relative;
+      padding: 4.5rem 0 5.5rem 0;
+      overflow: hidden;
+      background: radial-gradient(circle at 50% -10%, rgba(16, 185, 129, 0.08) 0%, rgba(248, 250, 252, 0) 65%);
+    }
+
+    .hero-content {
+      text-align: center;
+      max-width: 860px;
+      margin: 0 auto 3.5rem auto;
+    }
+
+    .hero-pill-badge {
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-title {
+      font-size: 3.5rem;
+      line-height: 1.08;
+      margin-bottom: 1.35rem;
+      letter-spacing: -0.035em;
+    }
+
+    .hero-title-highlight {
+      background: linear-gradient(135deg, #0f172a 30%, #10b981 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-subtitle {
+      font-size: 1.25rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+      margin-bottom: 2.25rem;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .hero-cta-group {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.75rem;
+    }
+
+    .hero-trust-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1.75rem;
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      flex-wrap: wrap;
+    }
+
+    .trust-item {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .trust-item svg {
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    /* ==========================================================================
+       HERO LIVE RECONCILIATION ENGINE MOCKUP (The 24h Visual Anchor)
+       ========================================================================== */
+    .hero-demo-container {
+      max-width: 1080px;
+      margin: 0 auto;
+      background: var(--bg-dark);
+      border-radius: var(--radius-xl);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: var(--shadow-dark), 0 0 80px rgba(16, 185, 129, 0.12);
+      overflow: hidden;
+      color: var(--text-on-dark);
+      position: relative;
+    }
+
+    .demo-window-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.85rem 1.5rem;
+      background: #0d1322;
+      border-bottom: 1px solid var(--border-dark);
+    }
+
+    .window-controls {
+      display: flex;
+      gap: 0.4rem;
+    }
+
+    .window-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+    .window-dot.red { background: #ef4444; }
+    .window-dot.yellow { background: #f59e0b; }
+    .window-dot.green { background: #10b981; }
+
+    .window-title {
+      font-size: 0.8125rem;
+      color: var(--text-on-dark-muted);
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .live-pulse {
+      width: 8px;
+      height: 8px;
+      background: #10b981;
+      border-radius: 50%;
+      box-shadow: 0 0 10px #10b981;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(1.3); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    .demo-interactive-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1.5rem;
+      background: rgba(19, 27, 46, 0.7);
+      border-bottom: 1px solid var(--border-dark);
+      font-size: 0.8125rem;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .interactive-trigger-btn {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(52, 211, 153, 0.4);
+      padding: 0.4rem 0.9rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: var(--transition-smooth);
+    }
+
+    .interactive-trigger-btn:hover {
+      background: rgba(16, 185, 129, 0.25);
+      border-color: #34d399;
+    }
+
+    .reconciliation-grid {
+      display: grid;
+      grid-template-columns: 1fr 140px 1fr;
+      padding: 1.5rem;
+      gap: 1.25rem;
+      align-items: stretch;
+      background: #090d16;
+    }
+
+    .recon-col-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-on-dark-muted);
+      margin-bottom: 0.85rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-weight: 700;
+    }
+
+    .recon-card-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+
+    .recon-feed-card {
+      background: var(--bg-dark-card);
+      border: 1px solid var(--border-dark);
+      border-radius: var(--radius-md);
+      padding: 1rem 1.15rem;
+      transition: var(--transition-smooth);
+      position: relative;
+    }
+
+    .recon-feed-card.matched {
+      border-color: rgba(16, 185, 129, 0.4);
+      background: linear-gradient(135deg, #131b2e 0%, rgba(16, 185, 129, 0.08) 100%);
+    }
+
+    .recon-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 0.35rem;
+    }
+
+    .feed-sender {
+      font-weight: 700;
+      font-size: 0.9375rem;
+      color: #ffffff;
+    }
+
+    .feed-amount {
+      font-size: 1.0625rem;
+      font-weight: 700;
+      color: #34d399;
+    }
+
+    .feed-meta {
+      font-size: 0.75rem;
+      color: var(--text-on-dark-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .feed-memo {
+      margin-top: 0.4rem;
+      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 4px;
+      color: #cbd5e1;
+      display: inline-block;
+      max-width: 100%;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    /* Center Reconciliation Connector */
+    .recon-connector-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .recon-matching-core {
+      background: #1e293b;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: var(--radius-md);
+      padding: 0.75rem;
+      text-align: center;
+      width: 100%;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    }
+
+    .match-rate {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #34d399;
+    }
+
+    .match-label {
+      font-size: 0.6875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-on-dark-muted);
+      margin-top: 0.2rem;
+    }
+
+    .match-rays {
+      display: flex;
+      flex-direction: column;
+      gap: 1.75rem;
+      width: 100%;
+      margin: 1.25rem 0;
+      align-items: center;
+    }
+
+    .match-ray-item {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.25rem;
+      color: #34d399;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px dashed rgba(16, 185, 129, 0.4);
+      padding: 0.25rem 0.6rem;
+      border-radius: var(--radius-full);
+      width: 90%;
+    }
+
+    /* Right Invoice Ledger Column */
+    .recon-invoice-card {
+      background: var(--bg-dark-card);
+      border: 1px solid var(--border-dark);
+      border-radius: var(--radius-md);
+      padding: 1rem 1.15rem;
+      transition: var(--transition-smooth);
+    }
+
+    .recon-invoice-card.reconciled {
+      border-color: rgba(16, 185, 129, 0.4);
+      background: linear-gradient(135deg, #131b2e 0%, rgba(16, 185, 129, 0.08) 100%);
+    }
+
+    .invoice-status-badge {
+      font-size: 0.6875rem;
+      padding: 0.2rem 0.55rem;
+      border-radius: var(--radius-full);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .invoice-status-badge.paid {
+      background: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+      border: 1px solid rgba(52, 211, 153, 0.4);
+    }
+
+    .invoice-status-badge.pending {
+      background: rgba(245, 158, 11, 0.18);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.35);
+    }
+
+    .recon-bottom-stats {
+      background: #0d1322;
+      border-top: 1px solid var(--border-dark);
+      padding: 1rem 1.5rem;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      font-size: 0.8125rem;
+    }
+
+    .bottom-stat-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .stat-val {
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    /* ==========================================================================
+       TRUSTED BY AGENCIES / LOGO STRIP
+       ========================================================================== */
+    .logos-section {
+      padding: 3.5rem 0;
+      border-bottom: 1px solid var(--border-subtle);
+      background: var(--bg-surface);
+      text-align: center;
+    }
+
+    .logos-label {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 1.75rem;
+    }
+
+    .logos-grid {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3rem;
+      flex-wrap: wrap;
+      opacity: 0.75;
+    }
+
+    .logo-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 700;
+      font-size: 1.15rem;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+
+    .logo-symbol {
+      width: 26px;
+      height: 26px;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-strong);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+    }
+
+    /* ==========================================================================
+       PROBLEM VS SOLUTION SECTION (The Agency Cash Leak)
+       ========================================================================== */
+    .comparison-section {
+      padding: 6rem 0;
+      background: var(--bg-base);
+    }
+
+    .section-header {
+      text-align: center;
+      max-width: 700px;
+      margin: 0 auto 4rem auto;
+    }
+
+    .section-header .badge {
+      margin-bottom: 1rem;
+    }
+
+    .section-title {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .section-subtitle {
+      font-size: 1.125rem;
+      color: var(--text-muted);
+    }
+
+    .comparison-cards-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+
+    .comparison-card {
+      background: var(--bg-surface);
+      border-radius: var(--radius-lg);
+      padding: 2.5rem;
+      border: 1px solid var(--border-subtle);
+      box-shadow: var(--shadow-md);
+      position: relative;
+    }
+
+    .comparison-card.bad {
+      border-top: 4px solid #ef4444;
+    }
+
+    .comparison-card.good {
+      border-top: 4px solid var(--accent);
+      background: linear-gradient(180deg, #ffffff 0%, var(--accent-soft) 100%);
+      box-shadow: var(--shadow-xl);
+    }
+
+    .comp-card-title {
+      font-size: 1.35rem;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .comp-card-desc {
+      color: var(--text-muted);
+      font-size: 0.9375rem;
+      margin-bottom: 2rem;
+    }
+
+    .comp-checklist {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 1.15rem;
+    }
+
+    .comp-checklist li {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      font-size: 0.9375rem;
+      line-height: 1.45;
+    }
+
+    .comp-checklist .icon-bad {
+      color: #ef4444;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .comp-checklist .icon-good {
+      color: var(--accent);
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    /* ==========================================================================
+       FEATURES SECTION (Bento Grid Style)
+       ========================================================================== */
+    .features-section {
+      padding: 6.5rem 0;
+      background: var(--bg-surface);
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .bento-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 1.5rem;
+    }
+
+    .bento-card {
+      background: var(--bg-base);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      transition: var(--transition-smooth);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .bento-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-lg);
+      border-color: var(--border-strong);
+    }
+
+    .col-span-8 { grid-column: span 8; }
+    .col-span-4 { grid-column: span 4; }
+    .col-span-6 { grid-column: span 6; }
+    .col-span-12 { grid-column: span 12; }
+
+    .feature-icon-wrapper {
+      width: 46px;
+      height: 46px;
+      border-radius: var(--radius-md);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-main);
+      margin-bottom: 1.5rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .feature-icon-wrapper.accent {
+      background: var(--accent-soft);
+      color: var(--accent-hover);
+      border-color: var(--accent-border);
+    }
+
+    .feature-icon-wrapper.indigo {
+      background: var(--indigo-soft);
+      color: var(--indigo);
+      border-color: var(--indigo-border);
+    }
+
+    .bento-title {
+      font-size: 1.25rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .bento-desc {
+      color: var(--text-muted);
+      font-size: 0.9375rem;
+      line-height: 1.5;
+      margin-bottom: 1.5rem;
+    }
+
+    /* Embedded micro visual inside bento cards */
+    .bento-visual {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      margin-top: auto;
+      font-size: 0.8125rem;
+    }
+
+    .fuzzy-match-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem;
+      border-bottom: 1px solid var(--border-subtle);
+      font-size: 0.78rem;
+    }
+    .fuzzy-match-row:last-child {
+      border-bottom: none;
+    }
+
+    .confidence-tag {
+      background: var(--accent-soft);
+      color: var(--accent-hover);
+      font-weight: 700;
+      padding: 0.15rem 0.5rem;
+      border-radius: var(--radius-full);
+      font-size: 0.7rem;
+    }
+
+    .sync-logos-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding-top: 0.5rem;
+    }
+
+    .sync-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--text-main);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      padding: 0.45rem 0.85rem;
+      border-radius: var(--radius-sm);
+    }
+
+    /* ==========================================================================
+       HOW IT WORKS (3 Simple Steps)
+       ========================================================================== */
+    .steps-section {
+      padding: 6.5rem 0;
+      background: var(--bg-base);
+    }
+
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      position: relative;
+    }
+
+    .step-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 2.25rem 2rem;
+      box-shadow: var(--shadow-sm);
+      position: relative;
+    }
+
+    .step-number {
+      font-family: var(--font-mono);
+      font-size: 2.75rem;
+      font-weight: 800;
+      color: var(--border-strong);
+      line-height: 1;
+      margin-bottom: 1.25rem;
+    }
+
+    .step-card:hover .step-number {
+      color: var(--accent);
+      transition: var(--transition-smooth);
+    }
+
+    .step-title {
+      font-size: 1.25rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .step-text {
+      color: var(--text-muted);
+      font-size: 0.9375rem;
+      line-height: 1.55;
+    }
+
+    /* ==========================================================================
+       PRICING SECTION (Three Plans)
+       ========================================================================== */
+    .pricing-section {
+      padding: 6.5rem 0;
+      background: var(--bg-surface);
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .billing-toggle-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 3.5rem;
+    }
+
+    .toggle-label {
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    .toggle-label.active {
+      color: var(--text-main);
+    }
+
+    .switch-btn {
+      position: relative;
+      width: 54px;
+      height: 30px;
+      background: var(--border-strong);
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      border: none;
+      transition: var(--transition-smooth);
+      padding: 3px;
+    }
+
+    .switch-btn.active {
+      background: var(--accent);
+    }
+
+    .switch-handle {
+      display: block;
+      width: 24px;
+      height: 24px;
+      background: #ffffff;
+      border-radius: 50%;
+      box-shadow: var(--shadow-sm);
+      transition: var(--transition-smooth);
+    }
+
+    .switch-btn.active .switch-handle {
+      transform: translateX(24px);
+    }
+
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      align-items: stretch;
+    }
+
+    .pricing-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      padding: 2.5rem 2rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      box-shadow: var(--shadow-md);
+      transition: var(--transition-smooth);
+    }
+
+    .pricing-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-xl);
+    }
+
+    .pricing-card.featured {
+      background: var(--bg-dark);
+      color: var(--text-on-dark);
+      border-color: rgba(16, 185, 129, 0.4);
+      box-shadow: 0 20px 45px -10px rgba(15, 23, 42, 0.4), 0 0 30px rgba(16, 185, 129, 0.15);
+      transform: scale(1.03);
+      z-index: 2;
+    }
+
+    .pricing-card.featured:hover {
+      transform: scale(1.05) translateY(-4px);
+    }
+
+    .featured-tag {
+      position: absolute;
+      top: -14px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--accent);
+      color: #ffffff;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 0.35rem 1rem;
+      border-radius: var(--radius-full);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
+    }
+
+    .plan-name {
+      font-size: 1.35rem;
+      margin-bottom: 0.5rem;
+    }
+    .pricing-card.featured .plan-name {
+      color: #ffffff;
+    }
+
+    .plan-target {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      min-height: 42px;
+      margin-bottom: 1.5rem;
+    }
+    .pricing-card.featured .plan-target {
+      color: var(--text-on-dark-muted);
+    }
+
+    .plan-price-wrapper {
+      display: flex;
+      align-items: baseline;
+      gap: 0.35rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .plan-currency {
+      font-size: 1.75rem;
+      font-weight: 700;
+    }
+
+    .plan-price {
+      font-size: 3.25rem;
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -0.04em;
+    }
+
+    .plan-cycle {
+      font-size: 0.9375rem;
+      color: var(--text-muted);
+    }
+    .pricing-card.featured .plan-cycle {
+      color: var(--text-on-dark-muted);
+    }
+
+    .plan-billing-note {
+      font-size: 0.75rem;
+      color: var(--accent-hover);
+      font-weight: 600;
+      margin-bottom: 2rem;
+      min-height: 18px;
+    }
+    .pricing-card.featured .plan-billing-note {
+      color: #34d399;
+    }
+
+    .plan-features-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+      margin-bottom: 2.25rem;
+      font-size: 0.9375rem;
+      border-top: 1px solid var(--border-subtle);
+      padding-top: 1.75rem;
+    }
+    .pricing-card.featured .plan-features-list {
+      border-top-color: var(--border-dark);
+    }
+
+    .plan-features-list li {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+    }
+
+    .feature-check {
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .pricing-guarantee-note {
+      text-align: center;
+      margin-top: 2.5rem;
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+
+    /* ==========================================================================
+       CUSTOMER TESTIMONIALS SECTION
+       ========================================================================== */
+    .testimonials-section {
+      padding: 6.5rem 0;
+      background: var(--bg-base);
+    }
+
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+    }
+
+    .testimonial-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 2.25rem;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: var(--transition-smooth);
+    }
+
+    .testimonial-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+
+    .test-metric-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: var(--accent-soft);
+      color: var(--accent-hover);
+      border: 1px solid var(--accent-border);
+      padding: 0.35rem 0.75rem;
+      border-radius: var(--radius-full);
+      font-size: 0.78125rem;
+      font-weight: 700;
+      margin-bottom: 1.25rem;
+      align-self: flex-start;
+    }
+
+    .test-quote {
+      font-size: 1.05rem;
+      color: var(--text-main);
+      line-height: 1.6;
+      margin-bottom: 1.75rem;
+      font-style: normal;
+    }
+
+    .test-author-box {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      border-top: 1px solid var(--border-subtle);
+      padding-top: 1.25rem;
+    }
+
+    .author-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: var(--text-main);
+      font-size: 0.875rem;
+      border: 2px solid #ffffff;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .author-info h4 {
+      font-size: 0.9375rem;
+      margin-bottom: 0.15rem;
+    }
+
+    .author-info p {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+    }
+
+    /* Testimonials Stat Row */
+    .test-stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+      margin-top: 4rem;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .test-stat-val {
+      font-size: 2.25rem;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 0.25rem;
+      letter-spacing: -0.03em;
+    }
+
+    .test-stat-lbl {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+
+    /* ==========================================================================
+       FAQ SECTION
+       ========================================================================== */
+    .faq-section {
+      padding: 6.5rem 0;
+      background: var(--bg-surface);
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .faq-container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .faq-accordion {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .faq-item {
+      background: var(--bg-base);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      transition: var(--transition-smooth);
+    }
+
+    .faq-item.open {
+      border-color: var(--border-strong);
+      background: #ffffff;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .faq-question {
+      width: 100%;
+      text-align: left;
+      padding: 1.25rem 1.5rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 1.0625rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .faq-icon {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      transition: transform 0.25s ease;
+      flex-shrink: 0;
+    }
+
+    .faq-item.open .faq-icon {
+      transform: rotate(180deg);
+      color: var(--accent);
+    }
+
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s cubic-bezier(0, 1, 0, 1);
+      padding: 0 1.5rem;
+      color: var(--text-body);
+      font-size: 0.9375rem;
+      line-height: 1.6;
+    }
+
+    .faq-item.open .faq-answer {
+      max-height: 350px;
+      padding-bottom: 1.25rem;
+      transition: max-height 0.3s cubic-bezier(1, 0, 1, 0);
+    }
+
+    /* ==========================================================================
+       SIGNUP FORM SECTION (High-Craft Card)
+       ========================================================================== */
+    .signup-section {
+      padding: 6.5rem 0;
+      background: radial-gradient(circle at 50% 100%, rgba(16, 185, 129, 0.12) 0%, rgba(9, 13, 22, 1) 75%);
+      color: #ffffff;
+      position: relative;
+    }
+
+    .signup-wrapper {
+      max-width: 980px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1.15fr;
+      gap: 3.5rem;
+      align-items: center;
+    }
+
+    .signup-pitch h2 {
+      color: #ffffff;
+      font-size: 2.75rem;
+      margin-bottom: 1.25rem;
+      line-height: 1.12;
+    }
+
+    .signup-pitch p {
+      color: var(--text-on-dark-muted);
+      font-size: 1.125rem;
+      line-height: 1.6;
+      margin-bottom: 2rem;
+    }
+
+    .signup-pitch-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      font-size: 0.9375rem;
+    }
+
+    .signup-pitch-list li {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      color: #cbd5e1;
+    }
+
+    .signup-pitch-list svg {
+      color: #34d399;
+      flex-shrink: 0;
+    }
+
+    /* Card Box */
+    .signup-card {
+      background: var(--bg-dark-card);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: var(--radius-xl);
+      padding: 2.5rem;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 40px rgba(16, 185, 129, 0.15);
+      color: var(--text-main);
+    }
+
+    .signup-card-header {
+      margin-bottom: 1.5rem;
+    }
+
+    .signup-card-title {
+      font-size: 1.5rem;
+      color: #ffffff;
+      margin-bottom: 0.35rem;
+    }
+
+    .signup-card-subtitle {
+      color: var(--text-on-dark-muted);
+      font-size: 0.875rem;
+    }
+
+    .signup-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1.15rem;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .form-label {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: #cbd5e1;
+    }
+
+    .form-input, .form-select {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+      padding: 0.75rem 0.95rem;
+      border-radius: var(--radius-md);
+      font-size: 0.9375rem;
+      transition: var(--transition-smooth);
+      outline: none;
+    }
+
+    .form-input:focus, .form-select:focus {
+      border-color: #34d399;
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25);
+      background: rgba(15, 23, 42, 0.95);
+    }
+
+    .form-input::placeholder {
+      color: #64748b;
+    }
+
+    .form-select option {
+      background: #0f172a;
+      color: #ffffff;
+    }
+
+    .form-submit-btn {
+      width: 100%;
+      margin-top: 0.5rem;
+      padding: 0.95rem;
+      font-size: 1.05rem;
+    }
+
+    .form-terms {
+      font-size: 0.75rem;
+      color: #64748b;
+      text-align: center;
+      line-height: 1.45;
+      margin-top: 0.5rem;
+    }
+
+    .form-terms a {
+      color: #94a3b8;
+      text-decoration: underline;
+    }
+
+    /* Live Success feedback banner */
+    .signup-success-message {
+      display: none;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(52, 211, 153, 0.4);
+      color: #34d399;
+      padding: 1.25rem;
+      border-radius: var(--radius-md);
+      text-align: center;
+      animation: fadeIn 0.4s ease;
+    }
+
+    .signup-success-message h4 {
+      color: #34d399;
+      font-size: 1.15rem;
+      margin-bottom: 0.4rem;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ==========================================================================
+       FOOTER
+       ========================================================================== */
+    .site-footer {
+      background: #05080e;
+      color: #94a3b8;
+      padding: 5rem 0 2.5rem 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.875rem;
+    }
+
+    .footer-top {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+      gap: 3rem;
+      margin-bottom: 4rem;
+    }
+
+    .footer-brand {
+      max-width: 320px;
+    }
+
+    .footer-brand .brand-logo {
+      color: #ffffff;
+      margin-bottom: 1rem;
+    }
+
+    .footer-desc {
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+    }
+
+    .footer-col-title {
+      color: #ffffff;
+      font-size: 0.875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 1.25rem;
+    }
+
+    .footer-links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .footer-links a:hover {
+      color: #ffffff;
+    }
+
+    .footer-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      flex-wrap: wrap;
+      gap: 1rem;
+      font-size: 0.8125rem;
+    }
+
+    .system-status {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: #34d399;
+      font-weight: 500;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      background: #10b981;
+      border-radius: 50%;
+    }
+
+    /* ==========================================================================
+       RESPONSIVE BREAKPOINTS
+       ========================================================================== */
+    @media (max-width: 1024px) {
+      .hero-title {
+        font-size: 2.85rem;
+      }
+      .reconciliation-grid {
+        grid-template-columns: 1fr;
+      }
+      .recon-connector-col {
+        order: 2;
+        padding: 1rem 0;
+      }
+      .recon-invoice-col {
+        order: 3;
+      }
+      .bento-grid {
+        grid-template-columns: 1fr;
+      }
+      .col-span-8, .col-span-4, .col-span-6, .col-span-12 {
+        grid-column: span 1;
+      }
+      .pricing-grid {
+        grid-template-columns: 1fr;
+      }
+      .pricing-card.featured {
+        transform: none;
+      }
+      .pricing-card.featured:hover {
+        transform: translateY(-4px);
+      }
+      .testimonials-grid {
+        grid-template-columns: 1fr;
+      }
+      .signup-wrapper {
+        grid-template-columns: 1fr;
+      }
+      .footer-top {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .nav-links, .nav-actions .login-link {
+        display: none;
+      }
+      .mobile-menu-btn {
+        display: block;
+      }
+      .hero-title {
+        font-size: 2.25rem;
+      }
+      .hero-subtitle {
+        font-size: 1.05rem;
+      }
+      .comparison-cards-grid {
+        grid-template-columns: 1fr;
+      }
+      .steps-grid {
+        grid-template-columns: 1fr;
+      }
+      .test-stats-row {
+        grid-template-columns: 1fr 1fr;
+      }
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+      .footer-top {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==========================================================================
+       NAVIGATION BAR
+       ========================================================================== -->
+  <header class="site-header">
+    <div class="container">
+      <div class="nav-wrapper">
+        <a href="#" class="brand-logo" aria-label="Ledgerly Home">
+          <div class="brand-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="4" width="18" height="16" rx="3"></rect>
+              <line x1="8" y1="9" x2="16" y2="9"></line>
+              <line x1="8" y1="13" x2="14" y2="13"></line>
+              <line x1="8" y1="17" x2="11" y2="17"></line>
+              <path d="M16 14l2 2 4-4" stroke="#10b981"></path>
+            </svg>
+          </div>
+          <span>Ledgerly</span>
+        </a>
+
+        <nav>
+          <ul class="nav-links">
+            <li><a href="#features">Features</a></li>
+            <li><a href="#how-it-works">How It Works</a></li>
+            <li><a href="#pricing">Pricing</a></li>
+            <li><a href="#testimonials">Agency Reviews</a></li>
+            <li><a href="#faq">FAQ</a></li>
+          </ul>
+        </nav>
+
+        <div class="nav-actions">
+          <a href="#signup" class="login-link">Sign In</a>
+          <a href="#signup" class="btn btn-primary">Start Free Trial</a>
+          <button class="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="Toggle navigation menu">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <!-- Mobile Dropdown Drawer -->
+      <div class="mobile-nav-drawer" id="mobile-drawer">
+        <a href="#features" onclick="toggleMobileMenu()">Features</a>
+        <a href="#how-it-works" onclick="toggleMobileMenu()">How It Works</a>
+        <a href="#pricing" onclick="toggleMobileMenu()">Pricing Plans</a>
+        <a href="#testimonials" onclick="toggleMobileMenu()">Agency Reviews</a>
+        <a href="#faq" onclick="toggleMobileMenu()">FAQ</a>
+        <a href="#signup" onclick="toggleMobileMenu()" style="color: var(--accent); font-weight: 700;">Start Free Trial →</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==========================================================================
+       HERO SECTION
+       ========================================================================== -->
+  <section class="hero-section">
+    <div class="container">
+      <div class="hero-content">
+        <div class="hero-pill-badge">
+          <span class="badge badge-accent">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+            Auto-Matching Engine v2.4 Live: Wire, ACH & Stripe
+          </span>
+        </div>
+
+        <h1 class="hero-title">
+          Automatic Bank-to-Invoice Reconciliation for <span class="hero-title-highlight">Fast-Moving Agencies.</span>
+        </h1>
+
+        <p class="hero-subtitle">
+          Never chase a payment that’s already sitting in your bank. Ledgerly automatically syncs live feeds from Chase, Mercury, SVB, and Stripe to match incoming deposits with open client invoices in seconds.
+        </p>
+
+        <div class="hero-cta-group">
+          <a href="#signup" class="btn btn-accent btn-lg">
+            Start Free 14-Day Trial
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </a>
+          <a href="#demo" class="btn btn-outline btn-lg" onclick="triggerInteractiveSimulation(); return false;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+            Simulate Live Payment Match
+          </a>
+        </div>
+
+        <div class="hero-trust-row">
+          <div class="trust-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            <span>No credit card required</span>
+          </div>
+          <div class="trust-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            <span>Plaid & Open Banking Verified</span>
+          </div>
+          <div class="trust-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            <span>2-Way Sync with Xero & QuickBooks</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- HERO VISUAL ANCHOR: LIVE RECONCILIATION CANVAS -->
+      <div class="hero-demo-container" id="demo">
+        <div class="demo-window-header">
+          <div class="window-controls">
+            <div class="window-dot red"></div>
+            <div class="window-dot yellow"></div>
+            <div class="window-dot green"></div>
+          </div>
+          <div class="window-title">
+            <div class="live-pulse"></div>
+            <span>Ledgerly Core Engine — Realtime Feed Active</span>
+          </div>
+          <div class="badge badge-dark">99.8% Match Rate</div>
+        </div>
+
+        <div class="demo-interactive-bar">
+          <span style="color: #94a3b8;">Click to simulate an incoming wire or ACH deposit:</span>
+          <button class="interactive-trigger-btn" id="sim-btn" onclick="triggerInteractiveSimulation()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3"/>
+            </svg>
+            <span>Simulate Incoming Client Wire ($18,500)</span>
+          </button>
+        </div>
+
+        <div class="reconciliation-grid">
+          <!-- Left: Bank Stream -->
+          <div class="recon-bank-col">
+            <div class="recon-col-title">
+              <span>Incoming Bank Transactions</span>
+              <span class="mono" style="color: #64748b;">Mercury / Chase Feed</span>
+            </div>
+            <div class="recon-card-list">
+              <div class="recon-feed-card matched" id="feed-card-1">
+                <div class="recon-card-header">
+                  <span class="feed-sender">Apex Venture Studio</span>
+                  <span class="feed-amount mono">+$14,500.00</span>
+                </div>
+                <div class="feed-meta">
+                  <span>FedWire Ref #98421</span>
+                  <span>•</span>
+                  <span>Cleared 4m ago</span>
+                </div>
+                <div class="feed-memo mono">Memo: APEX / INV-2024-089 MILESTONE 3 FINAL</div>
+              </div>
+
+              <div class="recon-feed-card matched" id="feed-card-2">
+                <div class="recon-card-header">
+                  <span class="feed-sender">Nordic Tech ApS</span>
+                  <span class="feed-amount mono">+$9,200.00</span>
+                </div>
+                <div class="feed-meta">
+                  <span>SWIFT EUR/USD Conv</span>
+                  <span>•</span>
+                  <span>Cleared 18m ago</span>
+                </div>
+                <div class="feed-memo mono">Memo: NORDIC-DEV-SEPT-RETAINER</div>
+              </div>
+
+              <div class="recon-feed-card" id="feed-card-simulated" style="transition: all 0.5s ease;">
+                <div class="recon-card-header">
+                  <span class="feed-sender" id="sim-sender">Acme Holdings Corp</span>
+                  <span class="feed-amount mono" id="sim-amount" style="color: #fbbf24;">+$18,500.00</span>
+                </div>
+                <div class="feed-meta">
+                  <span id="sim-channel">JPMorgan Chase Wire</span>
+                  <span>•</span>
+                  <span id="sim-time" style="color: #fbbf24;">Just Received</span>
+                </div>
+                <div class="feed-memo mono" id="sim-memo">Memo: ACME Q3 DESIGN SPRINT FULL SETTLE</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Center: Matching Logic Engine -->
+          <div class="recon-connector-col">
+            <div class="recon-matching-core">
+              <div class="match-rate mono" id="core-match-rate">100%</div>
+              <div class="match-label">Confidence</div>
+            </div>
+
+            <div class="match-rays">
+              <div class="match-ray-item">
+                <span>Matched</span>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              </div>
+              <div class="match-ray-item">
+                <span>Matched</span>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              </div>
+              <div class="match-ray-item" id="sim-connector" style="color: #fbbf24; border-color: rgba(245, 158, 11, 0.4); background: rgba(245, 158, 11, 0.1);">
+                <span id="sim-conn-text">Analyzing...</span>
+              </div>
+            </div>
+
+            <div style="font-size: 0.65rem; color: #64748b; text-align: center;">
+              Auto-reconciles <br>in 0.4s
+            </div>
+          </div>
+
+          <!-- Right: Agency Invoices Ledger -->
+          <div class="recon-invoice-col">
+            <div class="recon-col-title">
+              <span>Agency Invoice Registry</span>
+              <span class="mono" style="color: #64748b;">Ledger Status</span>
+            </div>
+            <div class="recon-card-list">
+              <div class="recon-invoice-card reconciled">
+                <div class="recon-card-header">
+                  <span style="font-weight: 700; color: #fff;">INV-2024-089</span>
+                  <span class="invoice-status-badge paid">✓ Paid & Reconciled</span>
+                </div>
+                <div class="feed-meta" style="margin-bottom: 0.35rem;">
+                  <span>Apex Venture Studio</span>
+                  <span>•</span>
+                  <span class="mono">$14,500.00</span>
+                </div>
+                <div style="font-size: 0.72rem; color: #34d399;">
+                  Receipt emailed • Reminders halted • Synced to Xero
+                </div>
+              </div>
+
+              <div class="recon-invoice-card reconciled">
+                <div class="recon-card-header">
+                  <span style="font-weight: 700; color: #fff;">INV-2024-088</span>
+                  <span class="invoice-status-badge paid">✓ Paid & Reconciled</span>
+                </div>
+                <div class="feed-meta" style="margin-bottom: 0.35rem;">
+                  <span>Nordic Tech ApS</span>
+                  <span>•</span>
+                  <span class="mono">$9,200.00</span>
+                </div>
+                <div style="font-size: 0.72rem; color: #34d399;">
+                  FX spread logged • Synced to QuickBooks
+                </div>
+              </div>
+
+              <div class="recon-invoice-card" id="sim-invoice-card">
+                <div class="recon-card-header">
+                  <span style="font-weight: 700; color: #fff;">INV-2024-090</span>
+                  <span class="invoice-status-badge pending" id="sim-status-badge">Awaiting Bank Settlement</span>
+                </div>
+                <div class="feed-meta" style="margin-bottom: 0.35rem;">
+                  <span>Acme Holdings Corp</span>
+                  <span>•</span>
+                  <span class="mono">$18,500.00</span>
+                </div>
+                <div style="font-size: 0.72rem; color: #94a3b8;" id="sim-invoice-sub">
+                  Milestone Sprint 3 • Net-15 Terms
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="recon-bottom-stats">
+          <div class="bottom-stat-item">
+            <span style="color: #64748b;">Bank Integrations:</span>
+            <span class="stat-val">Plaid, Stripe, Wise, Mercury, Brex, SVB</span>
+          </div>
+          <div class="bottom-stat-item">
+            <span style="color: #64748b;">Accounting Sync:</span>
+            <span class="stat-val">Xero, QuickBooks Online, FreshBooks</span>
+          </div>
+          <div class="bottom-stat-item">
+            <span style="color: #64748b;">Audit Status:</span>
+            <span class="stat-val" style="color: #34d399;">✓ SOC-2 Type II Certified</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       TRUSTED BY AGENCIES (LOGO STRIP)
+       ========================================================================== */
+  -->
+  <section class="logos-section">
+    <div class="container">
+      <div class="logos-label">Powering cashflow operations for 1,400+ leading agencies & design firms</div>
+      <div class="logos-grid">
+        <div class="logo-item">
+          <div class="logo-symbol">▲</div>
+          <span>Apex Design Co</span>
+        </div>
+        <div class="logo-item">
+          <div class="logo-symbol">M</div>
+          <span>Monolith Interactive</span>
+        </div>
+        <div class="logo-item">
+          <div class="logo-symbol">⬡</div>
+          <span>Kinetic Digital</span>
+        </div>
+        <div class="logo-item">
+          <div class="logo-symbol">V</div>
+          <span>Vanguard Labs</span>
+        </div>
+        <div class="logo-item">
+          <div class="logo-symbol">✦</div>
+          <span>Form & Function</span>
+        </div>
+        <div class="logo-item">
+          <div class="logo-symbol">H</div>
+          <span>Hexa Partners</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       PROBLEM VS SOLUTION (The Agency Cash Leak)
+       ========================================================================== -->
+  <section class="comparison-section">
+    <div class="container">
+      <div class="section-header">
+        <span class="badge badge-indigo">The Agency Problem</span>
+        <h2 class="section-title">Manual reconciliation is burning your agency’s billable hours.</h2>
+        <p class="section-subtitle">
+          Small agencies average 14 hours every month cross-referencing wires, client reference numbers, and Stripe payouts against accounting spreadsheets.
+        </p>
+      </div>
+
+      <div class="comparison-cards-grid">
+        <!-- The Old Way -->
+        <div class="comparison-card bad">
+          <div class="comp-card-title" style="color: #dc2626;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="15" y1="9" x2="9" y2="15"></line>
+              <line x1="9" y1="9" x2="15" y2="15"></line>
+            </svg>
+            <span>The Manual Spreadsheet Way</span>
+          </div>
+          <p class="comp-card-desc">Logging into 4 bank portals every Friday afternoon to chase remittances.</p>
+          <ul class="comp-checklist">
+            <li>
+              <span class="icon-bad">✕</span>
+              <span><strong>Awkward client nudges:</strong> You email a partner asking for $30,000, only for them to reply: <em>"We wired that 3 days ago, check your bank."</em></span>
+            </li>
+            <li>
+              <span class="icon-bad">✕</span>
+              <span><strong>Cryptic wire memos:</strong> Client accounting teams input abbreviated project codes or legal entity names that don't match invoice titles.</span>
+            </li>
+            <li>
+              <span class="icon-bad">✕</span>
+              <span><strong>Stripe & FX fee mismatches:</strong> A $10,000 international invoice lands as $9,762.40 after wire deductions, leaving open balance discrepancies.</span>
+            </li>
+            <li>
+              <span class="icon-bad">✕</span>
+              <span><strong>Double entry in accounting:</strong> Re-keying transactions into QuickBooks or Xero leads to duplicate customer records and phantom invoices.</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- The Ledgerly Way -->
+        <div class="comparison-card good">
+          <div class="comp-card-title" style="color: var(--accent-hover);">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+            <span>The Ledgerly Auto-Reconciliation Way</span>
+          </div>
+          <p class="comp-card-desc">Zero-touch verification. Payments match and clear within seconds of arriving.</p>
+          <ul class="comp-checklist">
+            <li>
+              <span class="icon-good">✓</span>
+              <span><strong>Self-silencing reminders:</strong> Pending overdue notifications automatically cancel the microsecond payment touches your bank feed.</span>
+            </li>
+            <li>
+              <span class="icon-good">✓</span>
+              <span><strong>Fuzzy matching engine:</strong> Ledgerly connects parent company EINs, subsidiary names, wire codes, and invoice numbers seamlessly.</span>
+            </li>
+            <li>
+              <span class="icon-good">✓</span>
+              <span><strong>Automatic fee isolation:</strong> Intermediary bank fees, Stripe processing percentages, and FX spreads are isolated and booked to fee accounts.</span>
+            </li>
+            <li>
+              <span class="icon-good">✓</span>
+              <span><strong>Instant bi-directional sync:</strong> Invoices mark as paid in Xero, QuickBooks, and FreshBooks in real time with zero manual intervention.</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       FEATURES SECTION (Bento Grid)
+       ========================================================================== -->
+  <section class="features-section" id="features">
+    <div class="container">
+      <div class="section-header">
+        <span class="badge badge-accent">Engineered for Agencies</span>
+        <h2 class="section-title">Everything you need to close the books without lifting a finger.</h2>
+        <p class="section-subtitle">
+          Built specifically around the workflows of design studios, digital consultancies, and software development agencies.
+        </p>
+      </div>
+
+      <div class="bento-grid">
+        <!-- Feature 1: Big Card (Span 8) -->
+        <div class="bento-card col-span-8">
+          <div>
+            <div class="feature-icon-wrapper accent">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                <path d="M11 8v6"></path>
+                <path d="M8 11h6"></path>
+              </svg>
+            </div>
+            <h3 class="bento-title">Sub-Second Fuzzy Matching with 99.8% Accuracy</h3>
+            <p class="bento-desc">
+              Clients rarely paste your exact invoice number into their wire reference box. Ledgerly inspects sender names, parent corporate entities, dollar amounts, and historical payment patterns to establish verifiable matches.
+            </p>
+          </div>
+
+          <div class="bento-visual">
+            <div class="fuzzy-match-row">
+              <div>
+                <strong>Incoming Wire:</strong> <span class="mono" style="color: #64748b;">"TRF APEX DYN NYC OP-FEE 492"</span>
+              </div>
+              <div class="confidence-tag">99.9% Match: INV-0492 (Apex Dynamics)</div>
+            </div>
+            <div class="fuzzy-match-row">
+              <div>
+                <strong>ACH Direct:</strong> <span class="mono" style="color: #64748b;">"VANGUARD VENTURES RETAIN 09/24"</span>
+              </div>
+              <div class="confidence-tag">100% Match: INV-0511 (Vanguard Retainer)</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Feature 2: Small Card (Span 4) -->
+        <div class="bento-card col-span-4">
+          <div>
+            <div class="feature-icon-wrapper indigo">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                <line x1="2" y1="2" x2="22" y2="22"></line>
+              </svg>
+            </div>
+            <h3 class="bento-title">Self-Silencing Polite Reminders</h3>
+            <p class="bento-desc">
+              Protect high-value client relationships. As soon as a bank wire hits your account, scheduled payment chasers and follow-up emails are permanently silenced.
+            </p>
+          </div>
+          <div class="bento-visual" style="text-align: center; color: var(--accent-hover); font-weight: 600;">
+            ✓ 0 awkward reminders sent to clients who already wired funds
+          </div>
+        </div>
+
+        <!-- Feature 3: Small Card (Span 4) -->
+        <div class="bento-card col-span-4">
+          <div>
+            <div class="feature-icon-wrapper">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                <polyline points="2 17 12 22 22 17"></polyline>
+                <polyline points="2 12 12 17 22 12"></polyline>
+              </svg>
+            </div>
+            <h3 class="bento-title">Milestone & Retainer Split Matching</h3>
+            <p class="bento-desc">
+              Did a client pay a 50% deposit and 2 milestone retainers in a single lump-sum transfer? Ledgerly automatically allocates partial and multi-invoice payments across line items.
+            </p>
+          </div>
+          <div class="bento-visual">
+            <span class="mono" style="font-weight: 600;">$45,000 Transfer → Split into INV-101 ($25k) + INV-102 ($20k)</span>
+          </div>
+        </div>
+
+        <!-- Feature 4: Small Card (Span 4) -->
+        <div class="bento-card col-span-4">
+          <div>
+            <div class="feature-icon-wrapper accent">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="2" y1="12" x2="22" y2="12"></line>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+              </svg>
+            </div>
+            <h3 class="bento-title">Multi-Currency & Real-Time FX</h3>
+            <p class="bento-desc">
+              Invoice in EUR, GBP, AUD, or CAD and receive in USD. Ledgerly captures the exact bank exchange rate at time of settlement and books FX gain/loss seamlessly.
+            </p>
+          </div>
+          <div class="bento-visual">
+            <span class="mono">€12,000.00 → $13,080.00 USD (FX Spread tracked)</span>
+          </div>
+        </div>
+
+        <!-- Feature 5: Small Card (Span 4) -->
+        <div class="bento-card col-span-4">
+          <div>
+            <div class="feature-icon-wrapper indigo">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                <line x1="12" y1="22.08" x2="12" y2="12"></line>
+              </svg>
+            </div>
+            <h3 class="bento-title">Two-Way General Ledger Sync</h3>
+            <p class="bento-desc">
+              Push reconciliations to QuickBooks Online, Xero, or FreshBooks in real-time. Payments, fees, and bank lines match automatically with your accountant’s ledger.
+            </p>
+          </div>
+          <div class="bento-visual">
+            <div class="sync-logos-row">
+              <span class="sync-badge">✓ Xero</span>
+              <span class="sync-badge">✓ QuickBooks</span>
+              <span class="sync-badge">✓ FreshBooks</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       HOW IT WORKS SECTION (3 Simple Steps)
+       ========================================================================== -->
+  <section class="steps-section" id="how-it-works">
+    <div class="container">
+      <div class="section-header">
+        <span class="badge badge-accent">Quick Onboarding</span>
+        <h2 class="section-title">Up and running in 3 minutes. Zero IT required.</h2>
+        <p class="section-subtitle">
+          Ledgerly sits on top of your existing bank and accounting stack without requiring you to switch accounts or change client invoicing habits.
+        </p>
+      </div>
+
+      <div class="steps-grid">
+        <!-- Step 1 -->
+        <div class="step-card">
+          <div class="step-number">01</div>
+          <h3 class="step-title">Connect Your Agency Banks</h3>
+          <p class="step-text">
+            Link your business checking accounts (Mercury, Chase, SVB, Bank of America, Wise, or Brex) in 60 seconds with bank-grade 256-bit Plaid & Open Banking encryption.
+          </p>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="step-card">
+          <div class="step-number">02</div>
+          <h3 class="step-title">Issue Invoices or Import</h3>
+          <p class="step-text">
+            Send sleek, branded agency invoices with custom milestone schedules, or simply let Ledgerly import open balances from your current accounting software.
+          </p>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="step-card">
+          <div class="step-number">03</div>
+          <h3 class="step-title">Automatic Hands-Off Reconciliation</h3>
+          <p class="step-text">
+            As clients wire funds or submit ACH transfers, Ledgerly matches the deposit, marks the invoice paid, emails a branded client receipt, and syncs your general ledger.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       PRICING SECTION (Three Plans)
+       ========================================================================== -->
+  <section class="pricing-section" id="pricing">
+    <div class="container">
+      <div class="section-header">
+        <span class="badge badge-accent">Transparent Pricing</span>
+        <h2 class="section-title">Predictable plans that scale with your agency’s billings.</h2>
+        <p class="section-subtitle">
+          Every plan includes a 14-day free trial. No credit card required to start.
+        </p>
+      </div>
+
+      <!-- Billing Cycle Toggle -->
+      <div class="billing-toggle-container">
+        <span class="toggle-label" id="lbl-monthly" onclick="setBillingCycle(false)">Monthly Billing</span>
+        <button class="switch-btn active" id="billing-switch" onclick="toggleBillingCycle()" aria-label="Toggle annual billing discount">
+          <span class="switch-handle"></span>
+        </button>
+        <span class="toggle-label active" id="lbl-annual" onclick="setBillingCycle(true)">
+          Annual Billing
+          <span class="badge badge-accent" style="margin-left: 0.35rem; font-size: 0.75rem;">Save 20%</span>
+        </span>
+      </div>
+
+      <!-- Pricing Cards Grid -->
+      <div class="pricing-grid">
+        <!-- Plan 1: Starter / Studio -->
+        <div class="pricing-card">
+          <div>
+            <h3 class="plan-name">Studio Starter</h3>
+            <p class="plan-target">For boutique studios, solo consultants, and early-stage duos.</p>
+            <div class="plan-price-wrapper">
+              <span class="plan-currency">$</span>
+              <span class="plan-price mono" id="price-starter">24</span>
+              <span class="plan-cycle">/month</span>
+            </div>
+            <div class="plan-billing-note" id="note-starter">Billed annually ($288/yr)</div>
+
+            <ul class="plan-features-list">
+              <li>
+                <span class="feature-check">✓</span>
+                <span>Up to 15 active client retainers</span>
+              </li>
+              <li>
+                <span class="feature-check">✓</span>
+                <span>1 Connected bank account + Stripe</span>
+              </li>
+              <li>
+                <span class="feature-check">✓</span>
+                <span>Automatic bank wire & ACH matching</span>
+              </li>
+              <li>
+                <span class="feature-check">✓</span>
+                <span>Self-silencing polite reminders</span>
+              </li>
+              <li>
+                <span class="feature-check">✓</span>
+                <span>Standard invoice PDF generation</span>
+              </li>
+              <li>
+                <span class="feature-check">✓</span>
+                <span>Email support (24hr response)</span>
+              </li>
+            </ul>
+          </div>
+
+          <a href="#signup" class="btn btn-outline" style="width: 100%;">Start 14-Day Free Trial</a>
+        </div>
+
+        <!-- Plan 2: Growth Agency (Featured) -->
+        <div class="pricing-card featured">
+          <div class="featured-tag">Most Popular for Agencies</div>
+          <div>
+            <h3 class="plan-name">Growth Agency</h3>
+            <p class="plan-target">For established agencies (5–25 people) managing multiple projects.</p>
+            <div class="plan-price-wrapper">
+              <span class="plan-currency">$</span>
+              <span class="plan-price mono" id="price-growth">64</span>
+              <span class="plan-cycle">/month</span>
+            </div>
+            <div class="plan-billing-note" id="note-growth">Billed annually ($768/yr)</div>
+
+            <ul class="plan-features-list">
+              <li>
+                <span class="feature-check">✓</span>
+                <span><strong>Unlimited</strong> active clients & invoices</span>
+              </li>
+              <li>
+                <span class="feature-check">✓</span>
+                <span>Up to 5 Connected bank accounts</span>
+              </li>
+              <li>
+                <span class="feature-check">✓</span>
+                <span>Sub-second fuzzy matching engine</span>
+              </li>
+              <li>
+                <span class="feature-check">✓</span>
+                <span>Split payments & milestone draw matching</span>
+              </li>
+              <li>
+                <span class="feature-check">✓</span>
+                <span>2-Way Xero, QuickBooks & FreshBooks sync</span>
+              </li>
+              <li>
+                <span class="feature-check">✓</span>
+                <span>Multi-currency & real-time FX fee tracking</span>
+              </li>
+              <li>
+                <span class="feature-check">✓</span>
+                <span>Up to 5 team member seats with roles</span>
+              </li>
+              <li>
+                <span class="feature-check">✓</span>
+                <span>Priority live chat & onboarding support</span>
+              </li>
+            </ul>
+          </div>
+
+          <a href="#signup" class="btn btn-accent" style="width: 100%; font-size: 1rem; padding: 0.9rem;">Start 14-Day Free Trial</a>
+        </div>
+
+        <!-- Plan 3: Scale / Enterprise -->
+        <div class="pricing-card">
+          <div>
+            <h3 class="plan-name">Scale Firm</h3>
+            <p class="plan-target">For multi-entity holding firms, international networks & consultancies.</p>
+            <div class="plan-price-wrapper">
+              <span class="plan-currency">$</span>
+              <span class="plan-price mono" id="price-scale">149</span>
+              <span class="plan-cycle">/month</span>
+            </div>
+            <div class="plan-billing-note" id="note-scale">Billed annually ($1,788/yr)</div>
+
+            <ul class="plan-features-list">
+              <li>
+                <span class="feature-check">✓</span>
+                <span><strong>Unlimited</strong> bank connections & entities</span>
+              </li>
+              <li>
+                <span class="feature-check">✓</span>
+                <span>Multi-entity intercompany reconciliation</span>
+              </li>
+              <li>
+                <span class="feature-check">✓</span>
+                <span>Custom ERP & accounting webhooks</span>
+              </li>
+              <li>
+                <span class="feature-check">✓</span>
+                <span>Dedicated account manager & migration</span>
+              </li>
+              <li>
+                <span class="feature-check">✓</span>
+                <span>Custom billing terms & vendor contracts</span>
+              </li>
+              <li>
+                <span class="feature-check">✓</span>
+                <span>SOC-2 Type II audit compliance package</span>
+              </li>
+              <li>
+                <span class="feature-check">✓</span>
+                <span>SAML / SSO & unlimited team seats</span>
+              </li>
+            </ul>
+          </div>
+
+          <a href="#signup" class="btn btn-outline" style="width: 100%;">Start 14-Day Free Trial</a>
+        </div>
+      </div>
+
+      <div class="pricing-guarantee-note">
+        🔒 All plans include SOC-2 certified bank feeds, automated daily backups, and instant one-click cancellation.
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       CUSTOMER TESTIMONIALS SECTION
+       ========================================================================== -->
+  <section class="testimonials-section" id="testimonials">
+    <div class="container">
+      <div class="section-header">
+        <span class="badge badge-accent">Real Agency Outcomes</span>
+        <h2 class="section-title">Loved by agency founders and operations leaders.</h2>
+        <p class="section-subtitle">
+          Here is how modern creative and technical agencies stopped chasing payments and reclaimed their Fridays.
+        </p>
+      </div>
+
+      <div class="testimonials-grid">
+        <!-- Testimonial 1 -->
+        <div class="testimonial-card">
+          <div>
+            <div class="test-metric-badge">⚡ Saved 16 hrs / month</div>
+            <p class="test-quote">
+              "We used to spend 4 hours every Friday cross-referencing wires from US and European enterprise clients against our invoice sheet. Ledgerly cut that to literally zero minutes. We haven't touched manual reconciliation in 9 months."
+            </p>
+          </div>
+          <div class="test-author-box">
+            <div class="author-avatar" style="background: #e0e7ff; color: #4338ca;">SJ</div>
+            <div class="author-info">
+              <h4>Sarah Jenkins</h4>
+              <p>COO at Monolith Interactive (32 team members)</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Testimonial 2 -->
+        <div class="testimonial-card">
+          <div>
+            <div class="test-metric-badge">🛡️ 0 Awkward Reminders</div>
+            <p class="test-quote">
+              "The single best feature is self-silencing reminders. In the past, our finance software emailed a client demanding a $45k retainer that they had wired 2 hours earlier. It made us look sloppy. Ledgerly stopped that instantly."
+            </p>
+          </div>
+          <div class="test-author-box">
+            <div class="author-avatar" style="background: #dcfce7; color: #15803d;">DC</div>
+            <div class="author-info">
+              <h4>David Cho</h4>
+              <p>Founder & Principal, Apex Design Studio</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Testimonial 3 -->
+        <div class="testimonial-card">
+          <div>
+            <div class="test-metric-badge">📈 DSO Dropped by 12 Days</div>
+            <p class="test-quote">
+              "Matching multi-milestone lump sums was our operations director's worst nightmare. Ledgerly's fuzzy matching matched 18 complex client wire remittances on our first day without a single error. It's magic."
+            </p>
+          </div>
+          <div class="test-author-box">
+            <div class="author-avatar" style="background: #fef3c7; color: #b45309;">ER</div>
+            <div class="author-info">
+              <h4>Elena Rostova</h4>
+              <p>Partner at Hexa Engineering Consultancy</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Testimonials Stats Counter Bar -->
+      <div class="test-stats-row">
+        <div>
+          <div class="test-stat-val mono">$520M+</div>
+          <div class="test-stat-lbl">Agency Invoices Reconciled</div>
+        </div>
+        <div>
+          <div class="test-stat-val mono">99.8%</div>
+          <div class="test-stat-lbl">Automated Match Precision</div>
+        </div>
+        <div>
+          <div class="test-stat-val mono">14.2 hrs</div>
+          <div class="test-stat-lbl">Average Agency Time Saved/Mo</div>
+        </div>
+        <div>
+          <div class="test-stat-val mono">1,400+</div>
+          <div class="test-stat-lbl">Agencies Worldwide</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       FREQUENTLY ASKED QUESTIONS (FAQ Accordion)
+       ========================================================================== -->
+  <section class="faq-section" id="faq">
+    <div class="container">
+      <div class="section-header">
+        <span class="badge badge-accent">Got Questions?</span>
+        <h2 class="section-title">Frequently Asked Questions</h2>
+        <p class="section-subtitle">
+          Everything you need to know about Ledgerly’s bank matching engine and security.
+        </p>
+      </div>
+
+      <div class="faq-container">
+        <div class="faq-accordion">
+          <!-- Question 1 -->
+          <div class="faq-item open">
+            <button class="faq-question" onclick="toggleFaq(this)">
+              <span>What if a client leaves the invoice number blank in their wire memo?</span>
+              <span class="faq-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              </span>
+            </button>
+            <div class="faq-answer">
+              Ledgerly doesn't rely solely on strict invoice numbers. Our fuzzy matching algorithm evaluates the sending bank entity, parent corporation names, expected amount, payment frequency, and historical client accounts. When confidence is 99%+, it auto-reconciles; for edge cases, it suggests a 1-click match in your morning digest.
+            </div>
+          </div>
+
+          <!-- Question 2 -->
+          <div class="faq-item">
+            <button class="faq-question" onclick="toggleFaq(this)">
+              <span>Does Ledgerly replace our accounting software like Xero or QuickBooks?</span>
+              <span class="faq-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              </span>
+            </button>
+            <div class="faq-answer">
+              No, Ledgerly supercharges them. While Xero and QuickBooks have generic bank feeds that require you to manually click "OK" on every single line item, Ledgerly acts as an automated intelligence layer that reconciles incoming payments immediately and keeps your existing general ledger 100% in sync without double-entry.
+            </div>
+          </div>
+
+          <!-- Question 3 -->
+          <div class="faq-item">
+            <button class="faq-question" onclick="toggleFaq(this)">
+              <span>How does Ledgerly handle partial payments or milestone retainers?</span>
+              <span class="faq-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              </span>
+            </button>
+            <div class="faq-answer">
+              If a client sends a partial deposit (for instance, a 50% kickoff payment on a $30,000 project contract), Ledgerly records the exact partial payment, updates the open invoice balance to $15,000, and only adjusts future reminder dates for the remaining balance.
+            </div>
+          </div>
+
+          <!-- Question 4 -->
+          <div class="faq-item">
+            <button class="faq-question" onclick="toggleFaq(this)">
+              <span>How secure is the bank connection? Can Ledgerly initiate payments?</span>
+              <span class="faq-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              </span>
+            </button>
+            <div class="faq-answer">
+              Ledgerly has read-only access to your transaction feeds via Plaid and Open Banking API protocols. We cannot move funds, create transfers, or alter your bank accounts. All data is encrypted with AES-256 at rest and TLS 1.3 in transit, and our infrastructure is SOC-2 Type II compliant.
+            </div>
+          </div>
+
+          <!-- Question 5 -->
+          <div class="faq-item">
+            <button class="faq-question" onclick="toggleFaq(this)">
+              <span>What banks and payment processors are supported?</span>
+              <span class="faq-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              </span>
+            </button>
+            <div class="faq-answer">
+              We support over 12,000 financial institutions across the US, UK, Canada, and Europe via Plaid and SaltEdge, including Mercury, Chase, Silicon Valley Bank, Bank of America, Wise, Brex, Wells Fargo, and Barclays, plus direct webhook sync for Stripe and PayPal payouts.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       SIGNUP FORM SECTION (High-Converting Agency Lead Capture)
+       ========================================================================== -->
+  <section class="signup-section" id="signup">
+    <div class="container">
+      <div class="signup-wrapper">
+        <!-- Pitch Column -->
+        <div class="signup-pitch">
+          <span class="badge badge-dark" style="margin-bottom: 1.25rem;">Start Free Today</span>
+          <h2>Automate your agency’s invoicing reconciliation.</h2>
+          <p>
+            Join 1,400+ agency founders who no longer waste time cross-referencing bank statements. Set up your workspace in under 3 minutes.
+          </p>
+          <ul class="signup-pitch-list">
+            <li>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <span>14-day full feature trial with zero commitment</span>
+            </li>
+            <li>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <span>No credit card required to start</span>
+            </li>
+            <li>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <span>Instant sync with Plaid, Mercury, Chase & Stripe</span>
+            </li>
+            <li>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <span>SOC-2 Type II and GDPR certified infrastructure</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Form Card -->
+        <div class="signup-card">
+          <div class="signup-card-header">
+            <h3 class="signup-card-title">Create Agency Workspace</h3>
+            <p class="signup-card-subtitle">Get started with your free 14-day trial in 60 seconds.</p>
+          </div>
+
+          <form class="signup-form" id="signup-form" onsubmit="handleSignup(event)">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="full-name">Your Full Name</label>
+                <input class="form-input" type="text" id="full-name" placeholder="Alex Morgan" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="agency-name">Agency / Studio Name</label>
+                <input class="form-input" type="text" id="agency-name" placeholder="Velocity Studio" required>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="work-email">Work Email</label>
+              <input class="form-input" type="email" id="work-email" placeholder="alex@velocitystudio.co" required>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="monthly-volume">Monthly Invoicing Volume</label>
+                <select class="form-select" id="monthly-volume" required>
+                  <option value="" disabled selected>Select volume range</option>
+                  <option value="under-25k">$10k – $25k / month</option>
+                  <option value="25k-100k">$25k – $100k / month</option>
+                  <option value="100k-500k">$100k – $500k / month</option>
+                  <option value="500k-plus">$500k+ / month</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="password">Create Password</label>
+                <input class="form-input" type="password" id="password" placeholder="At least 8 characters" minlength="8" required>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-accent form-submit-btn" id="submit-btn">
+              Create Workspace & Start Matching
+            </button>
+
+            <div class="form-terms">
+              By clicking "Create Workspace", you agree to Ledgerly’s <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>. No credit card required.
+            </div>
+          </form>
+
+          <!-- Success Confirmation Box -->
+          <div class="signup-success-message" id="success-message">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 0.5rem;">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+            <h4>Welcome to Ledgerly!</h4>
+            <p style="font-size: 0.875rem; color: #cbd5e1; margin-bottom: 0.75rem;">
+              Your agency workspace has been provisioned. We’ve sent an activation link to your email.
+            </p>
+            <div style="font-size: 0.8125rem; color: #34d399; font-weight: 600;">
+              Next step: Connect Plaid or Stripe test feed
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       FOOTER
+       ========================================================================== -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <div class="brand-logo">
+            <div class="brand-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="16" rx="3"></rect>
+                <line x1="8" y1="9" x2="16" y2="9"></line>
+                <line x1="8" y1="13" x2="14" y2="13"></line>
+                <line x1="8" y1="17" x2="11" y2="17"></line>
+                <path d="M16 14l2 2 4-4" stroke="#10b981"></path>
+              </svg>
+            </div>
+            <span>Ledgerly</span>
+          </div>
+          <p class="footer-desc">
+            The automated bank-to-invoice reconciliation engine built for boutique agencies, creative studios, and engineering consultancies.
+          </p>
+          <div class="system-status">
+            <div class="status-dot"></div>
+            <span>All Reconciliation Systems Operational (99.99%)</span>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="footer-col-title">Product</h4>
+          <ul class="footer-links">
+            <li><a href="#features">Fuzzy Bank Matching</a></li>
+            <li><a href="#features">Milestone & Retainers</a></li>
+            <li><a href="#features">Polite Reminders</a></li>
+            <li><a href="#features">Xero & QuickBooks Sync</a></li>
+            <li><a href="#features">Multi-Currency & FX</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer-col-title">Integrations</h4>
+          <ul class="footer-links">
+            <li><a href="#">Mercury Bank</a></li>
+            <li><a href="#">JPMorgan Chase</a></li>
+            <li><a href="#">Stripe Payments</a></li>
+            <li><a href="#">Silicon Valley Bank</a></li>
+            <li><a href="#">Brex & Wise</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer-col-title">Resources</h4>
+          <ul class="footer-links">
+            <li><a href="#">Agency Cashflow Guide</a></li>
+            <li><a href="#">DSO Benchmark Report</a></li>
+            <li><a href="#">API Documentation</a></li>
+            <li><a href="#">Security & SOC-2</a></li>
+            <li><a href="#">Customer Stories</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer-col-title">Company</h4>
+          <ul class="footer-links">
+            <li><a href="#">About Ledgerly</a></li>
+            <li><a href="#">Careers (We're Hiring)</a></li>
+            <li><a href="#">Privacy Policy</a></li>
+            <li><a href="#">Terms of Service</a></li>
+            <li><a href="#">Contact Us</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>
+          © 2026 Ledgerly Technologies Inc. All rights reserved. Bank data secured via Plaid & Open Banking API.
+        </div>
+        <div style="display: flex; gap: 1.5rem;">
+          <a href="#">Security</a>
+          <a href="#">Privacy</a>
+          <a href="#">Terms</a>
+          <a href="#">Cookie Settings</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==========================================================================
+       VANILLA JAVASCRIPT (Interactive UI Logic: No Frameworks)
+       ========================================================================== -->
+  <script>
+    // 1. BILLING CYCLE TOGGLE (Annual vs Monthly)
+    let isAnnual = true;
+    const prices = {
+      starter: { annual: 24, monthly: 29, noteAnnual: 'Billed annually ($288/yr)', noteMonthly: 'Billed monthly' },
+      growth: { annual: 64, monthly: 79, noteAnnual: 'Billed annually ($768/yr)', noteMonthly: 'Billed monthly' },
+      scale: { annual: 149, monthly: 189, noteAnnual: 'Billed annually ($1,788/yr)', noteMonthly: 'Billed monthly' }
+    };
+
+    function toggleBillingCycle() {
+      setBillingCycle(!isAnnual);
+    }
+
+    function setBillingCycle(annual) {
+      isAnnual = annual;
+      const switchBtn = document.getElementById('billing-switch');
+      const lblMonthly = document.getElementById('lbl-monthly');
+      const lblAnnual = document.getElementById('lbl-annual');
+
+      if (isAnnual) {
+        switchBtn.classList.add('active');
+        lblAnnual.classList.add('active');
+        lblMonthly.classList.remove('active');
+      } else {
+        switchBtn.classList.remove('active');
+        lblAnnual.classList.remove('active');
+        lblMonthly.classList.add('active');
+      }
+
+      // Update price text
+      const cycleKey = isAnnual ? 'annual' : 'monthly';
+      const cycleNoteKey = isAnnual ? 'noteAnnual' : 'noteMonthly';
+
+      document.getElementById('price-starter').textContent = prices.starter[cycleKey];
+      document.getElementById('note-starter').textContent = prices.starter[cycleNoteKey];
+
+      document.getElementById('price-growth').textContent = prices.growth[cycleKey];
+      document.getElementById('note-growth').textContent = prices.growth[cycleNoteKey];
+
+      document.getElementById('price-scale').textContent = prices.scale[cycleKey];
+      document.getElementById('note-scale').textContent = prices.scale[cycleNoteKey];
+    }
+
+    // 2. FAQ ACCORDION INTERACTION
+    function toggleFaq(buttonElement) {
+      const item = buttonElement.parentElement;
+      const isOpen = item.classList.contains('open');
+
+      // Close all other open items
+      document.querySelectorAll('.faq-item').forEach(el => {
+        if (el !== item) {
+          el.classList.remove('open');
+        }
+      });
+
+      // Toggle current
+      if (isOpen) {
+        item.classList.remove('open');
+      } else {
+        item.classList.add('open');
+      }
+    }
+
+    // 3. INTERACTIVE SIMULATION DEMO (Hero Section)
+    const simulations = [
+      {
+        sender: "Acme Holdings Corp",
+        amount: "+$18,500.00",
+        channel: "JPMorgan Chase Wire",
+        memo: "Memo: ACME Q3 DESIGN SPRINT FULL SETTLE",
+        invNum: "INV-2024-090",
+        invSub: "Milestone Sprint 3 • Net-15 Terms"
+      },
+      {
+        sender: "Stripe Payout (12 Invoices)",
+        amount: "+$32,450.00",
+        channel: "Stripe Connect Direct Payout",
+        memo: "Memo: STRIPE PAYOUT BATCH 4902 / 12 CLIENTS",
+        invNum: "BATCH-2024-94",
+        invSub: "12 Client Retainers Automatically Allocated"
+      },
+      {
+        sender: "Vanguard Partners Europe",
+        amount: "+$27,800.00",
+        channel: "SWIFT Wire (Frankfurt)",
+        memo: "Memo: VANGUARD-DEV-PROJECT-DRAW-02",
+        invNum: "INV-2024-091",
+        invSub: "Euro Offshore Drawdown • Net-30"
+      }
+    ];
+
+    let currentSimIndex = 0;
+
+    function triggerInteractiveSimulation() {
+      const simBtn = document.getElementById('sim-btn');
+      const feedCard = document.getElementById('feed-card-simulated');
+      const simSender = document.getElementById('sim-sender');
+      const simAmount = document.getElementById('sim-amount');
+      const simChannel = document.getElementById('sim-channel');
+      const simTime = document.getElementById('sim-time');
+      const simMemo = document.getElementById('sim-memo');
+
+      const simConnector = document.getElementById('sim-connector');
+      const simConnText = document.getElementById('sim-conn-text');
+
+      const invoiceCard = document.getElementById('sim-invoice-card');
+      const statusBadge = document.getElementById('sim-status-badge');
+      const invoiceSub = document.getElementById('sim-invoice-sub');
+      const coreMatchRate = document.getElementById('core-match-rate');
+
+      simBtn.disabled = true;
+      simBtn.innerHTML = `<span>Matching in progress...</span>`;
+
+      // Phase 1: Incoming transaction detected
+      feedCard.style.transform = "scale(1.02)";
+      feedCard.style.borderColor = "#fbbf24";
+      simTime.textContent = "Incoming Wire Clearing...";
+      simTime.style.color = "#fbbf24";
+
+      simConnector.style.borderColor = "rgba(245, 158, 11, 0.8)";
+      simConnector.style.background = "rgba(245, 158, 11, 0.25)";
+      simConnText.textContent = "Scanning...";
+
+      // Phase 2: Core matches after 400ms
+      setTimeout(() => {
+        feedCard.classList.add('matched');
+        feedCard.style.borderColor = "rgba(16, 185, 129, 0.6)";
+        feedCard.style.transform = "none";
+        simAmount.style.color = "#34d399";
+        simTime.textContent = "Cleared Just Now";
+        simTime.style.color = "#94a3b8";
+
+        simConnector.style.borderColor = "rgba(16, 185, 129, 0.6)";
+        simConnector.style.background = "rgba(16, 185, 129, 0.2)";
+        simConnector.style.color = "#34d399";
+        simConnText.innerHTML = `<span>100% Matched</span>`;
+
+        invoiceCard.classList.add('reconciled');
+        statusBadge.className = "invoice-status-badge paid";
+        statusBadge.textContent = "✓ Paid & Reconciled";
+        invoiceSub.innerHTML = `<span style="color: #34d399;">Reminders halted • Receipt dispatched • General Ledger synced</span>`;
+
+        coreMatchRate.textContent = "100%";
+        coreMatchRate.style.color = "#34d399";
+
+        simBtn.disabled = false;
+        simBtn.innerHTML = `
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          <span>Matched! Simulate Another Payment</span>
+        `;
+
+        // Advance to next simulation profile for the next click
+        currentSimIndex = (currentSimIndex + 1) % simulations.length;
+        setTimeout(() => {
+          const next = simulations[currentSimIndex];
+          simSender.textContent = next.sender;
+          simAmount.textContent = next.amount;
+          simChannel.textContent = next.channel;
+          simMemo.textContent = next.memo;
+          invoiceSub.textContent = next.invSub;
+          statusBadge.className = "invoice-status-badge pending";
+          statusBadge.textContent = "Awaiting Settlement";
+          invoiceCard.classList.remove('reconciled');
+          feedCard.classList.remove('matched');
+          simAmount.style.color = "#fbbf24";
+          simConnector.style.borderColor = "rgba(245, 158, 11, 0.4)";
+          simConnector.style.background = "rgba(245, 158, 11, 0.1)";
+          simConnector.style.color = "#fbbf24";
+          simConnText.textContent = "Analyzing...";
+        }, 3200);
+
+      }, 550);
+    }
+
+    // 4. SIGNUP FORM SUBMISSION (Client-side validation & immediate response)
+    function handleSignup(event) {
+      event.preventDefault();
+
+      const form = document.getElementById('signup-form');
+      const submitBtn = document.getElementById('submit-btn');
+      const successBox = document.getElementById('success-message');
+      const fullName = document.getElementById('full-name').value;
+      const agencyName = document.getElementById('agency-name').value;
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Provisioning Workspace...";
+
+      setTimeout(() => {
+        form.style.display = "none";
+        successBox.style.display = "block";
+        successBox.querySelector('h4').textContent = `Welcome, ${fullName}!`;
+        successBox.querySelector('p').innerHTML = `Workspace for <strong>${agencyName}</strong> has been created with a 14-day full feature trial. We’ve sent a confirmation link to your inbox.`;
+      }, 700);
+    }
+
+    // 5. MOBILE MENU TOGGLE
+    function toggleMobileMenu() {
+      const drawer = document.getElementById('mobile-drawer');
+      if (drawer) {
+        drawer.classList.toggle('open');
+      }
+    }
+  </script>
+</body>
+</html>

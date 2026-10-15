@@ -1,0 +1,16 @@
+import React from "react";
+import { Composition } from "remotion";
+import { Launch, LAUNCH_DURATION, LAUNCH_FPS } from "./Launch";
+
+export const RemotionRoot: React.FC = () => {
+  return (
+    <Composition
+      id="Launch"
+      component={Launch}
+      durationInFrames={LAUNCH_DURATION}
+      fps={LAUNCH_FPS}
+      width={1920}
+      height={1080}
+    />
+  );
+};
