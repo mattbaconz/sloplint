@@ -134,7 +134,7 @@ Without an argument, lists every rule. With one, prints the rationale, the fix a
 
 ### `sloplint hook`
 
-The command behind the Claude Code hooks that `init --hooks` installs. After every `Write`, `Edit` or `MultiEdit` it lints the file just written; when the agent stops, it checks the files changed since the last commit. Findings reach the agent on stderr with exit code 2, in the compact format, so they are fixed in the same turn. Unreadable input never blocks, and the second stop in a row always succeeds.
+The command behind the Claude Code hooks that `init --hooks` installs. After every `Write`, `Edit` or `MultiEdit` it lints the file just written; when the agent stops, it checks the files changed since the last commit. Findings reach the agent on stderr with exit code 2, in the compact format, so they are fixed in the same turn; a clean write is confirmed with `sloplint: <file> is clean.`, so the agent never spends a turn re-running the check. Unreadable input never blocks, and the second stop in a row always succeeds.
 
 ## Rules
 

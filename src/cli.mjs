@@ -475,7 +475,11 @@ function hook(io) {
   try {
     const { results } = lintFiles(files, { fix: false });
     const s = score(results);
-    if (!s.errors && !s.warnings) return 0;
+    if (!s.errors && !s.warnings) {
+      // Confirm a clean write; otherwise an agent that just fixed a finding re-runs the check to find out.
+      if (intro !== 'before you finish') io.out(`${JSON.stringify({ hookSpecificOutput: { hookEventName: 'PostToolUse', additionalContext: `sloplint: ${files[0].rel} is clean.` } })}\n`);
+      return 0;
+    }
     const n = s.errors + s.warnings;
     io.err(`sloplint: fix ${n === 1 ? 'this finding' : `these ${n} findings`} ${intro} (reasoning: npx @sloplint/cli explain <RULE>)\n${compactReport(results, s)}\n`);
     return 2;

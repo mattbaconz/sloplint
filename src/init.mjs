@@ -46,7 +46,7 @@ export function ruleBlock(design, { domains = Object.keys(DOMAINS), hooks = fals
     '',
     `- Design: follow DESIGN.md (${design}) for every color, typeface, radius and duration.`,
     hooks
-      ? '- Check: hooks lint every file you write and check the project when you stop; fix what they report. You do not need to run the check yourself.'
+      ? '- Check: hooks lint every file you write and check the project when you stop; fix what they report. A clean write is confirmed ("sloplint: <file> is clean."), so you never need to run the check yourself.'
       : '- Check: before you finish, `npx @sloplint/cli check .` must report 0/100. Fix every finding.',
     '- `npx @sloplint/cli explain <RULE>` gives the reasoning and a worked example.',
     '- Pages never scroll sideways at 375px: wrap navigation, stack rows, and put wide tables in an `overflow-x: auto` wrapper.',

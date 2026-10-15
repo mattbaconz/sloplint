@@ -84,7 +84,10 @@ test('hook: a written file with findings is reported to the agent with exit 2', 
   assert.match(bad.err, /^sloplint: fix this finding in the file you just wrote/);
   assert.match(bad.err, /^src\/auth\.ts:1:\d+ error SEC-001 /m);
   assert.equal(bad.out, '');
-  assert.equal(run(['hook'], dir, wrote('src/ok.ts')).code, 0);
+  // A clean write is confirmed, so the agent does not re-run the check to find out.
+  const ok = run(['hook'], dir, wrote('src/ok.ts'));
+  assert.equal(ok.code, 0);
+  assert.deepEqual(JSON.parse(ok.out), { hookSpecificOutput: { hookEventName: 'PostToolUse', additionalContext: 'sloplint: src/ok.ts is clean.' } });
   assert.equal(run(['hook'], dir, wrote('src/missing.ts')).code, 0);
   assert.equal(run(['hook'], dir, 'not json').code, 0);
 });
