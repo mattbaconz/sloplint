@@ -251,22 +251,26 @@ export function holdsAt(prelude, width) {
   if (!/^@(media|container)\b/i.test(prelude)) return true;
   return prelude.replace(/^@\w+/, '').split(',').some((q) => {
     if (/\bprint\b/i.test(q) && !/\bscreen\b/i.test(q)) return false;
-    for (const m of q.matchAll(/\(\s*(?:(min|max)-width\s*:|width\s*([<>])=?)\s*([\d.]+)(px|r?em)\s*\)/gi)) {
-      const px = parseFloat(m[3]) * (m[4].toLowerCase() === 'px' ? 1 : 16);
-      const min = m[1] ? m[1].toLowerCase() === 'min' : m[2] === '>';
+    for (const m of q.matchAll(/\(\s*(?:(min|max)-width\s*:\s*([\d.]+)(px|r?em)|width\s*([<>])=?\s*([\d.]+)(px|r?em)|([\d.]+)(px|r?em)\s*([<>])=?\s*width)\s*\)/gi)) {
+      const [num, unit] = m[2] ? [m[2], m[3]] : m[5] ? [m[5], m[6]] : [m[7], m[8]];
+      const px = parseFloat(num) * (unit.toLowerCase() === 'px' ? 1 : 16);
+      const min = m[1] ? m[1].toLowerCase() === 'min' : m[4] ? m[4] === '>' : m[9] === '<';
       if (min ? width < px : width > px) return false;
     }
     return true;
   });
 }
 
+// Function arguments up to two levels deep: minmax(min(16rem, 100%), 1fr).
+const ARGS = String.raw`(?:[^()]|\((?:[^()]|\([^()]*\))*\))*`;
+
 // Narrowest a grid-template-columns value can get: column count and minimum width in px, or null when unknowable.
 export function gridMin(value, gap) {
   let v = value.replace(/\[[^\]]*\]/g, ' ').trim();
   if (/var\(|subgrid|masonry|^none$/i.test(v)) return null;
   // auto-fit and auto-fill drop to one repetition on a narrow screen.
-  v = v.replace(/repeat\(\s*(auto-fit|auto-fill|\d+)\s*,\s*((?:[^()]|\([^()]*\))*)\)/gi, (_, n, inner) => (/^auto/i.test(n) ? inner : Array(Number(n)).fill(inner).join(' ')));
-  const tracks = v.match(/[\w-]+\((?:[^()]|\([^()]*\))*\)|[^\s()]+/g) ?? [];
+  v = v.replace(new RegExp(String.raw`repeat\(\s*(auto-fit|auto-fill|\d+)\s*,\s*(${ARGS})\)`, 'gi'), (_, n, inner) => (/^auto/i.test(n) ? inner : Array(Number(n)).fill(inner).join(' ')));
+  const tracks = v.match(new RegExp(String.raw`[\w-]+\(${ARGS}\)|[^\s()]+`, 'g')) ?? [];
   const min = (t) => toPx(/^minmax\(/i.test(t) ? t.slice(7).split(',')[0] : t) ?? 0;
   return { n: tracks.length, width: tracks.reduce((sum, t) => sum + min(t), 0) + Math.max(0, tracks.length - 1) * gap };
 }

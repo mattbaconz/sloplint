@@ -5,6 +5,7 @@ import { join, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { RULES, DOMAINS, lint, findRule } from '../src/engine.mjs';
 import { parseDesign } from '../src/design.mjs';
+import { gridMin, holdsAt } from '../src/style.mjs';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const EXAMPLES = join(ROOT, 'examples');
@@ -83,6 +84,18 @@ test('UI-011 and UI-012 accept DESIGN.md tokens in Tailwind arbitrary values', (
 `;
   const ids = ruleIds(tsx, 'src/Stat.tsx', { design: SAMPLE_DESIGN }).filter((id) => id === 'UI-011' || id === 'UI-012');
   assert.deepEqual(ids, []);
+});
+
+test('grid widths and media conditions resolve for a 375px screen', () => {
+  assert.deepEqual(gridMin('repeat(auto-fit, minmax(min(16rem, 100%), 1fr))', 24), { n: 1, width: 0 });
+  assert.deepEqual(gridMin('repeat(12, 1fr)', 32), { n: 12, width: 352 });
+  assert.deepEqual(gridMin('[full] minmax(1rem, 1fr) [content] minmax(0, 60rem) [end] minmax(1rem, 1fr)', 0), { n: 3, width: 32 });
+  assert.deepEqual(gridMin('repeat(2, 120px 1fr)', 16), { n: 4, width: 288 });
+  assert.equal(gridMin('repeat(var(--cols), 1fr)', 16), null);
+  for (const [prelude, holds] of [
+    ['@media (max-width: 767px)', true], ['@media (min-width:768px)', false], ['@media (width < 48em)', true],
+    ['@media screen and (40em <= width)', false], ['@media (1024px > width)', true], ['@media print', false], ['@supports (display: grid)', true],
+  ]) assert.equal(holdsAt(prelude, 375), holds, prelude);
 });
 
 test('rules never throw on malformed input', () => {
