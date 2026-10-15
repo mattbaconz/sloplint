@@ -237,7 +237,8 @@ const PROOF = new RegExp([
 const SOURCED = /<sup\b|<cite\b|<a\s[^>]*href=["']https?:|\[\^?\d+\]|\]\(https?:|†|‡|\bsource:|\baccording to\b|\bas of (?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec|q[1-4]|\d{4})/i;
 // Random avatar and photo services: what fills an image slot when nobody has the real picture.
 const PLACEHOLDER_IMAGE = /(?:https?:)?\/\/((?:i\.)?pravatar\.cc|via\.placeholder\.com|placehold\.(?:co|it)|picsum\.photos|randomuser\.me|dummyimage\.com|placekitten\.com|loremflickr\.com|source\.unsplash\.com|fakeimg\.pl|placeimg\.com)\b[^\s"'`)<>]*/gi;
-const EMOJI_LEAD = /^(?:\p{Emoji_Presentation}|\p{Extended_Pictographic}️)(?:️|‍(?:\p{Emoji_Presentation}|\p{Extended_Pictographic})️?|[\u{1F3FB}-\u{1F3FF}])*\s*/u;
+// Leading emoji, plus the sparkle dingbats (✦ ✧ ✶ …) that generated badges use the same way.
+const EMOJI_LEAD = /^(?:\p{Emoji_Presentation}|\p{Extended_Pictographic}️|[✦✧✶✷✸✹✺❋])(?:️|‍(?:\p{Emoji_Presentation}|\p{Extended_Pictographic})️?|[\u{1F3FB}-\u{1F3FF}])*\s*/u;
 
 export const RULES = [
   // ───────────────────────────── UI/UX & Motion ─────────────────────────────
@@ -1516,7 +1517,7 @@ export const RULES = [
     slug: 'emoji-decoration',
     severity: 'warn',
     weight: 2,
-    title: 'Emoji used as decoration in headings, buttons and links',
+    title: 'Emoji used as decoration in headings, buttons, links and badges',
     rationale:
       'A rocket on the hero headline and a sparkle on the "Generate" button are among the quickest tells of a generated interface. They add no meaning, render differently on every platform, are read aloud by screen readers before the label, and push the words people scan for away from the left edge. (TEST-003 covers the same habit in READMEs.)',
     fix: 'Delete the emoji. If a heading or button needs more than its words, the words are wrong; if an action needs an icon, use a real icon with an accessible label.',
@@ -1530,12 +1531,13 @@ export const RULES = [
         if (m) out.push(hit(start, start + m[0].trimEnd().length, `Emoji ${what}`, { fix: { start, end: start + m[0].length, text: '' } }));
       };
       for (const el of ctx.markup.elements) {
-        if (!/^(h[1-6]|button|a|li|label|summary|th|dt|title)$/i.test(el.name) && !/(Button|Link|Heading|Title)$/.test(el.name)) continue;
+        const badge = /(^|[-_\s])(badge|pill|chip|eyebrow|kicker)([-_\s]|$)/i.test(classList(el).join(' '));
+        if (!badge && !/^(h[1-6]|button|a|li|label|summary|th|dt|title)$/i.test(el.name) && !/(Button|Link|Heading|Title|Badge)$/.test(el.name)) continue;
         const t = el.text.find((x) => ctx.text.slice(x.start, x.end).trim());
         if (!t || el.children.some((c) => c.start < t.start)) continue;
         const raw = ctx.text.slice(t.start, t.end);
         const lead = raw.length - raw.trimStart().length;
-        flag(t.start + lead, raw.slice(lead), `decorating a ${el.name.toLowerCase()} label`);
+        flag(t.start + lead, raw.slice(lead), `decorating a ${badge ? 'badge' : el.name.toLowerCase()} label`);
       }
       return out;
     },

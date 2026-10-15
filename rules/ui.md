@@ -29,7 +29,7 @@ You are building interface code. Generated UI converges on the same handful of d
 - **COPY-003 Labels name the action.** Buttons and links are verb + object: "Save profile", "Export CSV", "Read the pricing guide". Never `Submit`, `OK`, `Click here`, `Learn more`.
 - **COPY-004 No template filler.** No `Lorem ipsum`, `John Doe`, `Acme Inc`, `example@example.com` or random avatars and photos (pravatar, picsum, placehold.co) in shipped components. Write realistic domain content; keep sample data in fixtures and stories.
 - **COPY-005 No invented proof.** Customer counts, uptime, ratings, `3x faster` and compliance badges need a source next to them (a footnote, a link, a date) or must come from data. No real figure yet: cut the claim.
-- **COPY-006 No emoji decoration.** Headings, buttons and links start with words. Use a real icon with an accessible label when an action needs one.
+- **COPY-006 No emoji decoration.** Headings, buttons, links and badges start with words, not emoji or sparkles (✦). Use a real icon with an accessible label when an action needs one.
 
 ## Honest behavior
 

@@ -172,7 +172,7 @@ The command behind the Claude Code hooks that `init --hooks` installs. After eve
 | COPY-003 | Button or link label does not name the action | warn |
 | COPY-004 | Template placeholder content shipped as real copy | warn |
 | COPY-005 | Social proof or performance claim with no source | warn |
-| COPY-006 | Emoji used as decoration in headings, buttons and links | warn |
+| COPY-006 | Emoji used as decoration in headings, buttons, links and badges | warn |
 | TEST-001 | Test asserts only mocks, constants, or nothing | warn |
 | TEST-002 | Fixed sleep in a test | warn |
 | TEST-003 | Emoji-decorated README headings and bullets | warn |
