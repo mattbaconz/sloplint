@@ -32,7 +32,7 @@ Slop Score  ██████████████████████�
 
 ## Quick start
 
-Node 20 or newer. Nothing else is installed at runtime. `npx sloplint` runs the same CLI; installed as a dev dependency (`npm i -D @sloplint/cli`), the command is plain `sloplint`.
+Node 20 or newer. Nothing else is installed at runtime. Installed as a dev dependency (`npm i -D @sloplint/cli`), the command is plain `sloplint`.
 
 ```bash
 npx @sloplint/cli check .
