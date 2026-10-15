@@ -13,7 +13,7 @@
 - [added] `MOTION-*` rules for videos written as code (Remotion, GSAP): uniform entrances, fixed-step staggers, overshooting springs, equal-length scenes, repeated sound effects and unmixed audio.
 - [added] Brief pack in `rules/` and a Playwright rendered-page audit in `scripts/verify-dom.spec.ts`.
 - [added] Docs site with the rule catalog, preset switcher, style generator and an in-browser grader built on the same engine.
-- [added] Benchmark harness in `bench/`: six slop-prone tasks run by Claude Code and the Antigravity CLI with and without sloplint, scored by sloplint plus checks that do not use it (a 16-mutant test-suite score, README flag accuracy, syntax, rendered screenshots).
+- [added] Benchmark harness in `bench/`: six slop-prone tasks run by Claude Code and the Antigravity CLI with and without sloplint (and with hooks for Claude Code), scored by sloplint plus checks that do not use it (a 16-mutant test-suite score, README flag accuracy, syntax, rendered screenshots, the landing page's typefaces and call-to-action color), with turns, cost and the full Claude transcript for every run.
 - [changed] UI-002 also catches icon and emoji badges in rounded squares, and only when the badge opens the card, so testimonial avatars are no longer flagged.
 - [changed] Briefs, agent rule blocks and the table-heavy presets require pages that do not scroll sideways at 375px, with wide tables in their own `overflow-x: auto` wrapper.
 - [fixed] UI-012 accepts DESIGN.md tokens in Tailwind arbitrary values (`font-[family-name:var(--font-mono)]`) and weights (`font-[550]`); agents had swapped the token class for inline styles to silence it.
