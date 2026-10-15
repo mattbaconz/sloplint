@@ -1,0 +1,19 @@
+<!-- expect: UI-005 -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Plans</title>
+<style>
+  /* No .pricing ancestor and no .total class in the markup: neither rule reaches the prices. */
+  .pricing .price { font-variant-numeric: tabular-nums; }
+  .plan > .price.total { font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body>
+  <section>
+    <article class="plan"><h2>Solo</h2><div class="price">$19</div></article>
+    <article class="plan"><h2>Studio</h2><div class="price">$49</div></article>
+  </section>
+</body>
+</html>

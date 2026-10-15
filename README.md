@@ -21,7 +21,7 @@ error[SEC-001]: JWT_SECRET silently falls back to a hard-coded value
   = autofix available (--fix)
 
 Slop Score  ████████████████████████  100/100 Critical Slop
-            8 files · 412 lines · 11 errors · 96 warnings · 18 autofixable
+            8 files · 419 lines · 11 errors · 96 warnings · 18 autofixable
             UI 38  SEC 9  BE 14  COPY 28  TEST 9  MOTION 9
 ```
 

@@ -208,6 +208,59 @@ export function classList(el) {
   return text.split(/\s+/).filter(Boolean);
 }
 
+// Selectors that resolve statically: compounds of tag, classes and id joined by descendant or
+// child combinators. Pseudo-classes, attribute and sibling selectors are skipped.
+function compileSelector(sel) {
+  const chain = [];
+  let comb = ' ';
+  for (const part of sel.replace(/\s*>\s*/g, ' > ').trim().split(/\s+/)) {
+    if (part === '>') { comb = '>'; continue; }
+    const m = /^([a-z][\w-]*|\*)?((?:[.#][\w-]+)*)$/i.exec(part);
+    if (!m || !part) return null;
+    chain.push({ comb, tag: m[1] && m[1] !== '*' ? m[1].toLowerCase() : null, id: /#([\w-]+)/.exec(m[2])?.[1], classes: [...m[2].matchAll(/\.([\w-]+)/g)].map((x) => x[1]) });
+    comb = ' ';
+  }
+  return chain.length ? chain : null;
+}
+
+const isElement = (n) => n && n.name !== '#root';
+
+function matchChain(chain, i, el) {
+  const c = chain[i];
+  if (c.tag && c.tag !== el.name.toLowerCase()) return false;
+  if (c.id && el.attrs?.id?.value !== c.id) return false;
+  if (c.classes.length && !c.classes.every((x) => classList(el).includes(x))) return false;
+  if (i === 0) return true;
+  if (c.comb === '>') return isElement(el.parent) && matchChain(chain, i - 1, el.parent);
+  for (let p = el.parent; isElement(p); p = p.parent) if (matchChain(chain, i - 1, p)) return true;
+  return false;
+}
+
+// CSS rules -> (element -> its declarations in cascade order: specificity, then source order).
+export function cssMatcher(rules) {
+  const index = new Map();
+  let order = 0;
+  for (const r of rules) {
+    for (const sel of r.selector.split(',')) {
+      const chain = compileSelector(sel);
+      order++;
+      if (!chain) continue;
+      const last = chain[chain.length - 1];
+      const key = last.classes.length ? `.${last.classes[0]}` : last.id ? `#${last.id}` : last.tag ?? '*';
+      const spec = chain.reduce((n, c) => n + (c.id ? 10000 : 0) + c.classes.length * 100 + (c.tag ? 1 : 0), 0);
+      index.set(key, [...(index.get(key) ?? []), { chain, spec, order, decls: r.decls }]);
+    }
+  }
+  return (el) => {
+    const id = el.attrs?.id?.value;
+    const keys = [el.name.toLowerCase(), '*', ...classList(el).map((c) => `.${c}`), ...(id ? [`#${id}`] : [])];
+    return [...new Set(keys.flatMap((k) => index.get(k) ?? []))]
+      .filter((s) => matchChain(s.chain, s.chain.length - 1, el))
+      .sort((a, b) => a.spec - b.spec || a.order - b.order)
+      .flatMap((s) => s.decls);
+  };
+}
+
 export function merge(...boxes) {
   return Object.assign({}, ...boxes);
 }

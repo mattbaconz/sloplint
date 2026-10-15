@@ -1,0 +1,24 @@
+<!-- expect: none -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Plans</title>
+<style>
+  /* Descendant and child selectors style the figures; they count as tabular. */
+  .plan .price { font-variant-numeric: tabular-nums; font-size: 2rem; }
+  .summary > dd.amount { font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body>
+  <section>
+    <article class="plan"><h2>Solo</h2><div class="price">$19</div></article>
+    <article class="plan"><h2>Studio</h2><div class="price">$49</div></article>
+    <article class="plan"><h2>Agency</h2><div class="price">$99</div></article>
+  </section>
+  <dl class="summary">
+    <dt>Paid</dt><dd class="amount">1,240.00</dd>
+    <dt>Due</dt><dd class="amount">980.50</dd>
+  </dl>
+</body>
+</html>

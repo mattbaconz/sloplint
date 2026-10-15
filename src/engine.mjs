@@ -2,7 +2,7 @@
 // No node: imports here; the docs site runs this exact module.
 
 import { scanJs, scanPy, maskCss, parseCss, parseDecls, parseMarkup, maskMarkdown, lineStarts, position } from './lex.mjs';
-import { twBox, cssBox, classList } from './style.mjs';
+import { twBox, cssBox, classList, cssMatcher } from './style.mjs';
 import { RULES, DOMAINS } from './rules.mjs';
 
 export { RULES, DOMAINS };
@@ -248,23 +248,14 @@ export function createContext(text, path, { design = null } = {}) {
   });
 
   const boxes = new WeakMap();
-  let cssIndex = null;
+  let cssFor = null;
   ctx.box = (el) => {
     if (boxes.has(el)) return boxes.get(el);
-    if (!cssIndex) {
-      cssIndex = new Map();
-      for (const r of ctx.cssRules) {
-        for (const sel of r.selector.split(',').map((x) => x.trim())) {
-          if (/^([a-z][a-z0-9]*)?(\.[\w-]+)?$/i.test(sel)) cssIndex.set(sel, [...(cssIndex.get(sel) ?? []), ...r.decls]);
-        }
-      }
-    }
-    const classes = classList(el);
-    const decls = [...(cssIndex.get(el.name.toLowerCase()) ?? [])];
-    for (const c of classes) decls.push(...(cssIndex.get(`.${c}`) ?? []), ...(cssIndex.get(`${el.name.toLowerCase()}.${c}`) ?? []));
+    cssFor ??= cssMatcher(ctx.cssRules);
+    const decls = cssFor(el);
     const s = el.attrs?.style;
     if (s && !s.expr) decls.push(...parseDecls(text, s.start, s.end));
-    const box = { ...cssBox(decls), ...twBox(classes) };
+    const box = { ...cssBox(decls), ...twBox(classList(el)) };
     boxes.set(el, box);
     return box;
   };

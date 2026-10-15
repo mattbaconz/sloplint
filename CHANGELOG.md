@@ -16,6 +16,7 @@
 - [added] Benchmark harness in `bench/`: six slop-prone tasks run by Claude Code and the Antigravity CLI with and without sloplint, scored by sloplint plus checks that do not use it (a 16-mutant test-suite score, README flag accuracy, syntax, rendered screenshots).
 - [changed] UI-002 also catches icon and emoji badges in rounded squares, and only when the badge opens the card, so testimonial avatars are no longer flagged.
 - [changed] Briefs, agent rule blocks and the table-heavy presets require pages that do not scroll sideways at 375px, with wide tables in their own `overflow-x: auto` wrapper.
+- [fixed] Style resolution follows descendant and child selectors such as `.plan .price`, so UI-005 no longer asks for tabular figures a nested rule already sets, and UI-002, UI-004 and UI-006 see those styles too.
 - [fixed] UI-006 no longer flags pills or inner radii when the gap is wider than the outer radius, where corners do not interact.
 - [fixed] BE-001 no longer flags `.catch(() => null)` whose value is used, including when the call spans several lines, or best-effort cleanup such as a failed `ROLLBACK`.
 - [fixed] BE-005 no longer treats a decoy password hash, kept to make login timing constant, as mock data.
