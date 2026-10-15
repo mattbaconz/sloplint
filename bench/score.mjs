@@ -53,6 +53,8 @@ function authored(work, task) {
 // A clean environment: inside `node --test`, NODE_TEST_CONTEXT would turn the child runner into a subtest reporter.
 const { NODE_TEST_CONTEXT, NODE_OPTIONS, ...ENV } = process.env;
 const node = (args, cwd, timeout = 60_000) => spawnSync(process.execPath, args, { cwd, encoding: 'utf8', timeout, env: ENV });
+// Node 22 reports TAP when piped and 23+ reports spec; pin spec so the test count parses on both.
+const nodeTest = (cwd) => node(['--test', '--test-reporter=spec'], cwd);
 
 // Mutation score: copy the workdir, apply each seeded bug to src/cart.js, and count suites that fail.
 function mutation(work, testFiles = null) {
@@ -65,13 +67,13 @@ function mutation(work, testFiles = null) {
     if (testFiles) for (const [rel, src] of testFiles) cpSync(src, join(tmp, rel));
     const cart = join(tmp, 'src', 'cart.js');
     const original = readFileSync(cart, 'utf8');
-    const clean = node(['--test'], tmp);
+    const clean = nodeTest(tmp);
     const tests = Number(/^ℹ tests (\d+)/m.exec(clean.stdout)?.[1] ?? 0);
     if (clean.status !== 0 || tests === 0) return { passes: false, tests, killed: 0, total: MUTANTS.length, survivors: [] };
     const survivors = [];
     for (const [name, from, to] of MUTANTS) {
       writeFileSync(cart, original.replace(from, to));
-      if (node(['--test'], tmp).status === 0) survivors.push(name);
+      if (nodeTest(tmp).status === 0) survivors.push(name);
     }
     writeFileSync(cart, original);
     return { passes: true, tests, killed: MUTANTS.length - survivors.length, total: MUTANTS.length, survivors };
