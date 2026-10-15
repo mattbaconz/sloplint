@@ -1,0 +1,26 @@
+{
+  "name": "sloplint",
+  "version": "0.1.0",
+  "description": "Zero-dependency linter that finds and fixes AI slop across UI, security, backend, copy, tests and motion video. Runs @sloplint/cli.",
+  "type": "module",
+  "bin": {
+    "sloplint": "bin.mjs"
+  },
+  "files": [
+    "bin.mjs"
+  ],
+  "dependencies": {
+    "@sloplint/cli": "latest"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT",
+  "homepage": "https://mattbaconz.github.io/sloplint/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mattbaconz/sloplint.git",
+    "directory": "alias"
+  },
+  "keywords": ["lint", "linter", "ai", "slop", "code-quality", "design-system", "security", "cli"]
+}

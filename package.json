@@ -19,7 +19,8 @@
   "exports": {
     ".": "./src/engine.mjs",
     "./init": "./src/init.mjs",
-    "./design": "./src/design.mjs"
+    "./design": "./src/design.mjs",
+    "./cli": "./bin/sloplint.mjs"
   },
   "files": [
     "bin",
