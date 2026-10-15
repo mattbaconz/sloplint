@@ -117,6 +117,29 @@ test('check --format json reports score, grade and per-file diagnostics', () => 
   }
 });
 
+test('the Claude Code plugin is versioned with the package', () => {
+  assert.equal(JSON.parse(readFileSync(join(ROOT, '.claude-plugin', 'plugin.json'), 'utf8')).version, VERSION);
+});
+
+test('check --format github annotates the diff and --format sarif feeds code scanning', () => {
+  const gh = run(['check', 'examples/samples', '--format', 'github']);
+  assert.equal(gh.code, 1);
+  assert.match(gh.out, /^::error file=examples\/samples\/api\.slop\.ts,line=\d+,col=\d+,title=SEC-001 fallback-secret::\S.*%0A\S/m);
+  assert.match(gh.out, /^Slop Score \d+\/100/m);
+  assert.doesNotMatch(run(['check', 'src', '--format', 'github']).out, /^::/m);
+
+  const log = JSON.parse(run(['check', 'examples/samples', '--format', 'sarif']).out);
+  assert.equal(log.version, '2.1.0');
+  const { driver } = log.runs[0].tool;
+  assert.equal(driver.version, VERSION);
+  assert.equal(driver.rules.length, RULES.length);
+  assert.ok(driver.rules.every((r) => r.shortDescription.text && r.helpUri.endsWith(`#rule/${r.id}`)));
+  const hit = log.runs[0].results.find((r) => r.ruleId === 'SEC-001');
+  assert.equal(hit.level, 'error');
+  assert.equal(hit.locations[0].physicalLocation.artifactLocation.uri, 'examples/samples/api.slop.ts');
+  assert.ok(hit.locations[0].physicalLocation.region.startLine >= 1);
+});
+
 test('clean project scores 0/100 Studio Grade and exits 0', (t) => {
   const dir = tempDir(t, {
     'src/config.ts': "const KEY = process.env.API_KEY;\nif (!KEY) throw new Error('API_KEY is not set');\nexport { KEY };\n",

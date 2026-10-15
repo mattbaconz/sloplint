@@ -3,6 +3,8 @@
 ## 0.1.0 (2026-10-15)
 
 - [added] `npx sloplint` runs the CLI through the unscoped `sloplint` package; `@sloplint/cli` stays the canonical name.
+- [added] Claude Code plugin: `/plugin install sloplint --marketplace mattbaconz/sloplint` lints every file Claude writes and adds a sloplint skill. `npx skills add mattbaconz/sloplint` installs the same skill in other agents.
+- [added] GitHub Action (`uses: mattbaconz/sloplint@v0`) that annotates findings on pull requests and can upload them to code scanning, backed by `check --format github` and `--format sarif` (SARIF 2.1.0).
 - [added] `sloplint check` with 43 rules across UI, security, backend, copy, tests and motion video, compiler-style diagnostics, JSON output, `--fix` autofixes and a weighted Slop Score.
 - [added] `sloplint init` generates a design system per project from a seed and a one-line brief: seven moods, curated Google Fonts trios, OKLCH palettes solved for WCAG contrast and kept out of the indigo-to-fuchsia band, layout archetypes, signature moves and a voice for the copy. `--preset` still offers the four curated presets (Obsidian Telemetry, Editorial Serif, Swiss Brutalist, Tactile Hardware).
 - [added] `sloplint init` syncs a one-line-per-rule block into `CLAUDE.md`, `GEMINI.md`, `AGENTS.md` and `.cursor/rules/sloplint.mdc`, scoped to the domains the project uses.

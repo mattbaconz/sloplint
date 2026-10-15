@@ -32,6 +32,15 @@ jobs:
           node-version: 20
       - run: node ./bin/sloplint.mjs check . --max-score 0
 
+  action:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./
+        with:
+          path: src bin
+          args: --max-score 0
+
   rendered-page:
     runs-on: ubuntu-latest
     steps:

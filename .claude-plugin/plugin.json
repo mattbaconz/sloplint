@@ -1,0 +1,13 @@
+{
+  "name": "sloplint",
+  "version": "0.1.0",
+  "description": "Lints every file Claude writes for the tells of AI-generated code (UI, copy, security, backend, tests, motion) and gives each project a design system of its own.",
+  "author": {
+    "name": "mattbaconz",
+    "url": "https://github.com/mattbaconz"
+  },
+  "homepage": "https://mattbaconz.github.io/sloplint/",
+  "repository": "https://github.com/mattbaconz/sloplint",
+  "license": "MIT",
+  "keywords": ["lint", "ai-slop", "design-system", "code-quality", "hooks"]
+}

@@ -1,0 +1,43 @@
+name: sloplint
+description: Lint the tells of AI-generated code and annotate them on pull requests
+author: mattbaconz
+branding:
+  icon: check-square
+  color: orange
+
+inputs:
+  path:
+    description: Files or directories to check, separated by spaces
+    default: .
+  args:
+    description: Extra arguments for sloplint check, such as --max-score 20
+    default: ''
+  sarif:
+    description: Also upload the findings to GitHub code scanning (needs the security-events write permission)
+    default: 'false'
+
+runs:
+  using: composite
+  steps:
+    # Paths and arguments stay unquoted so several can be passed; expanding a variable never runs its contents.
+    - name: sloplint check
+      shell: bash
+      env:
+        SLOPLINT_PATH: ${{ inputs.path }}
+        SLOPLINT_ARGS: ${{ inputs.args }}
+      run: node "$GITHUB_ACTION_PATH/bin/sloplint.mjs" check $SLOPLINT_PATH $SLOPLINT_ARGS --format github
+
+    - name: Write SARIF
+      if: always() && inputs.sarif == 'true'
+      shell: bash
+      env:
+        SLOPLINT_PATH: ${{ inputs.path }}
+        SLOPLINT_ARGS: ${{ inputs.args }}
+      run: node "$GITHUB_ACTION_PATH/bin/sloplint.mjs" check $SLOPLINT_PATH $SLOPLINT_ARGS --format sarif > sloplint.sarif || [ -s sloplint.sarif ]
+
+    - name: Upload SARIF
+      if: always() && inputs.sarif == 'true'
+      uses: github/codeql-action/upload-sarif@v4
+      with:
+        sarif_file: sloplint.sarif
+        category: sloplint

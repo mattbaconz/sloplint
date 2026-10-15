@@ -19,7 +19,8 @@ Usage
   sloplint check [paths...]       Lint files and print a Slop Score (default: .)
       --fix                     Apply safe autofixes in place
       --changed                 Only files changed since the last commit (git)
-      --format <f>              pretty, compact or json (default: pretty in a terminal, compact when piped)
+      --format <f>              pretty, compact, json, github (pull request annotations) or sarif
+                                (default: pretty in a terminal, compact when piped)
       --max-score <n>           Exit 1 when the score is above n
       --no-color                Plain output (also honours NO_COLOR)
   sloplint init [dir]             Write DESIGN.md and sync the agent rule files
@@ -262,6 +263,48 @@ export function compactReport(results, s, extra = []) {
   return lines.join('\n');
 }
 
+// GitHub workflow commands: in Actions, each line becomes an annotation on the pull request diff.
+const ghData = (s) => s.replace(/%/g, '%25').replace(/\r/g, '%0D').replace(/\n/g, '%0A');
+const ghProp = (s) => ghData(s).replace(/:/g, '%3A').replace(/,/g, '%2C');
+export function githubAnnotations(results) {
+  const lines = [];
+  for (const r of results) {
+    for (const d of r.diagnostics) {
+      const rule = findRule(d.rule);
+      lines.push(`::${d.severity === 'error' ? 'error' : 'warning'} file=${ghProp(toPosix(r.path))},line=${d.line},col=${d.col},title=${ghProp(`${rule.id} ${rule.slug}`)}::${ghData(`${d.message}\n${rule.fix}`)}`);
+    }
+  }
+  return lines.join('\n');
+}
+
+// SARIF 2.1.0, the format GitHub code scanning and most CI dashboards import.
+export function sarif(results) {
+  const level = (severity) => (severity === 'error' ? 'error' : 'warning');
+  const driver = {
+    name: 'sloplint',
+    version: VERSION,
+    informationUri: 'https://github.com/mattbaconz/sloplint',
+    rules: RULES.map((r) => ({
+      id: r.id,
+      name: r.slug,
+      shortDescription: { text: r.title },
+      fullDescription: { text: r.rationale },
+      help: { text: r.fix },
+      helpUri: `https://mattbaconz.github.io/sloplint/#rule/${r.id}`,
+      defaultConfiguration: { level: level(r.severity) },
+    })),
+  };
+  const found = results.flatMap((r) =>
+    r.diagnostics.map((d) => ({
+      ruleId: d.rule,
+      level: level(d.severity),
+      message: { text: d.message },
+      locations: [{ physicalLocation: { artifactLocation: { uri: toPosix(r.path) }, region: { startLine: d.line, startColumn: d.col } } }],
+    })),
+  );
+  return { $schema: 'https://json.schemastore.org/sarif-2.1.0.json', version: '2.1.0', runs: [{ tool: { driver }, results: found }] };
+}
+
 function check(argv, io) {
   const { values, positionals } = parseArgs({
     args: argv,
@@ -275,7 +318,7 @@ function check(argv, io) {
     },
   });
   const format = values.format ?? (io.tty ? 'pretty' : 'compact');
-  if (!['pretty', 'compact', 'json'].includes(format)) throw new UsageError(`--format must be pretty, compact or json, got "${format}"`);
+  if (!['pretty', 'compact', 'json', 'github', 'sarif'].includes(format)) throw new UsageError(`--format must be pretty, compact, json, github or sarif, got "${format}"`);
   const max = values['max-score'] == null ? null : Number(values['max-score']);
   if (max != null && !(Number.isInteger(max) && max >= 0 && max <= 100)) throw new UsageError('--max-score takes a whole number from 0 to 100');
 
@@ -293,12 +336,18 @@ function check(argv, io) {
     io.out(`${JSON.stringify({ version: VERSION, ...s, fixed, files: report }, null, 2)}\n`);
     return failed ? 1 : 0;
   }
+  if (format === 'sarif') {
+    io.out(`${JSON.stringify(sarif(results), null, 2)}\n`);
+    return failed ? 1 : 0;
+  }
 
   const extra = [];
   if (fixed) extra.push(`Applied ${fixed} autofix${fixed === 1 ? '' : 'es'} in ${plural(fixedFiles, 'file')}.`);
   if (max != null && s.score > max) extra.push(`Score ${s.score} is above --max-score ${max}.`);
   if (!s.files) extra.push(values.changed ? 'No changed lintable files.' : `No lintable files (${EXTENSIONS.join(', ')}).`);
-  if (format === 'compact') {
+  // Annotations are consumed by the runner, so the readable report follows them in the log.
+  if (format === 'github' && s.errors + s.warnings) io.out(`${githubAnnotations(results)}\n`);
+  if (format === 'compact' || format === 'github') {
     io.out(`${compactReport(results, s, extra)}\n`);
     return failed ? 1 : 0;
   }

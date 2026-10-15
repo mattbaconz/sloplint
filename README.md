@@ -2,11 +2,16 @@
 
 A zero-dependency linter for the patterns AI coding assistants leave behind: purple gradients and icon-circle grids, swallowed errors and N+1 queries, fallback secrets and wildcard CORS, filler copy, tests that cannot fail, and launch videos where everything fades in to the same whoosh.
 
-sloplint ships four things:
+| Claude Code alone | Same prompt, with `sloplint init --hooks` |
+| --- | --- |
+| ![Claude baseline landing page](bench/results/2026-10-15-final/shots/claude-baseline-r1.jpg) | ![Claude hooks landing page](bench/results/2026-10-15-final/shots/claude-hooks-r1.jpg) |
+
+sloplint ships five things:
 
 - **A CLI** that reports 43 deterministic rules with compiler-style diagnostics, a fix for every finding, autofixes where the fix is mechanical, and a weighted Slop Score from `0/100 Studio Grade` to `100/100 Critical Slop`.
 - **A design-system generator** that gives every project its own `DESIGN.md`: a typeface trio, a contrast-checked palette, shape, motion and a layout archetype picked from a seed and a one-line brief, so agents stop converging on the same look. Two rules then hold the code to it.
-- **A brief pack** for coding agents: master briefs per discipline, rule blocks synced into `CLAUDE.md`, `GEMINI.md`, `AGENTS.md` and Cursor rules, Claude Code hooks that lint every file as it is written, and a Playwright suite that audits the rendered page.
+- **Agent integrations**: a Claude Code plugin that lints every file as it is written, a skill for any agent that reads skills, rule blocks synced into `CLAUDE.md`, `GEMINI.md`, `AGENTS.md` and Cursor rules, master briefs per discipline, and a Playwright suite that audits the rendered page.
+- **A GitHub Action** that annotates findings on pull requests and can send them to code scanning.
 - **A docs site** with the rule catalog, worked examples, a style generator and an in-browser grader that runs the same engine as the CLI.
 
 ```text
@@ -27,7 +32,7 @@ Slop Score  ██████████████████████�
 
 ## Quick start
 
-Node 20 or newer. Nothing else is installed at runtime. Installed as a dev dependency (`npm i -D @sloplint/cli`), the command is plain `sloplint`.
+Node 20 or newer. Nothing else is installed at runtime. `npx sloplint` runs the same CLI; installed as a dev dependency (`npm i -D @sloplint/cli`), the command is plain `sloplint`.
 
 ```bash
 npx @sloplint/cli check .
@@ -40,6 +45,22 @@ npx @sloplint/cli init --brief "Invoicing for freelance studios" --hooks
 ```bash
 npx @sloplint/cli explain SEC-001
 ```
+
+### In Claude Code
+
+```text
+/plugin install sloplint --marketplace mattbaconz/sloplint
+```
+
+The plugin lints every file Claude writes, as it writes it, and adds the sloplint skill. The one-step install needs Claude Code 2.1.275 or later; on older versions run `/plugin marketplace add mattbaconz/sloplint`, then `/plugin install sloplint@sloplint`. `init --hooks` installs the same hook in a single project and also checks the changed files when Claude stops; use one or the other.
+
+### In other agents
+
+```bash
+npx skills add mattbaconz/sloplint
+```
+
+installs the skill for Codex, Cursor and the other agents that read skills. It tells the agent to generate a `DESIGN.md` before writing UI and to run `sloplint check` before it finishes; `init` writes the rules into `AGENTS.md`, `GEMINI.md` and Cursor rules as well.
 
 ## Benchmark
 
@@ -76,9 +97,7 @@ What the numbers do not show:
 - **Rules have moved since.** Each run is scored with the rules it was given. UI-013 (links to `#`), UI-014 and the badge check in COPY-006 came later; under today's rules the Gemini baseline pages would also carry 21 and 13 dead links.
 - **Small samples.** Two runs per cell; treat small differences as noise. In the first run the runner's own Claude Code skills were available in every arm; the after-fix runs disable them.
 
-| Claude Code baseline | Claude Code with `sloplint init --hooks` |
-| --- | --- |
-| ![Claude baseline landing page](bench/results/2026-10-15-final/shots/claude-baseline-r1.jpg) | ![Claude hooks landing page](bench/results/2026-10-15-final/shots/claude-hooks-r1.jpg) |
+The Claude Code pair at the top of this page comes from the after-fix run.
 
 | Gemini baseline | Gemini with sloplint |
 | --- | --- |
@@ -96,7 +115,7 @@ Lints files and directories (default `.`) and prints one diagnostic per finding,
 | --- | --- |
 | `--fix` | Apply safe autofixes in place, then report what remains |
 | `--changed` | Only files changed since the last commit: staged, unstaged and untracked (needs git) |
-| `--format <f>` | `pretty` (default in a terminal), `compact` (default when piped: one line per finding, each fix once, then the score) or `json` |
+| `--format <f>` | `pretty` (default in a terminal), `compact` (default when piped: one line per finding, each fix once, then the score), `json`, `github` (GitHub Actions annotations, then the compact report) or `sarif` (SARIF 2.1.0 for code scanning) |
 | `--max-score <n>` | Exit 1 when the score is above `n`; use `0` as a CI gate |
 | `--no-color` | Plain output; `NO_COLOR` is honoured too |
 
@@ -152,7 +171,7 @@ Without an argument, lists every rule. With one, prints the rationale, the fix a
 
 ### `sloplint hook`
 
-The command behind the Claude Code hooks that `init --hooks` installs. After every `Write`, `Edit` or `MultiEdit` it lints the file just written; when the agent stops, it checks the files changed since the last commit. Findings reach the agent on stderr with exit code 2, in the compact format, so they are fixed in the same turn; a clean write is confirmed with `sloplint: <file> is clean.`, so the agent never spends a turn re-running the check. Unreadable input never blocks, and the second stop in a row always succeeds.
+The command behind the Claude Code plugin and the hooks that `init --hooks` installs. After every `Write`, `Edit` or `MultiEdit` it lints the file just written; with `init --hooks`, it also checks the files changed since the last commit when the agent stops. Findings reach the agent on stderr with exit code 2, in the compact format, so they are fixed in the same turn; a clean write is confirmed with `sloplint: <file> is clean.`, so the agent never spends a turn re-running the check. Unreadable input never blocks, and the second stop in a row always succeeds.
 
 ## Rules
 
@@ -245,12 +264,23 @@ Only a codebase with no findings scores 0.
 
 ## In CI
 
+The GitHub Action annotates each finding on the pull request diff and fails the check on errors, or on a score above `--max-score`:
+
 ```yaml
-- uses: actions/setup-node@v4
+- uses: actions/checkout@v4
+- uses: mattbaconz/sloplint@v0
   with:
-    node-version: 22
-- run: npx @sloplint/cli check . --max-score 0
+    path: src             # files or directories, default .
+    args: --max-score 20  # optional: any check flags
 ```
+
+With `sarif: true` it also uploads the findings to code scanning, which needs `permissions: security-events: write`. It runs on the runner's Node, which GitHub-hosted runners include. Elsewhere:
+
+```bash
+npx @sloplint/cli check . --max-score 0
+```
+
+`--format sarif` writes SARIF 2.1.0 for other code-scanning dashboards.
 
 ## Rendered-page audit
 
@@ -300,7 +330,7 @@ npm run verify:dom
 
 `npm test` runs the rule, CLI, init, design, scoring and dogfood suites with `node:test`. `npm run check` lints this repository and fails above 0. `npm run verify:dom` serves the site and audits it in every preset with Playwright. `npm run check:fonts` asks Google Fonts for every curated family and weight; it needs the network, so it is not part of `npm test`.
 
-The repository is held to its own standard: `sloplint check .` scores `0/100 Studio Grade`, and a test fails if it does not.
+The repository is held to its own standard: `sloplint check .` scores `0/100 Studio Grade`, and a test fails if it does not. To add a rule or report a false positive, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "sloplint",
+  "description": "sloplint for Claude Code: lint the tells of AI-generated code while Claude writes it.",
+  "owner": {
+    "name": "mattbaconz",
+    "url": "https://github.com/mattbaconz"
+  },
+  "plugins": [
+    {
+      "name": "sloplint",
+      "description": "Lints every file Claude writes for the tells of AI-generated code and gives each project a design system of its own.",
+      "source": "./",
+      "category": "development"
+    }
+  ]
+}

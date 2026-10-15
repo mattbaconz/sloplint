@@ -1,0 +1,38 @@
+name: New tell
+description: Propose a pattern that generated code converges on
+labels: [new tell]
+body:
+  - type: dropdown
+    id: domain
+    attributes:
+      label: Domain
+      options: [UI, COPY, SEC, BE, TEST, MOTION]
+    validations:
+      required: true
+  - type: textarea
+    id: tell
+    attributes:
+      label: The tell
+      description: What generated code does, and why a careful person would not.
+    validations:
+      required: true
+  - type: textarea
+    id: slop
+    attributes:
+      label: Slop example
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: craft
+    attributes:
+      label: Craft example
+      description: The same thing done well. It must not trigger the rule.
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: detection
+    attributes:
+      label: How to detect it without false positives
+      description: What the rule matches, and the near misses it must leave alone.
