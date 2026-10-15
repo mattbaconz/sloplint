@@ -80,7 +80,7 @@ export function toPx(token) {
 const TW_RADIUS = { none: 0, xs: 2, sm: 2, '': 4, md: 6, lg: 8, xl: 12, '2xl': 16, '3xl': 24, '4xl': 32, full: Infinity };
 export const TW_RADIUS_TOKENS = Object.entries(TW_RADIUS).filter(([k, v]) => v !== Infinity && k !== 'xs');
 
-function twSpacing(v) {
+export function twSpacing(v) {
   if (v === 'px') return 1;
   if (v === '0') return 0;
   if (/^\d+(\.5)?$/.test(v)) return parseFloat(v) * 4;
@@ -136,6 +136,7 @@ export function twBox(classes) {
     else if (/^text-(gray|slate|zinc|neutral|stone)-(300|400|500|600)$|^text-muted(-foreground)?$/.test(c)) b.muted = true;
     else if (c === 'tabular-nums') b.tabular = true;
     else if (/^(absolute|fixed)$/.test(c)) b.overlay = true;
+    else if (/^overflow(-x)?-(auto|scroll|hidden|clip)$/.test(c)) b.scroll = true;
   }
   if (padX != null || padY != null) b.pad = Math.min(padX ?? pad ?? Infinity, padY ?? pad ?? Infinity);
   else if (pad != null) b.pad = pad;
@@ -190,6 +191,10 @@ export function cssBox(decls) {
       case 'position':
         if (/^(absolute|fixed)$/.test(v)) b.overlay = true;
         break;
+      case 'overflow':
+      case 'overflow-x':
+        if (/^(auto|scroll|hidden|clip)\b/.test(v)) b.scroll = true;
+        break;
       default:
     }
   }
@@ -234,6 +239,36 @@ function matchChain(chain, i, el) {
   if (c.comb === '>') return isElement(el.parent) && matchChain(chain, i - 1, el.parent);
   for (let p = el.parent; isElement(p); p = p.parent) if (matchChain(chain, i - 1, p)) return true;
   return false;
+}
+
+export function matchesSelector(sel, el) {
+  const chain = compileSelector(sel);
+  return Boolean(chain) && matchChain(chain, chain.length - 1, el);
+}
+
+// Does a @media or @container prelude hold on a screen `width` px wide? Features other than width count as holding.
+export function holdsAt(prelude, width) {
+  if (!/^@(media|container)\b/i.test(prelude)) return true;
+  return prelude.replace(/^@\w+/, '').split(',').some((q) => {
+    if (/\bprint\b/i.test(q) && !/\bscreen\b/i.test(q)) return false;
+    for (const m of q.matchAll(/\(\s*(?:(min|max)-width\s*:|width\s*([<>])=?)\s*([\d.]+)(px|r?em)\s*\)/gi)) {
+      const px = parseFloat(m[3]) * (m[4].toLowerCase() === 'px' ? 1 : 16);
+      const min = m[1] ? m[1].toLowerCase() === 'min' : m[2] === '>';
+      if (min ? width < px : width > px) return false;
+    }
+    return true;
+  });
+}
+
+// Narrowest a grid-template-columns value can get: column count and minimum width in px, or null when unknowable.
+export function gridMin(value, gap) {
+  let v = value.replace(/\[[^\]]*\]/g, ' ').trim();
+  if (/var\(|subgrid|masonry|^none$/i.test(v)) return null;
+  // auto-fit and auto-fill drop to one repetition on a narrow screen.
+  v = v.replace(/repeat\(\s*(auto-fit|auto-fill|\d+)\s*,\s*((?:[^()]|\([^()]*\))*)\)/gi, (_, n, inner) => (/^auto/i.test(n) ? inner : Array(Number(n)).fill(inner).join(' ')));
+  const tracks = v.match(/[\w-]+\((?:[^()]|\([^()]*\))*\)|[^\s()]+/g) ?? [];
+  const min = (t) => toPx(/^minmax\(/i.test(t) ? t.slice(7).split(',')[0] : t) ?? 0;
+  return { n: tracks.length, width: tracks.reduce((sum, t) => sum + min(t), 0) + Math.max(0, tracks.length - 1) * gap };
 }
 
 // CSS rules -> (element -> its declarations in cascade order: specificity, then source order).

@@ -67,7 +67,7 @@ With Tailwind, expose the tokens to the theme (v4: `@theme { --color-accent: var
 - Signature: Hairline rules (1px `--line`) between sections and rows instead of boxed cards.
 - Signature: Text-only navigation; the current item gets a 2px `--accent` underline.
 - Grid: 12 columns, 24px gutters, content max 1200px. Sections 88px apart, 56px under 640px.
-- At 375px nothing scrolls sideways: navigation wraps or collapses, rows stack, and tables scroll inside their own `overflow-x: auto` wrapper.
+- At 375px nothing scrolls sideways: below 768px grids become one column (`grid-template-columns: minmax(0, 1fr)`; spanning all 12 still leaves 11 gutters), navigation wraps or collapses, and tables scroll inside their own `overflow-x: auto` wrapper.
 
 ## Components
 

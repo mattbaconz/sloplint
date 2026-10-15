@@ -1,0 +1,16 @@
+/* One column on phones, twelve from 768px up. */
+.page {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 32px;
+}
+
+@media (min-width: 768px) {
+  .page {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+  }
+
+  .page > * {
+    grid-column: span 6;
+  }
+}

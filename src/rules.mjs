@@ -2,7 +2,7 @@
 // check(ctx) returns [{ start, end, message?, fix?, severity? }] with absolute offsets.
 
 import { matchPair, callArgs } from './lex.mjs';
-import { colorsIn, isNeonPurple, twNeonStop, TW_RADIUS_TOKENS, classAttr, classList, cssBox } from './style.mjs';
+import { colorsIn, isNeonPurple, twNeonStop, TW_RADIUS_TOKENS, classAttr, classList, cssBox, toPx, twSpacing, gridMin, holdsAt, matchesSelector } from './style.mjs';
 import { rgbaOf, isGenericFont } from './design.mjs';
 
 export const DOMAINS = {
@@ -746,6 +746,66 @@ export const RULES = [
         if (href.value.trim() === '#' && /\b(logo|brand|home|wordmark)\b/i.test(names)) continue;
         const handled = ['onClick', 'onclick', '@click', 'v-on:click'].some((name) => el.attrs[name]);
         out.push(hit(el.start, el.openEnd, handled ? `Link used as a button (href="${href.value.trim()}"); use <button>` : `Link to nowhere (href="${href.value.trim()}")`));
+      }
+      return out;
+    },
+  },
+  {
+    id: 'UI-014',
+    slug: 'grid-too-wide',
+    severity: 'warn',
+    weight: 3,
+    title: 'Grid cannot fit a 375px screen',
+    rationale:
+      'Children that span all twelve columns still sit in a twelve-column grid with eleven gaps, and fixed-minimum tracks keep their minimum. Generated layouts stack the children on phones and leave the grid alone, so the whole page scrolls sideways.',
+    fix: 'Collapse the grid on small screens: `grid-template-columns: minmax(0, 1fr)` below 768px (Tailwind `grid-cols-1 md:grid-cols-12`), or let it wrap with `repeat(auto-fit, minmax(min(16rem, 100%), 1fr))`.',
+    sample: 'css',
+    langs: STYLED,
+    check(ctx) {
+      // ponytail: assumes 16px page gutters on a 375px phone; the real container width is unknown statically.
+      const PHONE = 375;
+      const ROOM = PHONE - 32;
+      const out = [];
+      const msg = (g, gap) => `${g.n}-column grid needs ${Math.round(g.width)}px on a ${PHONE}px screen${gap ? ` (${g.n - 1} gaps of ${gap}px)` : ''}; the page scrolls sideways`;
+      // A scroll wrapper contains the overflow. html and body do not count: hiding overflow there clips the page instead.
+      const contained = (el) => {
+        for (let p = el; p && p.name !== '#root'; p = p.parent) if (!/^(html|body)$/i.test(p.name) && ctx.box(p).scroll) return true;
+        return false;
+      };
+      const bySel = new Map();
+      for (const r of ctx.cssRules) {
+        if (!r.media.every((m) => holdsAt(m, PHONE))) continue;
+        for (const sel of r.selector.split(',')) {
+          const key = sel.trim().replace(/\s+/g, ' ');
+          const e = bySel.get(key) ?? {};
+          for (const d of r.decls) e[d.prop] = d;
+          bySel.set(key, e);
+        }
+      }
+      for (const [sel, e] of bySel) {
+        const cols = e['grid-template-columns'];
+        const value = (p) => e[p]?.value.trim() ?? '';
+        if (!cols || (value('display') && !/grid/.test(value('display'))) || /^(auto|scroll|hidden|clip)\b/.test(value('overflow-x') || value('overflow'))) continue;
+        const gapDecl = e['column-gap'] ?? e['grid-column-gap'] ?? e.gap ?? e['grid-gap'];
+        const parts = gapDecl ? gapDecl.value.trim().split(/\s+/) : [];
+        const gap = toPx(/^(grid-)?gap$/.test(gapDecl?.prop ?? '') ? (parts[1] ?? parts[0]) : parts[0]) ?? 0;
+        const g = gridMin(cols.value, gap);
+        if (!g || g.width <= ROOM) continue;
+        if (ctx.markup && !ctx.markup.elements.some((el) => matchesSelector(sel, el) && !contained(el))) continue;
+        out.push(hit(cols.start, cols.end, msg(g, gap)));
+      }
+      for (const el of ctx.markup?.elements ?? []) {
+        const all = classList(el);
+        // Unprefixed utilities and max-* variants are in force on a phone, and max-* wins.
+        const phone = [...all.filter((c) => /^max-[^:]+:[^:]+$/.test(c)).map((c) => c.slice(c.indexOf(':') + 1)), ...all.filter((c) => !c.includes(':'))];
+        const pick = (re) => phone.map((c) => re.exec(c)).find(Boolean);
+        const cols = pick(/^grid-cols-(?:(\d+)|\[(.+)\])$/);
+        const display = pick(/^(grid|inline-grid|block|inline-block|inline|flex|inline-flex|hidden|contents|table)$/);
+        if (!cols || (display && !/grid/.test(display[0])) || contained(el)) continue;
+        const gm = pick(/^gap-x-(.+)$/) ?? pick(/^gap-(?!y-)(.+)$/);
+        const gap = (gm && twSpacing(gm[1])) ?? 0;
+        const g = cols[1] ? { n: Number(cols[1]), width: (Number(cols[1]) - 1) * gap } : gridMin(cols[2].replace(/_/g, ' '), gap);
+        if (g && g.width > ROOM) out.push(hit(el.start, el.openEnd, msg(g, gap)));
       }
       return out;
     },

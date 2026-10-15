@@ -1,0 +1,27 @@
+<!-- expect: UI-014 -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Pricing</title>
+<style>
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+  .split { display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; }
+  .split > .lead { grid-column: span 5; }
+  .split > .proof { grid-column: span 7; min-width: 0; }
+  /* The children stack, but the larger gap applies to all eleven column gaps: 352px. */
+  @media (max-width: 767px) {
+    .split > .lead, .split > .proof { grid-column: 1 / -1; }
+    .split { gap: 32px; }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="split">
+      <div class="lead"><h2>Pricing</h2></div>
+      <div class="proof"><p>Studio is 19 dollars a month.</p></div>
+    </div>
+  </div>
+</body>
+</html>

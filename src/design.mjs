@@ -645,7 +645,7 @@ With Tailwind, expose the tokens to the theme (v4: \`@theme { --color-accent: va
 ${layout.lines.map((l) => `- ${l}`).join('\n')}
 ${style.signatures.map((s) => `- Signature: ${s}`).join('\n')}
 - Grid: 12 columns, 24px gutters, content max 1200px. Sections ${style.space.section[0]}px apart, ${style.space.section[1]}px under 640px.
-- At 375px nothing scrolls sideways: navigation wraps or collapses, rows stack, and tables scroll inside their own \`overflow-x: auto\` wrapper.
+- At 375px nothing scrolls sideways: below 768px grids become one column (\`grid-template-columns: minmax(0, 1fr)\`; spanning all 12 still leaves 11 gutters), navigation wraps or collapses, and tables scroll inside their own \`overflow-x: auto\` wrapper.
 
 ## Components
 

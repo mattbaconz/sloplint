@@ -1,0 +1,16 @@
+/* Twelve columns everywhere: on a phone the children span every column, but the eleven gaps stay. */
+.page {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 32px;
+}
+
+.page > * {
+  grid-column: span 6;
+}
+
+@media (max-width: 767px) {
+  .page > * {
+    grid-column: 1 / -1;
+  }
+}

@@ -1,0 +1,31 @@
+<!-- expect: none -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Layouts that fit a phone</title>
+<style>
+  /* Collapsed with range syntax below 768px. */
+  .split { display: grid; grid-template-columns: repeat(12, 1fr); gap: 32px; }
+  @media (width < 768px) { .split { grid-template-columns: minmax(0, 1fr); } }
+  /* Turned into a block on phones. */
+  .stack { display: grid; grid-template-columns: repeat(12, 1fr); gap: 32px; }
+  @media (max-width: 767px) { .stack { display: block; } }
+  /* Wide on purpose, inside its own scroll wrapper. */
+  .rail { overflow-x: auto; }
+  .cards { display: grid; grid-template-columns: repeat(3, minmax(240px, 1fr)); gap: 16px; }
+  /* Wraps to one column. */
+  .auto { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(16rem, 100%), 1fr)); gap: 24px; }
+  /* Only from 1024px up. */
+  @media (min-width: 1024px) { .wide { display: grid; grid-template-columns: repeat(4, 280px); gap: 24px; } }
+</style>
+</head>
+<body>
+  <div class="split"><p>One</p><p>Two</p></div>
+  <div class="stack"><p>One</p><p>Two</p></div>
+  <div class="rail"><div class="cards"><p>One</p><p>Two</p><p>Three</p></div></div>
+  <div class="auto"><p>One</p><p>Two</p></div>
+  <div class="wide"><p>One</p><p>Two</p></div>
+  <div class="grid grid-cols-1 gap-8 md:grid-cols-12"><p>One</p><p>Two</p></div>
+</body>
+</html>

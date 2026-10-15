@@ -265,6 +265,7 @@ export function parseCss(masked, from = 0, to = masked.length) {
       stack.push({
         selector: at ? (parent?.selector ?? '') : combineSelector(parent?.selector, sel),
         at,
+        media: at ? [...(parent?.media ?? []), sel] : parent?.media,
         start: pend + (raw.length - raw.trimStart().length),
         selEnd: i - (raw.length - raw.trimEnd().length),
         decls: [],
@@ -278,7 +279,7 @@ export function parseCss(masked, from = 0, to = masked.length) {
       }
       if (c === '}' && stack.length) {
         stack.pop();
-        if (!top.at && top.decls.length) rules.push({ selector: top.selector, start: top.start, selEnd: top.selEnd, end: i + 1, decls: top.decls });
+        if (!top.at && top.decls.length) rules.push({ selector: top.selector, start: top.start, selEnd: top.selEnd, end: i + 1, decls: top.decls, media: top.media ?? [] });
       }
       pend = i + 1;
     }
