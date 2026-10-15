@@ -458,7 +458,7 @@ const MOOD = {
       ['Libre Franklin', 'Libre Franklin', 'DM Mono'],
       ['Newsreader', 'Atkinson Hyperlegible', 'IBM Plex Mono'],
     ],
-    layouts: ['ledger', 'specimen', 'split', 'console'],
+    layouts: ['ledger', 'specimen', 'split', 'console', 'letter', 'manifesto'],
     signatures: ['footnotes', 'big-number', 'hairlines', 'text-nav', 'mono-tags'],
     motion: { ms: 150, ease: 'cubic-bezier(0.2, 0, 0, 1)', note: 'Motion only confirms an action; it is never decorative.' },
     names: ['Charter', 'Harbor', 'Bastion', 'Registry', 'Almanac', 'Treasury'],

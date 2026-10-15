@@ -29,17 +29,20 @@ export const AGENTS = {
     model: 'claude-sonnet-5-5',
     concurrency: 3,
     args: (prompt, model) => [
-      '-p', prompt, '--model', model, '--effort', 'medium', '--output-format', 'json', '--no-session-persistence',
+      '-p', prompt, '--model', model, '--effort', 'medium', '--output-format', 'stream-json', '--verbose', '--no-session-persistence',
       '--dangerously-skip-permissions', '--setting-sources', 'project,local', '--settings', JSON.stringify({ claudeMdExcludes: userMemory }),
     ],
+    // stream-json keeps the whole transcript (tool calls, hook feedback) in stdout.txt; the last event is the result.
     parse(stdout) {
-      const j = JSON.parse(stdout);
+      const j = stdout.trim().split('\n').map((l) => { try { return JSON.parse(l); } catch { return null; } }).findLast((e) => e?.type === 'result');
+      if (!j) throw new Error('no result event');
       const u = j.usage ?? {};
       return {
         ok: !j.is_error,
         turns: j.num_turns,
         costUsd: j.total_cost_usd,
         inputTokens: (u.input_tokens ?? 0) + (u.cache_creation_input_tokens ?? 0) + (u.cache_read_input_tokens ?? 0),
+        cacheWriteTokens: u.cache_creation_input_tokens,
         outputTokens: u.output_tokens,
         final: j.result,
       };
