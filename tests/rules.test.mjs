@@ -72,6 +72,19 @@ for (const file of walk(VARIANTS)) {
   });
 }
 
+test('UI-011 and UI-012 accept DESIGN.md tokens in Tailwind arbitrary values', () => {
+  const tsx = `export function Stat({ value }: { value: string }) {
+  return (
+    <div className="bg-[var(--surface)] text-[color:var(--ink)] border-[var(--line)] font-[family-name:var(--font-text)]">
+      <p className="font-[family-name:var(--font-mono)] font-[550] text-(--accent) bg-(--surface-2) font-(family-name:--font-display)">{value}</p>
+    </div>
+  );
+}
+`;
+  const ids = ruleIds(tsx, 'src/Stat.tsx', { design: SAMPLE_DESIGN }).filter((id) => id === 'UI-011' || id === 'UI-012');
+  assert.deepEqual(ids, []);
+});
+
 test('rules never throw on malformed input', () => {
   const inputs = ['', '{', '`${', '<div className={', '/* unterminated', '"""', "'", '<style>.a{', '```', 'def f(:\n  pass'];
   for (const ext of ['ts', 'tsx', 'html', 'vue', 'css', 'py', 'md']) {

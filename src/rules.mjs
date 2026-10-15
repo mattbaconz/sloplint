@@ -714,8 +714,11 @@ export const RULES = [
       }
       for (const s of ctx.classStrings) {
         for (const t of s.text.matchAll(/(?:^|[\s:])font-\[['"]?([^\]'"]+)['"]?\]/g)) {
-          const start = s.start + t.index + t[0].indexOf(t[1]);
-          report(t[1].replace(/_/g, ' ').split(',')[0].trim(), start, start + t[1].length);
+          // `family-name:` is Tailwind's type hint; a var() is the DESIGN.md token itself, and a number is a weight.
+          const value = t[1].replace(/^family-name:/, '');
+          if (/^(var\(|\d)/.test(value)) continue;
+          const start = s.start + t.index + t[0].indexOf(value);
+          report(value.replace(/_/g, ' ').split(',')[0].trim(), start, start + value.length);
         }
       }
       if (ctx.lang !== 'css') {
@@ -915,16 +918,26 @@ export const RULES = [
     langs: SCRIPT,
     check(ctx) {
       const out = [];
+      const py = ctx.lang === 'py';
+      // Names bound once to a literal (`const COLUMNS = 'id, total'`, `PAGE_SIZE = 50`) carry no input.
+      const constants = new Set();
+      for (const tok of ctx.strings) {
+        if (tok.exprs?.length || (py && /f/i.test(tok.prefix ?? ''))) continue;
+        const m = (py ? /(?:^|\n)([A-Z_][A-Z0-9_]*)\s*=\s*$/ : /\bconst\s+([A-Za-z_$][\w$]*)\s*=\s*$/).exec(ctx.code.slice(Math.max(0, tok.start - 80), tok.start));
+        if (m) constants.add(m[1]);
+      }
+      for (const m of ctx.code.matchAll(py ? /^([A-Z_][A-Z0-9_]*)\s*=\s*\d+\s*$/gm : /\bconst\s+([A-Za-z_$][\w$]*)\s*=\s*\d+\s*[;\n]/g)) constants.add(m[1]);
+      const constant = (expr) => constants.has(expr.trim());
       for (const tok of ctx.strings) {
         if (!SQL.test(tok.value)) continue;
         const after = ctx.code.slice(tok.end, tok.end + 24);
         const before = ctx.code.slice(Math.max(0, tok.start - 24), tok.start);
         let message = null;
-        if (ctx.lang === 'py') {
-          if (/f/i.test(tok.prefix) && /\{[^}]+\}/.test(tok.value)) message = 'SQL built with an f-string';
+        if (py) {
+          if (/f/i.test(tok.prefix) && /\{[^}]+\}/.test(tok.value) && ![...tok.value.matchAll(/\{([^{}]+)\}/g)].every((x) => constant(x[1]))) message = 'SQL built with an f-string';
           else if (/^\s*(%|\.format\(|\+)/.test(after) || /\+\s*$/.test(before)) message = 'SQL built by string formatting';
         } else if (tok.quote === '`') {
-          if (!tok.tagged && tok.exprs.length) message = 'SQL built with template interpolation';
+          if (!tok.tagged && tok.exprs.length && !tok.exprs.every((e) => constant(ctx.text.slice(e.start, e.end)))) message = 'SQL built with template interpolation';
         } else if (/^\s*\+/.test(after) || /\+\s*$/.test(before)) message = 'SQL built by string concatenation';
         if (message) out.push(hit(tok.start, firstLineEnd(ctx.text, tok.start, tok.end), message));
       }

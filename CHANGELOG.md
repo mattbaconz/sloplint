@@ -16,6 +16,8 @@
 - [added] Benchmark harness in `bench/`: six slop-prone tasks run by Claude Code and the Antigravity CLI with and without sloplint, scored by sloplint plus checks that do not use it (a 16-mutant test-suite score, README flag accuracy, syntax, rendered screenshots).
 - [changed] UI-002 also catches icon and emoji badges in rounded squares, and only when the badge opens the card, so testimonial avatars are no longer flagged.
 - [changed] Briefs, agent rule blocks and the table-heavy presets require pages that do not scroll sideways at 375px, with wide tables in their own `overflow-x: auto` wrapper.
+- [fixed] UI-012 accepts DESIGN.md tokens in Tailwind arbitrary values (`font-[family-name:var(--font-mono)]`) and weights (`font-[550]`); agents had swapped the token class for inline styles to silence it.
+- [fixed] SEC-003 no longer flags SQL that interpolates a name bound once to a literal, such as a constant column list or page size.
 - [fixed] UI-001 reads colors through the file's custom properties, so a glow or gradient built from `var(--brand)` with `--brand: #4f46e5` is caught.
 - [fixed] Style resolution follows descendant and child selectors such as `.plan .price`, so UI-005 no longer asks for tabular figures a nested rule already sets, and UI-002, UI-004 and UI-006 see those styles too.
 - [fixed] UI-006 no longer flags pills or inner radii when the gap is wider than the outer radius, where corners do not interact.
