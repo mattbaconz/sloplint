@@ -31,6 +31,7 @@ export const AGENTS = {
     args: (prompt, model) => [
       '-p', prompt, '--model', model, '--effort', 'medium', '--output-format', 'stream-json', '--verbose', '--no-session-persistence',
       '--dangerously-skip-permissions', '--setting-sources', 'project,local', '--settings', JSON.stringify({ claudeMdExcludes: userMemory }),
+      '--disable-slash-commands',
     ],
     // stream-json keeps the whole transcript (tool calls, hook feedback) in stdout.txt; the last event is the result.
     parse(stdout) {

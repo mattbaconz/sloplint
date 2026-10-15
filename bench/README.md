@@ -33,7 +33,7 @@ node bench/score.mjs --runs ../bench-runs/my-run --out bench/results/my-run
 
 `run.mjs` drives Claude Code (`claude -p`) and the Antigravity CLI (`agy -p`) headless with permissions bypassed, so run it on a machine where that is acceptable. Claude runs keep their full stream-json transcript in `stdout.txt`, so you can see which tool calls and hook findings each turn went to. Workdirs live outside the repository. Successful runs are skipped and failed ones are redone, so rerunning the same command resumes an interrupted benchmark and retries agent crashes. `--agents`, `--arms`, `--tasks` and `--reps` narrow a run.
 
-Claude runs load project settings only, and user-level memory (`~/.claude/CLAUDE.md`) is excluded through `claudeMdExcludes`, so the runner's personal instructions do not leak in. The Antigravity CLI has no equivalent switch; its user-level `GEMINI.md` is loaded in both arms.
+Claude runs load project settings only, user-level memory (`~/.claude/CLAUDE.md`) is excluded through `claudeMdExcludes`, and `--disable-slash-commands` keeps the runner's installed skills out (about 6k tokens per run), so personal instructions and tools do not leak in. The 2026-10-15 runs predate the switch and had those skills available in every arm. The Antigravity CLI has no equivalent switch; its user-level `GEMINI.md` is loaded in both arms.
 
 ## What the numbers mean, and what they do not
 
