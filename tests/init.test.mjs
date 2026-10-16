@@ -147,7 +147,7 @@ test('preset names and aliases resolve; unknown names are rejected', () => {
 
 function presetTokens(id) {
   const md = readFileSync(join(ROOT, 'presets', `${id}.md`), 'utf8');
-  const css = /```css\n([\s\S]*?)```/.exec(md)[1];
+  const css = /```css\r?\n([\s\S]*?)```/.exec(md)[1];
   const [rule] = parseCss(maskCss(css).out.join(''), 0, css.length);
   assert.equal(rule.selector.trim(), ':root', `${id} token block`);
   return Object.fromEntries(rule.decls.map((d) => [d.prop, css.slice(d.valueStart, d.end).replace(/;$/, '').trim()]));
