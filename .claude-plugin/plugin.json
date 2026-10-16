@@ -8,6 +8,9 @@
   },
   "homepage": "https://mattbaconz.github.io/sloplint/",
   "repository": "https://github.com/mattbaconz/sloplint",
+  "documentationUrl": "https://github.com/mattbaconz/sloplint#readme",
+  "supportUrl": "https://github.com/mattbaconz/sloplint/issues",
+  "privacyPolicyUrl": "https://github.com/mattbaconz/sloplint/blob/main/PRIVACY.md",
   "license": "MIT",
   "keywords": ["lint", "ai-slop", "design-system", "code-quality", "hooks"]
 }
