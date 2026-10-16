@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Offset Press — Screen-printed posters & vinyl records</title>
+<meta name="description" content="Offset Press is an independent print studio and record label. Limited-run screen-printed posters and vinyl records, made by hand.">
+<style>
+:root{
+  --paper:#f3ede1;
+  --ink:#16140f;
+  --red:#e8452c;
+  --blue:#2340d9;
+  --yellow:#f4c430;
+  --muted:#6b655a;
+  --line:#16140f;
+  --display:"Arial Black","Helvetica Neue",Impact,sans-serif;
+  --body:"Helvetica Neue",Helvetica,Arial,sans-serif;
+  --mono:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:var(--body);line-height:1.55;font-size:17px;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+h1,h2,h3{font-family:var(--display);line-height:.95;letter-spacing:-.02em;text-transform:uppercase}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.btn{display:inline-block;font-family:var(--mono);font-size:13px;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;padding:15px 26px;border:2px solid var(--ink);background:var(--ink);color:var(--paper);transition:transform .15s,box-shadow .15s,background .15s;cursor:pointer}
+.btn:hover,.btn:focus-visible{transform:translate(-3px,-3px);box-shadow:5px 5px 0 var(--red)}
+.btn.ghost{background:transparent;color:var(--ink)}
+:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
+
+/* nav */
+header.nav{position:sticky;top:0;z-index:10;background:var(--paper);border-bottom:2px solid var(--ink)}
+.nav .wrap{display:flex;align-items:center;justify-content:space-between;height:64px;gap:16px}
+.logo{font-family:var(--display);text-transform:uppercase;text-decoration:none;font-size:20px;letter-spacing:-.02em;display:flex;align-items:center;gap:10px}
+.logo i{width:22px;height:22px;border-radius:50%;background:var(--red);box-shadow:8px 0 0 -2px var(--blue);display:inline-block;mix-blend-mode:multiply;margin-right:6px}
+.nav ul{display:flex;gap:28px;list-style:none}
+.nav ul a{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;text-decoration:none}
+.nav ul a:hover{color:var(--red)}
+
+/* hero */
+.hero{position:relative;overflow:hidden;border-bottom:2px solid var(--ink)}
+.hero .wrap{display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center;padding-top:80px;padding-bottom:88px}
+.hero h1{font-size:clamp(3rem,8.5vw,7.2rem);margin:18px 0 28px}
+.hero h1 span{color:var(--red)}
+.hero h1 em{font-style:normal;color:var(--blue);mix-blend-mode:multiply}
+.hero p.lead{font-size:1.2rem;max-width:34em;margin-bottom:34px}
+.cta{display:flex;gap:14px;flex-wrap:wrap}
+.art{position:relative;aspect-ratio:1;max-width:480px;justify-self:center;width:100%}
+.art .sheet{position:absolute;inset:6% 12% 6% 4%;background:var(--yellow);border:2px solid var(--ink);box-shadow:10px 10px 0 var(--ink);transform:rotate(-4deg)}
+.art .c1,.art .c2{position:absolute;border-radius:50%;mix-blend-mode:multiply}
+.art .c1{width:62%;aspect-ratio:1;background:var(--red);left:14%;top:14%}
+.art .c2{width:62%;aspect-ratio:1;background:var(--blue);left:30%;top:30%}
+.art .vinyl{position:absolute;right:0;bottom:0;width:48%;aspect-ratio:1;border-radius:50%;background:repeating-radial-gradient(circle,#16140f 0 3px,#26231c 3px 5px);border:2px solid var(--ink);display:grid;place-items:center;animation:spin 14s linear infinite}
+.art .vinyl::after{content:"";width:34%;aspect-ratio:1;border-radius:50%;background:var(--red);box-shadow:0 0 0 6px var(--paper) inset,0 0 0 0 transparent}
+.art .vinyl::before{content:"";position:absolute;width:5%;aspect-ratio:1;background:var(--paper);border-radius:50%;z-index:2}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.art .vinyl{animation:none}html{scroll-behavior:auto}}
+
+/* marquee strip */
+.strip{background:var(--ink);color:var(--paper);font-family:var(--mono);font-size:13px;letter-spacing:.14em;text-transform:uppercase;padding:14px 0;overflow:hidden;white-space:nowrap}
+.strip div{display:flex;gap:40px;justify-content:center;flex-wrap:wrap;white-space:normal;padding:0 24px}
+.strip b{color:var(--yellow);font-weight:400}
+
+section{padding:96px 0}
+.head{display:flex;justify-content:space-between;align-items:end;gap:24px;flex-wrap:wrap;margin-bottom:48px}
+.head h2{font-size:clamp(2.2rem,5vw,4rem)}
+.head p{max-width:26em;color:var(--muted)}
+
+/* releases */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:28px}
+.card{background:#fbf8f1;border:2px solid var(--ink);display:flex;flex-direction:column;transition:transform .18s,box-shadow .18s}
+.card:hover{transform:translate(-4px,-4px);box-shadow:8px 8px 0 var(--ink)}
+.cover{aspect-ratio:1;border-bottom:2px solid var(--ink);position:relative;overflow:hidden}
+.cover .tag{position:absolute;top:12px;left:12px;background:var(--paper);border:2px solid var(--ink);font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;z-index:3}
+.cv1{background:var(--red)}
+.cv1::before{content:"";position:absolute;width:70%;aspect-ratio:1;border-radius:50%;background:var(--yellow);left:15%;top:20%;mix-blend-mode:multiply}
+.cv1::after{content:"";position:absolute;inset:auto 0 0 0;height:30%;background:var(--ink)}
+.cv2{background:var(--blue)}
+.cv2::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(135deg,transparent 0 18px,var(--paper) 18px 24px);opacity:.85}
+.cv2::after{content:"";position:absolute;width:46%;aspect-ratio:1;left:27%;top:27%;background:var(--red);transform:rotate(45deg);mix-blend-mode:multiply;border:2px solid var(--ink)}
+.cv3{background:var(--yellow)}
+.cv3::before{content:"";position:absolute;width:76%;aspect-ratio:1;border-radius:50%;left:12%;top:12%;background:repeating-radial-gradient(circle,var(--ink) 0 3px,#2d2a22 3px 6px)}
+.cv3::after{content:"";position:absolute;width:24%;aspect-ratio:1;border-radius:50%;left:38%;top:38%;background:var(--red);border:3px solid var(--paper)}
+.cv4{background:var(--paper)}
+.cv4::before{content:"";position:absolute;inset:14% 14% 14% 14%;background:var(--ink);clip-path:polygon(50% 0,100% 100%,0 100%)}
+.cv4::after{content:"";position:absolute;inset:30% 30% 8% 30%;background:var(--red);clip-path:polygon(50% 0,100% 100%,0 100%);mix-blend-mode:multiply}
+.info{padding:20px;display:flex;flex-direction:column;gap:6px;flex:1}
+.info h3{font-size:1.25rem;line-height:1.05}
+.info .meta{font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:.04em}
+.info .row{margin-top:auto;padding-top:16px;display:flex;justify-content:space-between;align-items:center}
+.price{font-family:var(--display);font-size:1.5rem}
+.buy{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;border-bottom:2px solid var(--red);padding-bottom:2px}
+.buy:hover{color:var(--red)}
+
+/* about */
+.about{background:var(--ink);color:var(--paper)}
+.about .wrap{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
+.about .eyebrow{color:var(--yellow)}
+.about h2{font-size:clamp(2.2rem,5vw,4rem);margin:14px 0 24px}
+.about p{margin-bottom:18px;color:#d9d2c3}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:32px}
+.stats strong{display:block;font-family:var(--display);font-size:2.2rem;color:var(--yellow);line-height:1}
+.stats span{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#a9a294}
+.press{aspect-ratio:4/3;border:2px solid var(--paper);position:relative;background:
+  linear-gradient(var(--red),var(--red)) 12% 18%/38% 46% no-repeat,
+  linear-gradient(var(--blue),var(--blue)) 38% 36%/38% 46% no-repeat,
+  var(--ink)}
+.press::after{content:"Registration is everything.";position:absolute;left:16px;bottom:14px;font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;background:var(--paper);color:var(--ink);padding:4px 10px}
+
+/* events */
+.events{list-style:none;border-top:2px solid var(--ink)}
+.events li{display:grid;grid-template-columns:120px 1fr auto;gap:28px;align-items:center;padding:26px 0;border-bottom:2px solid var(--ink)}
+.date{font-family:var(--display);text-transform:uppercase;line-height:.9}
+.date b{display:block;font-size:2.8rem;font-weight:400}
+.date span{font-family:var(--mono);font-size:12px;letter-spacing:.14em;color:var(--red)}
+.events h3{font-size:1.4rem;margin-bottom:6px}
+.events p{color:var(--muted);font-size:.95rem}
+.pill{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;border:2px solid var(--ink);padding:6px 12px;white-space:nowrap}
+.pill.hot{background:var(--yellow)}
+
+/* signup */
+.signup{background:var(--red);border-top:2px solid var(--ink)}
+.signup .wrap{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center}
+.signup h2{font-size:clamp(2.2rem,5vw,4rem);color:var(--paper)}
+.signup p{margin-top:16px;color:#fff;max-width:28em}
+form{display:flex;flex-direction:column;gap:14px;background:var(--paper);border:2px solid var(--ink);padding:28px;box-shadow:10px 10px 0 var(--ink)}
+label{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase}
+input[type=email],input[type=text]{width:100%;font:inherit;padding:14px;border:2px solid var(--ink);background:#fff;margin-top:6px;border-radius:0}
+input:focus{outline:3px solid var(--blue);outline-offset:0}
+.check{display:flex;gap:10px;align-items:flex-start;text-transform:none;letter-spacing:0;font-family:var(--body);font-size:14px}
+.check input{margin-top:4px;accent-color:var(--red)}
+.fine{font-size:12px;color:var(--muted)}
+#msg{font-family:var(--mono);font-size:13px;min-height:1.2em}
+
+footer{background:var(--ink);color:var(--paper);padding:40px 0;font-family:var(--mono);font-size:12px;letter-spacing:.08em}
+footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+footer a{text-decoration:none;margin-right:18px}
+footer a:hover{color:var(--yellow)}
+
+@media (max-width:860px){
+  .hero .wrap,.about .wrap,.signup .wrap{grid-template-columns:1fr;gap:40px}
+  .hero .wrap{padding-top:48px;padding-bottom:56px}
+  .nav ul{gap:16px}
+  .nav ul li:nth-child(n+4){display:none}
+  section{padding:64px 0}
+  .events li{grid-template-columns:90px 1fr;gap:16px}
+  .events .pill{grid-column:2;justify-self:start}
+}
+@media (max-width:480px){.nav ul{display:none}.stats{grid-template-columns:1fr 1fr 1fr}}
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="logo" href="#top"><i></i>Offset Press</a>
+    <nav aria-label="Main">
+      <ul>
+        <li><a href="#releases">Releases</a></li>
+        <li><a href="#about">Studio</a></li>
+        <li><a href="#events">Events</a></li>
+        <li><a href="#join">Newsletter</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+<section class="hero" style="padding:0">
+  <div class="wrap">
+    <div>
+      <p class="eyebrow">Independent print studio &amp; record label</p>
+      <h1>Pressed by hand. <span>Played</span> <em>loud.</em></h1>
+      <p class="lead">Limited-run screen-printed posters and vinyl records, made in small batches by people who care about every layer of ink and every groove. Once a run sells out, it's gone.</p>
+      <div class="cta">
+        <a class="btn" href="#releases">Shop current releases</a>
+        <a class="btn ghost" href="#join">Get drop alerts</a>
+      </div>
+    </div>
+    <div class="art" aria-hidden="true">
+      <div class="sheet"></div><div class="c1"></div><div class="c2"></div><div class="vinyl"></div>
+    </div>
+  </div>
+</section>
+
+<div class="strip"><div><span>Hand-pulled screen prints</span><b>●</b><span>180g vinyl</span><b>●</b><span>Numbered editions</span><b>●</b><span>Ships worldwide</span></div></div>
+
+<section id="releases">
+  <div class="wrap">
+    <div class="head">
+      <h2>Current<br>releases</h2>
+      <p>Every item is a numbered, limited run. Prices in USD, shipping calculated at checkout.</p>
+    </div>
+    <div class="grid">
+      <article class="card">
+        <div class="cover cv1"><span class="tag">Poster · 18×24"</span></div>
+        <div class="info">
+          <h3>Low Tide Radio</h3>
+          <p class="meta">3-colour screen print · Edition of 150</p>
+          <div class="row"><span class="price">$45</span><a class="buy" href="#join">Add to cart</a></div>
+        </div>
+      </article>
+      <article class="card">
+        <div class="cover cv2"><span class="tag">Vinyl · LP</span></div>
+        <div class="info">
+          <h3>Halftone Hearts — Static Bloom</h3>
+          <p class="meta">180g blue vinyl · Edition of 300</p>
+          <div class="row"><span class="price">$32</span><a class="buy" href="#join">Add to cart</a></div>
+        </div>
+      </article>
+      <article class="card">
+        <div class="cover cv3"><span class="tag">Vinyl · 7"</span></div>
+        <div class="info">
+          <h3>The Night Shift Split</h3>
+          <p class="meta">Two bands, one 7" · Edition of 500</p>
+          <div class="row"><span class="price">$14</span><a class="buy" href="#join">Add to cart</a></div>
+        </div>
+      </article>
+      <article class="card">
+        <div class="cover cv4"><span class="tag">Poster · 24×36"</span></div>
+        <div class="info">
+          <h3>Summit Season</h3>
+          <p class="meta">4-colour screen print · Edition of 75</p>
+          <div class="row"><span class="price">$60</span><a class="buy" href="#join">Add to cart</a></div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="about" id="about">
+  <div class="wrap">
+    <div>
+      <p class="eyebrow">About the studio</p>
+      <h2>Two presses.<br>One small crew.</h2>
+      <p>Offset Press started in a rented garage with a single-carousel press and a stack of band flyers. Today we're a print studio and record label under one roof, working directly with musicians and illustrators on posters, sleeves and records.</p>
+      <p>We mix our own inks, pull every sheet by hand and number every edition. No reprints, no mass production, no shortcuts.</p>
+      <div class="stats">
+        <div><strong>2014</strong><span>Founded</span></div>
+        <div><strong>120+</strong><span>Editions</span></div>
+        <div><strong>38</strong><span>Artists</span></div>
+      </div>
+    </div>
+    <div class="press" role="img" aria-label="Illustration of overlapping red and blue ink layers"></div>
+  </div>
+</section>
+
+<section id="events">
+  <div class="wrap">
+    <div class="head">
+      <h2>Upcoming<br>events</h2>
+      <p>Come see the presses run, hear the records, and take home something fresh off the rack.</p>
+    </div>
+    <ul class="events">
+      <li>
+        <div class="date"><b>08</b><span>NOV</span></div>
+        <div><h3>Low Tide Radio Release Party</h3><p>Live set, poster signing and first access to the final 20 copies · Studio floor</p></div>
+        <span class="pill hot">Free entry</span>
+      </li>
+      <li>
+        <div class="date"><b>22</b><span>NOV</span></div>
+        <div><h3>Open Studio &amp; Print Swap</h3><p>Watch a four-colour run come together and trade prints with local makers.</p></div>
+        <span class="pill">Open to all</span>
+      </li>
+      <li>
+        <div class="date"><b>06</b><span>DEC</span></div>
+        <div><h3>Winter Record Fair</h3><p>Our table plus 30 independent labels. Early-bird entry at 10am.</p></div>
+        <span class="pill">$5 early bird</span>
+      </li>
+      <li>
+        <div class="date"><b>17</b><span>JAN</span></div>
+        <div><h3>Screen Printing 101 Workshop</h3><p>A half-day intro: burn a screen, mix ink and pull your first poster. Limited to 12 seats.</p></div>
+        <span class="pill hot">$85 · 12 seats</span>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<section class="signup" id="join">
+  <div class="wrap">
+    <div>
+      <h2>Never miss<br>a drop.</h2>
+      <p>Our editions sell out fast. Join the list for early access to new releases, event invites and the occasional behind-the-scenes look. One email a month, no spam.</p>
+    </div>
+    <form id="signup" novalidate>
+      <label for="name">Name <span class="fine">(optional)</span>
+        <input type="text" id="name" name="name" autocomplete="name">
+      </label>
+      <label for="email">Email
+        <input type="email" id="email" name="email" autocomplete="email" required placeholder="you@example.com">
+      </label>
+      <label class="check"><input type="checkbox" name="interest" value="posters" checked> Posters</label>
+      <label class="check"><input type="checkbox" name="interest" value="vinyl" checked> Vinyl &amp; music</label>
+      <button class="btn" type="submit">Join the list</button>
+      <p id="msg" role="status" aria-live="polite"></p>
+      <p class="fine">Unsubscribe any time. We never share your address.</p>
+    </form>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 Offset Press. All rights reserved.</span>
+    <span><a href="#releases">Releases</a><a href="#events">Events</a><a href="#join">Newsletter</a></span>
+  </div>
+</footer>
+
+<script>
+// Minimal client-side validation; replace the handler with a real endpoint when ready.
+document.getElementById('signup').addEventListener('submit',function(e){
+  e.preventDefault();
+  var email=document.getElementById('email'),msg=document.getElementById('msg');
+  if(!email.value||!/^\S+@\S+\.\S+$/.test(email.value)){msg.textContent='Please enter a valid email address.';email.focus();return}
+  msg.textContent='Thanks! You’re on the list.';
+  this.reset();
+});
+</script>
+</body>
+</html>

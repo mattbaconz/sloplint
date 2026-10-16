@@ -96,6 +96,9 @@ function readmeAccuracy(work) {
   };
 }
 
+const isLanding = (task) => task.startsWith('landing');
+const shotName = (r) => `${r.agent}-${r.arm}-${r.task}-r${r.rep}`;
+
 async function landing(work, shots, name) {
   const page = join(work, 'index.html');
   if (!existsSync(page)) return { exists: false };
@@ -108,6 +111,9 @@ async function landing(work, shots, name) {
     tab.on('pageerror', (e) => errors.push(e.message));
     await tab.route(/^https?:\/\/(?!fonts\.(googleapis|gstatic)\.com)/, (route) => route.abort());
     await tab.goto(pathToFileURL(page).href, { waitUntil: 'load', timeout: 20_000 }).catch((e) => errors.push(e.message));
+    // Let webfonts load and a first-screen entrance (at most 700ms) finish before the screenshot.
+    await tab.evaluate(() => document.fonts.ready);
+    await tab.waitForTimeout(1200);
     mkdirSync(shots, { recursive: true });
     await tab.screenshot({ path: join(shots, `${name}.jpg`), type: 'jpeg', quality: 72 });
     // The look: declared typefaces of the headline and body text, and the first colored fill on a
@@ -132,6 +138,7 @@ async function landing(work, shots, name) {
     };
     info.cta = hexes.find(colored) ?? hexes[0] ?? null;
     await tab.setViewportSize({ width: 375, height: 812 });
+    await tab.waitForTimeout(300);
     const overflow = await tab.evaluate(() => document.documentElement.scrollWidth > 375);
     await tab.screenshot({ path: join(shots, `${name}-375.jpg`), type: 'jpeg', quality: 72 });
     return { exists: true, ...info, overflowAt375: overflow, pageErrors: errors.length };
@@ -159,7 +166,7 @@ async function scoreRun(dir, ctx) {
   if (meta.task === 'tests') Object.assign(check, mutation(work));
   if (meta.task === 'readme') Object.assign(check, readmeAccuracy(work));
   if (meta.task === 'api') Object.assign(check, syntax(work, files));
-  if (meta.task === 'landing') Object.assign(check, await landing(work, ctx.shots, `${meta.agent}-${meta.arm}-r${meta.rep}`));
+  if (isLanding(meta.task)) Object.assign(check, await landing(work, ctx.shots, shotName(meta)));
   if (meta.task === 'dashboard') check.exists = existsSync(join(work, 'src', 'Dashboard.tsx'));
   if (meta.task === 'video') check.exists = existsSync(join(work, 'src', 'Launch.tsx')) && existsSync(join(work, 'src', 'Root.tsx'));
   const outputs = join(ctx.out, 'runs', meta.agent, meta.arm, `${meta.task}-r${meta.rep}`);
@@ -232,25 +239,27 @@ function report(runs, meta) {
   row('readme', 'Real flags documented', (r) => (r.check.exists ? `${r.check.documented}/${r.check.of}` : 'missing'));
   row('readme', 'Invented flags', (r) => String(r.check.invented?.length ?? 'n/a'));
   row('api', 'Syntax errors', (r) => String(r.check.failed?.length ?? 'n/a'));
-  row('landing', 'Overflows at 375px', (r) => (r.check.exists ? (r.check.overflowAt375 ? 'yes' : 'no') : 'missing'));
-  row('landing', 'Page errors', (r) => String(r.check.pageErrors ?? 'n/a'));
+  for (const task of tasks.filter(isLanding)) {
+    row(task, 'Overflows at 375px', (r) => (r.check.exists ? (r.check.overflowAt375 ? 'yes' : 'no') : 'missing'));
+    row(task, 'Page errors', (r) => String(r.check.pageErrors ?? 'n/a'));
+  }
   row('video', 'Files present', (r) => (r.check.exists ? 'yes' : 'no'));
   row('dashboard', 'File present', (r) => (r.check.exists ? 'yes' : 'no'));
 
-  const pages = runs.filter((r) => r.task === 'landing' && r.check.exists);
+  const pages = runs.filter((r) => isLanding(r.task) && r.check.exists);
   if (pages.length) {
     out.push('', '## Landing page look', '', 'Declared headline and body typefaces, and the fill of the first filled link or button (the primary call to action), read from the rendered page. "AI purple" is the saturated indigo-to-violet band of UI-001.', '');
-    out.push('| Agent | Arm | Run | Design system | Headline face | Body face | CTA fill |', '| --- | --- | --- | --- | --- | --- | --- |');
+    out.push('| Task | Agent | Arm | Run | Design system | Headline face | Body face | CTA fill |', '| --- | --- | --- | --- | --- | --- | --- | --- |');
     for (const r of pages) {
       const c = r.check.cta && hueOf(r.check.cta);
       const fill = r.check.cta ? `\`${r.check.cta}\` hue ${Math.round(c.h)}${isNeonPurple(c) ? ', AI purple' : ''}` : 'none';
-      out.push(`| ${r.agent} | ${r.arm} | ${r.rep} | ${r.system ?? 'none'} | ${r.check.display ?? 'n/a'} | ${r.check.text ?? 'n/a'} | ${fill} |`);
+      out.push(`| ${r.task} | ${r.agent} | ${r.arm} | ${r.rep} | ${r.system ?? 'none'} | ${r.check.display ?? 'n/a'} | ${r.check.text ?? 'n/a'} | ${fill} |`);
     }
     out.push('');
     for (const [agent, arm] of cols) {
-      const ps = pick(agent, arm, 'landing').filter((r) => r.check.exists);
+      const ps = pick(agent, arm).filter((r) => isLanding(r.task) && r.check.exists);
       if (!ps.length) continue;
-      const faces = new Set(ps.map((r) => r.check.display));
+      const faces = new Set(ps.map((r) => r.check.display ?? 'no h1'));
       const purple = ps.filter((r) => r.check.cta && isNeonPurple(hueOf(r.check.cta))).length;
       out.push(`- **${agent} ${arm}**: ${faces.size} distinct headline face${faces.size === 1 ? '' : 's'} in ${ps.length} page${ps.length === 1 ? '' : 's'} (${[...faces].join(', ')}); ${purple} AI-purple call${purple === 1 ? '' : 's'} to action.`);
     }
@@ -263,11 +272,11 @@ function report(runs, meta) {
   }
   if (existsSync(join(meta.outDir, 'shots'))) {
     out.push('', '## Landing pages', '', 'First viewport at 1280px. Full outputs are under `runs/`.', '');
-    for (const agent of agents) {
+    for (const task of tasks.filter(isLanding)) for (const agent of agents) {
       for (const rep of [...new Set(runs.map((r) => r.rep))]) {
-        const shots = armsOf(agent).map((arm) => [arm, `shots/${agent}-${arm}-r${rep}.jpg`]).filter(([, s]) => existsSync(join(meta.outDir, s)));
+        const shots = armsOf(agent).map((arm) => [arm, `shots/${shotName({ agent, arm, task, rep })}.jpg`]).filter(([, s]) => existsSync(join(meta.outDir, s)));
         if (shots.length < 2) continue;
-        out.push(`**${agent}, run ${rep}**`, '', `| ${shots.map(([arm]) => arm).join(' | ')} |`, `| ${shots.map(() => '---').join(' | ')} |`, `| ${shots.map(([arm, s]) => `![${arm}](${s})`).join(' | ')} |`, '');
+        out.push(`**${task}, ${agent}, run ${rep}**`, '', `| ${shots.map(([arm]) => arm).join(' | ')} |`, `| ${shots.map(() => '---').join(' | ')} |`, `| ${shots.map(([arm, s]) => `![${arm}](${s})`).join(' | ')} |`, '');
       }
     }
   }

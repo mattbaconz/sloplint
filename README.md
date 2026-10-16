@@ -4,7 +4,7 @@ A zero-dependency linter for the patterns AI coding assistants leave behind: pur
 
 | Claude Code alone | Same prompt, with `sloplint init --hooks` |
 | --- | --- |
-| ![Claude baseline landing page](bench/results/2026-10-15-final/shots/claude-baseline-r1.jpg) | ![Claude hooks landing page](bench/results/2026-10-15-final/shots/claude-hooks-r1.jpg) |
+| ![Claude baseline landing page for an uptime monitor](bench/results/2026-10-16-landing/shots/claude-baseline-landing-uptime-r2.jpg) | ![Claude hooks landing page for an uptime monitor](bench/results/2026-10-16-landing/shots/claude-hooks-landing-uptime-r2.jpg) |
 
 sloplint ships five things:
 
@@ -87,6 +87,8 @@ Every sloplint arm scored lower than its baseline on 3 or 4 of the 6 tasks and h
 
 **Distinct looks.** Every baseline landing page used the system UI font or Plus Jakarta Sans, the two Gemini baselines were one template twice, once light and once dark (Plus Jakarta Sans, emerald `#10b981` glowing pill buttons, a version badge, the last headline word in a gradient), and one Claude baseline used Tailwind's indigo-600. The eight landing pages from sloplint arms used eight generated systems: four headline faces (Newsreader, Source Serif 4, Public Sans, Libre Franklin), call-to-action hues from 11° to 214°, no AI purple. All eight share one mood, since every brief was about invoicing, so they are related rather than random: the institutional mood now draws on six layouts instead of four, and the after-fix pages used Letter and Split.
 
+**Bolder first screens.** Those pages were clean but looked like documents: the generator capped headlines near 49px, kept color to the call to action and told agents to choose the plainer option when DESIGN.md was silent. It now gives each mood a display step (up to 8rem), one named first-screen device per layout, a full-bleed color field, an ornament and a first-screen entrance. On 2026-10-16 Claude Code ran three new landing briefs (an uptime monitor, a bakery, a print studio) twice each, alone and with hooks. Claude alone built the same layout twice for each brief, and its pages scored 27.2 on average (unsourced proof, an icon-circle grid, proportional figures, a form that shows success without sending anything). With hooks, every page scored 0, and the six pages used five layouts from three moods for $0.053 more per run. One hooks page scrolled sideways at 375px because of a decorative shape; DESIGN.md now says to clip ornaments that bleed off an edge. The pair at the top of this page is the uptime brief, run 2: [all twelve pages](bench/results/2026-10-16-landing/README.md).
+
 **Cost.** In the first run sloplint added $0.056 a run (+26%): $0.029 of cache writes (the instruction block, DESIGN.md, check output), $0.014 of cache reads for 2.4 to 2.9 more turns, and $0.012 of output. The transcripts showed where the turns went. Three false positives (UI-005 on a price styled by `.plan .price`, UI-012 on the Tailwind token class `font-[family-name:var(--font-mono)]`, SEC-003 on a constant column list) sent agents into fix loops that made the code worse: inline styles, expanded queries. Agents also re-ran the check after a fix because the hook said nothing when a file was clean. With those fixed, hooks cost $0.032 a run (+15%) and 1.3 more turns. Most of every run's cost is Claude Code itself: its system prompt and tools put about 33k tokens into the cache at the start of each session, $0.13 of the baseline's $0.21. Antigravity reports no cost; with sloplint it took 37% longer and read 32% more input tokens.
 
 What the numbers do not show:
@@ -96,8 +98,6 @@ What the numbers do not show:
 - **Layout at 375px.** Both Gemini baselines scroll sideways at 375px; neither Gemini sloplint page does. One Claude sloplint page did: its 12-column grid kept eleven 32px gaps on phones, 352px of gutter in a 327px column. UI-014 now flags that, DESIGN.md says to collapse grids below 768px, and no after-fix page overflowed.
 - **Rules have moved since.** Each run is scored with the rules it was given. UI-013 (links to `#`), UI-014 and the badge check in COPY-006 came later; under today's rules the Gemini baseline pages would also carry 21 and 13 dead links.
 - **Small samples.** Two runs per cell; treat small differences as noise. In the first run the runner's own Claude Code skills were available in every arm; the after-fix runs disable them.
-
-The Claude Code pair at the top of this page comes from the after-fix run.
 
 | Gemini baseline | Gemini with sloplint |
 | --- | --- |

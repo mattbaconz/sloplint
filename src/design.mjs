@@ -180,6 +180,7 @@ export const FONT = {
 
 const LAYOUTS = {
   specimen: {
+    first: 'The product at poster scale: a real screen or table cropped large so it bleeds off the right edge (the section clips it, so nothing scrolls sideways), with the headline at `--step-display` above its top-left corner.',
     name: 'Specimen',
     lines: [
       'The first viewport shows the real product (a table, a terminal, a screen) at full width, with the headline in a narrow column beside or above it.',
@@ -187,6 +188,7 @@ const LAYOUTS = {
     ],
   },
   ledger: {
+    first: 'One oversized figure in the mono face at `--step-display`, taken from the product itself (an amount, a count or a time from its sample data, never an unsourced claim), with its label beneath it and the headline under that at `--step-4`.',
     name: 'Ledger',
     lines: [
       'Sections are numbered rows separated by hairline rules: the claim on the left, the evidence on the right.',
@@ -194,6 +196,7 @@ const LAYOUTS = {
     ],
   },
   manifesto: {
+    first: 'The headline alone fills the first screen at `--step-display`, flush left and broken into lines by meaning; the proof sentence and the action sit in a narrow column at the bottom right.',
     name: 'Manifesto',
     lines: [
       'The first viewport is one typographic statement at the top of the display scale. No hero image, no illustration.',
@@ -201,6 +204,7 @@ const LAYOUTS = {
     ],
   },
   split: {
+    first: 'A color field: the narrow column is solid `--accent` (or `--ink`) holding the headline at `--step-display`, and the wide column shows the product on `--bg`.',
     name: 'Split',
     lines: [
       'An asymmetric 5/7 grid: the headline and primary action stay sticky in the narrow column while proof scrolls in the wide one.',
@@ -208,6 +212,7 @@ const LAYOUTS = {
     ],
   },
   catalog: {
+    first: 'The catalog is the hero: the real items (commands, parts, plans, places) set as a dense multi-column specimen that runs off the bottom of the first screen, under a headline at `--step-display`.',
     name: 'Catalog',
     lines: [
       'A dense, scannable grid of specifics (integrations, commands, plans, parts) in small type with real labels.',
@@ -215,6 +220,7 @@ const LAYOUTS = {
     ],
   },
   letter: {
+    first: 'A salutation at `--step-display` in the display face (the first words of the letter), with the date and signature in the mono face; the reading column starts directly below.',
     name: 'Letter',
     lines: [
       'One reading column of about 62 characters, written in the first person, with figures and screenshots inline.',
@@ -222,6 +228,7 @@ const LAYOUTS = {
     ],
   },
   console: {
+    first: 'The working panel at full width on an inverted `--ink` field, with the one figure that matters in it at `--step-display`; the copy is one line above.',
     name: 'Console',
     lines: [
       'The hero is a working panel with plausible, labeled data; the copy is one line above it.',
@@ -229,6 +236,7 @@ const LAYOUTS = {
     ],
   },
   poster: {
+    first: 'A full-bleed `--accent` field as tall as the viewport, with the headline at `--step-display` in `--on-accent`, set so large the edges almost crop it.',
     name: 'Poster',
     lines: [
       'Full-bleed blocks, one per section, alternating `--surface` and `--accent`; type set large.',
@@ -256,6 +264,8 @@ const SIGNATURES = {
 // lightHues drops yellows, which a light background would darken to olive.
 const MOOD = {
   editorial: {
+    display: { max: 7, tracking: '-0.03em' },
+    imagery: 'Printed-page ornament: crop marks at the corners of the first screen, a hairline baseline rule, figures set as captioned plates.',
     words: /\b(blog|magazine|news|journal|publish\w*|newsletter|essays?|books?|writ(?:er|ers|ing)|poetry|research|archive|museum|library|culture|reviews?|editorial|podcast|stor(?:y|ies)|literary)\b/gi,
     dark: 0.12,
     hues: [27, 38, 152, 195, 75],
@@ -281,12 +291,14 @@ const MOOD = {
     ],
     layouts: ['letter', 'ledger', 'manifesto', 'split'],
     signatures: ['dropcap', 'footnotes', 'margin-numbers', 'pullquote', 'hairlines', 'captions'],
-    motion: { ms: 200, ease: 'cubic-bezier(0.2, 0, 0, 1)', note: 'Fades only; nothing moves on load.' },
+    motion: { ms: 200, ease: 'cubic-bezier(0.2, 0, 0, 1)', note: 'Fades only, the entrance included; nothing slides.' },
     names: ['Folio', 'Quire', 'Vellum', 'Broadsheet', 'Colophon', 'Gazette'],
     avoid: ['Stock hero photos and abstract 3D shapes: show the writing itself.', 'Centered body text: set prose ragged-right in one column.'],
     voice: ['Write like an editor: short declarative sentences, concrete nouns, no exclamation marks.', 'Headlines state a finding ("Reading time fell by half"), not a promise.'],
   },
   technical: {
+    display: { max: 5.5, tracking: '-0.04em' },
+    imagery: 'A faint dot or 12-column grid in `--line` behind the first screen; coordinates, timestamps and version numbers as small mono marginalia.',
     words: /\b(dev(?:eloper)?s?|apis?|cli|sdk|infra\w*|databases?|devops|terminal|monitor\w*|observability|logs?|metrics|kubernetes|cloud|servers?|code|compiler|git|deploy\w*|data|analytics|queues?|latency|uptime|edge|cache|hardware|open[- ]source)\b/gi,
     dark: 0.6,
     hues: [75, 130, 48, 205, 165, 28],
@@ -318,6 +330,8 @@ const MOOD = {
     voice: ['Write like a changelog: exact names, numbers with units, and commands in the mono face.', 'Say what it does in one line; show how in a code sample, not an adjective.'],
   },
   warm: {
+    display: { max: 6, tracking: '-0.025em' },
+    imagery: 'Paper grain at 3 to 5% opacity (an inline SVG `feTurbulence` filter) and soft cut-paper shapes in `--surface-2`; photographs of the real work when there are some.',
     words: /\b(food|recipes?|bakery|cafe|coffee|restaurants?|garden\w*|plants?|wellness|yoga|therapy|famil(?:y|ies)|community|crafts?|pottery|ceramics?|local|home|pets?|dogs?|cats?|farms?|kitchen|tea|care|parenting|knit\w*|bread)\b/gi,
     dark: 0.08,
     hues: [40, 115, 80, 145, 52, 30],
@@ -347,6 +361,8 @@ const MOOD = {
     voice: ['Write like a neighbor: "we" and "you", plain words, one specific detail per section (a place, a person, a time).', 'Warm, never cute: no puns on buttons and no exclamation marks in errors.'],
   },
   brutalist: {
+    display: { max: 8, tracking: '-0.01em' },
+    imagery: 'Registration marks, rubber-stamp labels, oversized index numbers and hard rules at `--border`; images, if any, printed full-bleed in one color.',
     words: /\b(art|artists?|galler(?:y|ies)|studios?|architecture|agency|portfolio|music|festival|zines?|clubs?|records|label|posters?|exhibitions?|streetwear|skate\w*|print\w*|type(?:face|foundry))\b/gi,
     dark: 0.35,
     hues: [28, 48, 255, 105, 145],
@@ -372,12 +388,14 @@ const MOOD = {
     ],
     layouts: ['poster', 'manifesto', 'catalog', 'split'],
     signatures: ['big-number', 'accent-section', 'grid-lines', 'margin-numbers', 'mono-tags'],
-    motion: { ms: 80, ease: 'linear', note: 'States switch almost instantly; hover inverts ink and background.' },
+    motion: { ms: 80, ease: 'linear', note: 'States switch almost instantly; hover inverts ink and background. The entrance cuts in step by step, without fades.' },
     names: ['Concrete', 'Rebar', 'Slab', 'Stencil', 'Bulletin', 'Plinth'],
     avoid: ['Soft shadows, rounded corners and pastel tints.', 'Grain or noise overlays that hide the type.'],
     voice: ['Write in fragments and imperatives: few words, set large, no hedging.', 'Labels are single nouns or verbs; numbers carry the argument.'],
   },
   luxe: {
+    display: { max: 6.5, tracking: '-0.02em' },
+    imagery: 'Wide margins, a thin double rule, small mono captions in uppercase and one large crop of the product or its material.',
     words: /\b(luxury|hotels?|resorts?|wines?|winery|jewel(?:ry|lery)|watch(?:es)?|perfumes?|fragrance|fashion|couture|spa|real estate|boutique|bespoke|tailor\w*|yachts?|champagne|interiors?)\b/gi,
     dark: 0.5,
     hues: [85, 160, 15, 245, 40],
@@ -401,12 +419,14 @@ const MOOD = {
     ],
     layouts: ['manifesto', 'split', 'letter', 'poster'],
     signatures: ['hairlines', 'captions', 'pullquote', 'text-nav', 'margin-numbers'],
-    motion: { ms: 320, ease: 'cubic-bezier(0.2, 0.7, 0.1, 1)', note: 'Slow crossfades for imagery only; text never animates.' },
+    motion: { ms: 320, ease: 'cubic-bezier(0.2, 0.7, 0.1, 1)', note: 'Slow crossfades for imagery; after the entrance, text never moves.' },
     names: ['Atelier', 'Velvet', 'Marble', 'Linen', 'Brass', 'Salon'],
     avoid: ['Gold gradients, foil textures and script fonts.', 'More than one accent per view.'],
     voice: ['Write sparingly: fewer sentences, no superlatives, no urgency.', 'Name materials, places and makers instead of piling up adjectives.'],
   },
   playful: {
+    display: { max: 7.5, tracking: '-0.035em' },
+    imagery: 'Stickers: pieces of the real UI rotated a few degrees with `--shadow`, and flat shapes cut from `--accent` and `--surface-2`.',
     words: /\b(kids?|children|games?|gaming|toys?|learn(?:ing)?|quiz\w*|social|party|parties|fun|dating|stickers?|creators?|memes?|camps?|schools?|students?)\b/gi,
     dark: 0.15,
     hues: [30, 85, 140, 230, 20, 0],
@@ -431,12 +451,14 @@ const MOOD = {
     ],
     layouts: ['poster', 'catalog', 'split', 'specimen'],
     signatures: ['big-number', 'accent-section', 'mono-tags', 'pullquote', 'captions'],
-    motion: { ms: 180, ease: 'cubic-bezier(0.34, 1.3, 0.64, 1)', note: 'A small overshoot on press and toggle only; nothing loops.' },
+    motion: { ms: 180, ease: 'cubic-bezier(0.34, 1.3, 0.64, 1)', note: 'A small overshoot on press, toggle and the entrance; nothing loops.' },
     names: ['Kite', 'Pogo', 'Confetti', 'Doodle', 'Jelly', 'Sprout'],
     avoid: ['Purple-to-pink gradients, 3D blobs and floating emoji.', 'Bounce on every element: motion marks interaction, not decoration.'],
     voice: ['Write like a friendly guide: second person, short sentences, active verbs.', 'Jokes belong in examples and empty states, never in errors or prices.'],
   },
   institutional: {
+    display: { max: 4.5, tracking: '-0.025em' },
+    imagery: 'A ruled-ledger texture (the hairlines of the table it replaces) and one stamp-style status mark (Paid, Matched, Filed) in `--accent` as the only ornament.',
     words: /\b(banks?|banking|financ\w*|fintech|accounting|accountants?|invoic\w*|tax(?:es)?|insurance|legal|law|health\w*|clinics?|hospitals?|medical|patients?|government|gov|civic|compliance|payroll|hr|enterprise|b2b|crm|erp|procurement|audits?|pensions?|loans?|mortgages?|bookkeeping)\b/gi,
     dark: 0.05,
     hues: [250, 190, 155, 235, 30],
@@ -452,15 +474,15 @@ const MOOD = {
     tracking: '-0.01em',
     section: [88, 56],
     fonts: [
-      ['IBM Plex Sans', 'IBM Plex Sans', 'IBM Plex Mono'],
+      ['Familjen Grotesk', 'IBM Plex Sans', 'IBM Plex Mono'],
       ['Source Serif 4', 'Source Sans 3', 'Source Code Pro'],
-      ['Public Sans', 'Public Sans', 'IBM Plex Mono'],
-      ['Libre Franklin', 'Libre Franklin', 'DM Mono'],
+      ['Gloock', 'Public Sans', 'IBM Plex Mono'],
+      ['Archivo', 'Libre Franklin', 'DM Mono'],
       ['Newsreader', 'Atkinson Hyperlegible', 'IBM Plex Mono'],
     ],
     layouts: ['ledger', 'specimen', 'split', 'console', 'letter', 'manifesto'],
     signatures: ['footnotes', 'big-number', 'hairlines', 'text-nav', 'mono-tags'],
-    motion: { ms: 150, ease: 'cubic-bezier(0.2, 0, 0, 1)', note: 'Motion only confirms an action; it is never decorative.' },
+    motion: { ms: 150, ease: 'cubic-bezier(0.2, 0, 0, 1)', note: 'Apart from the entrance, motion only confirms an action.' },
     names: ['Charter', 'Harbor', 'Bastion', 'Registry', 'Almanac', 'Treasury'],
     avoid: ['Stock photos of handshakes and people pointing at screens.', 'Security or compliance badges without the certificate behind them.'],
     voice: ['Write like a careful advisor: plain words, exact figures, the consequence before the feature.', 'State fees, limits and dates outright; a "from" price always has the full price nearby.'],
@@ -522,7 +544,9 @@ function typeScale(m) {
   const size = (i) => (m.base / 16) * m.ratio ** i;
   const rem = (x) => `${+x.toFixed(3)}rem`;
   const fluid = (i) => `clamp(${rem(size(3))}, ${+(((size(i) * 16) / 1280) * 100).toFixed(2)}vw, ${rem(size(i))})`;
-  return { '-1': rem(size(-1)), 0: rem(size(0)), 1: rem(size(1)), 2: rem(size(2)), 3: rem(size(3)), 4: fluid(4), 5: fluid(5) };
+  // The first-screen headline: the mood's maximum at 1280px, scaling down to 2.5rem on phones.
+  const display = `clamp(2.5rem, ${+(((m.display.max * 16) / 1280) * 100).toFixed(2)}vw, ${m.display.max}rem)`;
+  return { '-1': rem(size(-1)), 0: rem(size(0)), 1: rem(size(1)), 2: rem(size(2)), 3: rem(size(3)), 4: fluid(4), 5: fluid(5), display };
 }
 
 function typefaces([display, text, mono]) {
@@ -564,10 +588,12 @@ export function generateStyle({ seed = 'sloplint', brief = '', mood, mode } = {}
     name: `${rnd('name').pick(m.names)} ${LAYOUTS[layout].name}`,
     fonts: typefaces(rnd('type').pick(m.fonts)),
     colors: Object.fromEntries(Object.entries(colors).map(([k, c]) => [k, c.hex])),
-    type: { base: m.base, ratio: m.ratio, leading: m.leading, tracking: m.tracking, upper: Boolean(m.upper), steps: typeScale(m) },
+    type: { base: m.base, ratio: m.ratio, leading: m.leading, tracking: m.tracking, displayTracking: m.display.tracking, upper: Boolean(m.upper), steps: typeScale(m) },
     shape: { radius: m.radius, border: m.border, shadow: dark && m.shadow === 'soft' ? 'none' : m.shadow },
     space: { section: m.section },
-    motion: m.motion,
+    // One first-screen entrance, three state changes long, held between 400 and 700ms.
+    motion: { ...m.motion, entrance: Math.min(700, Math.max(400, m.motion.ms * 3)) },
+    imagery: m.imagery,
     layout: { key: layout, ...LAYOUTS[layout] },
     signatures: rnd('signature').take(m.signatures, 2).map((k) => SIGNATURES[k]),
     voice: m.voice,
@@ -595,6 +621,7 @@ export function tokensCss(style) {
     `  --font-text: ${fonts.text.stack};`,
     `  --font-mono: ${fonts.mono.stack};`,
     ...Object.entries(type.steps).map(([k, v]) => `  --step-${k}: ${v};`),
+    `  --tracking-display: ${type.displayTracking};`,
     `  --leading: ${type.leading};`,
     `  --measure: 62ch;`,
     `  --radius-sm: ${shape.radius[0]}px;`,
@@ -603,6 +630,7 @@ export function tokensCss(style) {
     `  --border: ${shape.border}px;`,
     `  --shadow: ${shadowValue(style)};`,
     `  --duration: ${motion.ms}ms;`,
+    `  --duration-entrance: ${motion.entrance}ms;`,
     `  --ease: ${motion.ease};`,
   ];
   return `@import url("${fonts.href}");\n\n:root {\n${lines.join('\n')}\n}`;
@@ -615,7 +643,7 @@ export function designDoc(style) {
   return `<!-- sloplint:style ${marker} -->
 # DESIGN.md: ${style.name}
 
-${style.mood[0].toUpperCase()}${style.mood.slice(1)}, ${style.mode}. Generated by sloplint from the seed \`${style.seed}\`; \`npx @sloplint/cli init --seed "${style.seed}" --mood ${style.mood} --mode ${style.mode}\` rebuilds it. Every color, typeface, radius and duration comes from this file. When it is silent, choose the plainer option.
+${style.mood[0].toUpperCase()}${style.mood.slice(1)}, ${style.mode}. Generated by sloplint from the seed \`${style.seed}\`; \`npx @sloplint/cli init --seed "${style.seed}" --mood ${style.mood} --mode ${style.mode}\` rebuilds it. Every color, typeface, radius and duration comes from this file. When it is silent, choose the option that makes this page unlike other pages, within these tokens.
 
 ## Tokens
 
@@ -629,19 +657,21 @@ With Tailwind, expose the tokens to the theme (v4: \`@theme { --color-accent: va
 
 ## Type
 
-- Display: ${display}, steps 3 to 5, line height 1.05, letter-spacing ${type.tracking}${type.upper ? ', uppercase' : ''}. Headings never use the text face.
+- Display: ${display}${type.upper ? ', uppercase' : ''}. The first-screen headline, one per page, is set at \`--step-display\` with line height ${type.upper ? 0.92 : 0.98} and \`--tracking-display\`. Other headings use steps 3 to 5, line height 1.05, letter-spacing ${type.tracking}. Headings never use the text face.
 - Text: ${fonts.text.family} ${fonts.text.weight} at \`--step-0\` with line height ${type.leading}; ${fonts.text.strong} for emphasis; measure \`--measure\`.
 - Mono: ${fonts.mono.family} for figures that change, code, captions and labels, always with \`font-variant-numeric: tabular-nums\`.
-- Scale ratio ${type.ratio}: steps -1 to 5 only. Steps 4 and 5 are fluid, so headlines fit a 375px screen.
+- Scale ratio ${type.ratio}: steps -1 to 5 plus \`--step-display\`. Steps 4, 5 and display are fluid; if the longest headline word still overflows at 375px, shorten the headline instead of shrinking it.
 
 ## Color
 
 - \`--accent\` marks the primary action, the one highlighted figure per view and focus rings. Flat, never a gradient. Use \`--accent-ink\` when the accent is text.
-- Depth comes from \`--surface\` and \`--surface-2\` steps and \`--border\` lines in \`--line\`. Shadow: \`--shadow\`.
+- Color blocking: at least one full-bleed section per page is a solid field, either \`--accent\` with \`--on-accent\` text (${ratio(c['on-accent'], c.accent)}) or inverted \`--ink\` with \`--bg\` text (${ratio(c.bg, c.ink)}). Buttons inside a field use a \`--bg\` fill with \`--ink\` text. The first screen and the closing call to action are the usual places.
+- Elsewhere, depth comes from \`--surface\` and \`--surface-2\` steps and \`--border\` lines in \`--line\`. Shadow: \`--shadow\`.
 - \`--ok\`, \`--warn\` and \`--danger\` mean status and nothing else.
 
 ## Layout: ${layout.name}
 
+- First screen: ${layout.first} It must hold at 1280px and at 375px, and the page should be recognizable from it as a thumbnail. A heading, a paragraph and two buttons on an empty background is the generic answer; do not ship it.
 ${layout.lines.map((l) => `- ${l}`).join('\n')}
 ${style.signatures.map((s) => `- Signature: ${s}`).join('\n')}
 - Grid: 12 columns, 24px gutters, content max 1200px. Sections ${style.space.section[0]}px apart, ${style.space.section[1]}px under 640px.
@@ -660,9 +690,16 @@ ${style.voice.map((v) => `- ${v}`).join('\n')}
 - Buttons and links name the action ("Send invoice", not "Submit"); headings and buttons start with words, never emoji.
 - Every figure, customer count or certification has a source next to it. No real figure yet: leave the claim out.
 
+## Imagery
+
+- The hero visual is the real product, built in HTML and CSS with plausible, labeled data: the screen, table, receipt or object people will use. No stock photos, 3D blobs or illustrated people.
+- Ornament: ${style.imagery}
+- Ornaments and visuals that bleed off an edge sit inside a section with \`overflow: clip\`, so they never widen the page at 375px.
+
 ## Motion
 
 - ${motion.ms}ms with \`--ease\` for hover, focus and state changes. Name the properties; never \`transition: all\`.
+- One orchestrated entrance on the first screen only: ${motion.entrance}ms in all (\`--duration-entrance\`), staggered by meaning (headline, then the product, then the action), opacity and transform only. Nothing below the fold animates on scroll. Under \`prefers-reduced-motion: reduce\` everything appears at once.
 - ${motion.note} Respect \`prefers-reduced-motion\`.
 
 ## Avoid
@@ -706,8 +743,10 @@ ${tokensCss(style)}
 body { margin: 0; background: var(--bg); color: var(--ink); font: ${fonts.text.weight} var(--step-0)/var(--leading) var(--font-text); }
 main { max-width: 1120px; margin: 0 auto; padding: 48px 24px 96px; }
 h1, .display { font-family: var(--font-display); font-weight: ${fonts.display.weight}; line-height: 1.05; letter-spacing: ${type.tracking};${type.upper ? ' text-transform: uppercase;' : ''} margin: 0; }
-h1 { font-size: var(--step-5); }
-.lede { color: var(--ink-2); max-width: var(--measure); margin: 16px 0 48px; }
+h1 { font-size: var(--step-display); letter-spacing: var(--tracking-display); line-height: ${type.upper ? 0.92 : 0.98}; }
+.field { background: var(--accent); color: var(--on-accent); }
+.field div { max-width: 1120px; margin: 0 auto; padding: 72px 24px 56px; }
+.lede { max-width: var(--measure); margin: 24px 0 0; }
 section { border-top: var(--border) solid var(--line); padding: 32px 0; display: grid; grid-template-columns: 180px minmax(0, 1fr); gap: 24px; }
 h2 { font: 500 var(--step--1)/1.4 var(--font-mono); color: var(--ink-2); margin: 0; }
 .swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
@@ -734,9 +773,13 @@ ul { margin: 12px 0 0; padding-left: 20px; max-width: var(--measure); }
 </style>
 </head>
 <body>
+<header class="field">
+  <div>
+    <h1>${esc(style.name)}</h1>
+    <p class="lede">${esc(style.mood)}, ${esc(style.mode)}. ${esc(fonts.display.family)}, ${esc(fonts.text.family)} and ${esc(fonts.mono.family)}. Seed: ${esc(style.seed)}.</p>
+  </div>
+</header>
 <main>
-  <h1>${esc(style.name)}</h1>
-  <p class="lede">${esc(style.mood)}, ${esc(style.mode)}. ${esc(fonts.display.family)}, ${esc(fonts.text.family)} and ${esc(fonts.mono.family)}. Seed: ${esc(style.seed)}.</p>
   <section>
     <h2>Type</h2>
     <div class="scale">
@@ -771,13 +814,13 @@ ul { margin: 12px 0 0; padding-left: 20px; max-width: var(--measure); }
   <section>
     <h2>Layout</h2>
     <div>
-      <p class="body"><b>${esc(style.layout.name)}.</b> ${esc(style.layout.lines.join(' '))}</p>
+      <p class="body"><b>${esc(style.layout.name)}.</b> ${esc([style.layout.first, ...style.layout.lines].join(' ').replace(/`/g, ''))}</p>
       <ul>${style.signatures.map((s) => `<li>${esc(s.replace(/`/g, ''))}</li>`).join('')}</ul>
     </div>
   </section>
   <section>
     <h2>Motion</h2>
-    <p class="body">${style.motion.ms}ms, ${esc(style.motion.ease)}. ${esc(style.motion.note)}</p>
+    <p class="body">${style.motion.ms}ms, ${esc(style.motion.ease)}; one ${style.motion.entrance}ms first-screen entrance. ${esc(style.motion.note)}</p>
   </section>
 </main>
 </body>

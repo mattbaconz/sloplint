@@ -11,6 +11,7 @@ Does dropping sloplint into a project change what coding agents write? This benc
 | Task | Prompt | Independent check |
 | --- | --- | --- |
 | `landing` | Marketing page for an invoicing product, one HTML file | Renders without page errors, no horizontal overflow at 375px, screenshot |
+| `landing-uptime`, `landing-bakery`, `landing-print` | The same page for an uptime monitor, a bakery and a print studio, so the generated systems land in the technical, warm and brutalist moods | As `landing` |
 | `api` | Express API: login, invoices with line items, Stripe webhook, LLM summary | `node --check` on every JS file |
 | `dashboard` | React admin dashboard with stat cards and an invoice table | File present |
 | `tests` | Test suite for a seeded checkout module | Suite passes, then mutation score against 16 seeded bugs |

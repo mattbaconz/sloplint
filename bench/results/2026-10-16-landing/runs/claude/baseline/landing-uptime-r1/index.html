@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pingwell — Page the right engineer when your API slows down</title>
+<meta name="description" content="Pingwell monitors your APIs and pages your on-call engineer the moment latency crosses the threshold you set.">
+<style>
+  :root {
+    --bg: #f7f5f0;
+    --surface: #ffffff;
+    --ink: #14161a;
+    --muted: #5d6470;
+    --line: #e4e0d6;
+    --accent: #e8590c;
+    --accent-ink: #ffffff;
+    --accent-soft: #fdeadd;
+    --ok: #2f9e5b;
+    --dark: #14161a;
+    --dark-ink: #f3f1ea;
+    --radius: 14px;
+    --font: "Inter", "Segoe UI", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", "Cascadia Code", Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 16px/1.6 var(--font); -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+  h1, h2, h3 { line-height: 1.1; letter-spacing: -0.02em; margin: 0; }
+  h1 { font-size: clamp(2.5rem, 6vw, 4.25rem); font-weight: 800; }
+  h2 { font-size: clamp(1.9rem, 4vw, 2.75rem); font-weight: 750; }
+  h3 { font-size: 1.15rem; font-weight: 700; letter-spacing: -0.01em; }
+  p { margin: 0; }
+  .eyebrow {
+    font: 600 0.8rem/1 var(--mono); text-transform: uppercase; letter-spacing: 0.12em;
+    color: var(--accent); margin-bottom: 16px; display: block;
+  }
+  .lede { color: var(--muted); font-size: 1.15rem; max-width: 36rem; }
+
+  /* buttons */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 13px 22px; border-radius: 10px; font: 600 1rem var(--font);
+    text-decoration: none; border: 1.5px solid transparent; cursor: pointer;
+    transition: transform .15s, box-shadow .15s, background .15s;
+  }
+  .btn:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible {
+    outline: 3px solid var(--accent); outline-offset: 2px;
+  }
+  .btn-primary { background: var(--accent); color: var(--accent-ink); box-shadow: 0 6px 18px -6px rgba(232,89,12,.6); }
+  .btn-primary:hover { transform: translateY(-1px); background: #d44f08; }
+  .btn-ghost { border-color: var(--ink); background: transparent; }
+  .btn-ghost:hover { background: var(--ink); color: var(--bg); }
+
+  /* nav */
+  header.nav { position: sticky; top: 0; z-index: 10; background: rgba(247,245,240,.88); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+  .nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 66px; gap: 16px; }
+  .logo { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.2rem; text-decoration: none; letter-spacing: -0.02em; }
+  .logo svg { width: 28px; height: 28px; }
+  .nav nav { display: flex; align-items: center; gap: 28px; }
+  .nav nav a:not(.btn) { text-decoration: none; color: var(--muted); font-weight: 500; font-size: .95rem; }
+  .nav nav a:not(.btn):hover { color: var(--ink); }
+  .nav .btn { padding: 9px 16px; font-size: .92rem; }
+
+  /* hero */
+  .hero { padding: 88px 0 72px; }
+  .hero .wrap { display: grid; grid-template-columns: 1.05fr 1fr; gap: 56px; align-items: center; }
+  .hero h1 em { font-style: normal; color: var(--accent); }
+  .hero .lede { margin: 24px 0 32px; }
+  .cta-row { display: flex; flex-wrap: wrap; gap: 12px; }
+  .fine { margin-top: 18px; font-size: .9rem; color: var(--muted); }
+
+  .monitor {
+    background: var(--dark); color: var(--dark-ink); border-radius: 18px; padding: 22px;
+    box-shadow: 0 30px 60px -28px rgba(20,22,26,.55); font-family: var(--mono); font-size: .82rem;
+  }
+  .monitor-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; gap: 8px; }
+  .monitor-head b { font-weight: 600; }
+  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 99px; background: rgba(232,89,12,.18); color: #ff9a5c; font-size: .75rem; }
+  .pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; animation: pulse 1.4s infinite; }
+  @keyframes pulse { 50% { opacity: .25; } }
+  .monitor svg { width: 100%; height: auto; display: block; }
+  .alert {
+    margin-top: 16px; background: #1f2329; border: 1px solid #2d333b; border-left: 3px solid var(--accent);
+    border-radius: 10px; padding: 12px 14px; display: flex; gap: 12px; align-items: flex-start; line-height: 1.5;
+  }
+  .alert small { color: #98a1ad; display: block; }
+
+  /* logos strip */
+  .strip { border-block: 1px solid var(--line); padding: 22px 0; }
+  .strip .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px 32px; color: var(--muted); font-size: .92rem; }
+  .strip strong { color: var(--ink); font-family: var(--mono); font-size: 1.05rem; }
+
+  section { padding: 96px 0; }
+  .section-head { margin-bottom: 52px; max-width: 40rem; }
+  .section-head p { color: var(--muted); font-size: 1.1rem; margin-top: 16px; }
+
+  /* features */
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 28px; }
+  .card p { color: var(--muted); margin-top: 10px; font-size: .97rem; }
+  .icon { width: 44px; height: 44px; border-radius: 11px; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; margin-bottom: 20px; }
+  .icon svg { width: 22px; height: 22px; }
+
+  /* pricing */
+  #pricing { background: var(--dark); color: var(--dark-ink); }
+  #pricing .section-head p { color: #a3a9b3; }
+  .plans { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; align-items: stretch; }
+  .plan { background: #1c1f25; border: 1px solid #2c3139; border-radius: var(--radius); padding: 32px 28px; display: flex; flex-direction: column; position: relative; }
+  .plan.featured { background: var(--surface); color: var(--ink); border-color: var(--accent); box-shadow: 0 0 0 3px rgba(232,89,12,.35); }
+  .badge { position: absolute; top: -13px; left: 28px; background: var(--accent); color: #fff; font: 600 .72rem var(--mono); letter-spacing: .08em; text-transform: uppercase; padding: 5px 12px; border-radius: 99px; }
+  .plan .for { color: #a3a9b3; font-size: .93rem; margin: 6px 0 22px; }
+  .plan.featured .for { color: var(--muted); }
+  .price { font-size: 3rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1; }
+  .price span { font-size: 1rem; font-weight: 500; color: #a3a9b3; letter-spacing: 0; }
+  .plan.featured .price span { color: var(--muted); }
+  .plan ul { list-style: none; padding: 0; margin: 26px 0 30px; display: grid; gap: 11px; flex: 1; font-size: .95rem; }
+  .plan li { display: flex; gap: 10px; align-items: flex-start; }
+  .plan li::before { content: ""; flex: none; width: 17px; height: 17px; margin-top: 3px; background: var(--ok); border-radius: 50%;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M4 10.5l4 4 8-9' fill='none' stroke='black' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M4 10.5l4 4 8-9' fill='none' stroke='black' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat; }
+  .plan .btn-ghost { border-color: #4a515c; color: var(--dark-ink); }
+  .plan .btn-ghost:hover { background: var(--dark-ink); color: var(--dark); }
+  .plan .btn { width: 100%; }
+
+  /* testimonials */
+  figure { margin: 0; }
+  .quote { display: flex; flex-direction: column; justify-content: space-between; gap: 26px; }
+  .quote blockquote { margin: 0; font-size: 1.05rem; line-height: 1.55; }
+  .quote blockquote::before { content: "“"; display: block; font-size: 3rem; line-height: .6; color: var(--accent); font-weight: 800; margin-bottom: 8px; }
+  .who { display: flex; align-items: center; gap: 12px; }
+  .avatar { width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; color: #fff; flex: none; }
+  .who b { display: block; line-height: 1.3; }
+  .who span { color: var(--muted); font-size: .88rem; }
+
+  /* signup */
+  #signup { padding-top: 40px; }
+  .signup-box { background: var(--surface); border: 1px solid var(--line); border-radius: 22px; padding: 56px; display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center; box-shadow: 0 30px 60px -40px rgba(20,22,26,.35); }
+  .signup-box ul { list-style: none; padding: 0; margin: 28px 0 0; display: grid; gap: 10px; color: var(--muted); }
+  .signup-box li::before { content: "→ "; color: var(--accent); font-weight: 700; }
+  form { display: grid; gap: 16px; }
+  label { display: grid; gap: 6px; font-weight: 600; font-size: .9rem; }
+  input, select {
+    font: 400 1rem var(--font); padding: 12px 14px; border-radius: 10px; border: 1.5px solid var(--line);
+    background: var(--bg); color: var(--ink); width: 100%;
+  }
+  input:focus, select:focus { border-color: var(--accent); }
+  .form-note { font-size: .85rem; color: var(--muted); text-align: center; }
+  .success { display: none; background: #e6f5ec; border: 1px solid #b5e0c5; color: #1c5b36; border-radius: 10px; padding: 14px 16px; font-weight: 600; }
+  .success.show { display: block; }
+
+  footer { border-top: 1px solid var(--line); padding: 36px 0; color: var(--muted); font-size: .9rem; }
+  footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+
+  @media (max-width: 900px) {
+    .hero .wrap, .signup-box { grid-template-columns: 1fr; }
+    .grid3, .plans { grid-template-columns: 1fr; }
+    .signup-box { padding: 32px 24px; gap: 32px; }
+    .nav nav a:not(.btn) { display: none; }
+    section { padding: 72px 0; }
+    .hero { padding-top: 56px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .pill::before { animation: none; }
+    .btn { transition: none; }
+  }
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="logo" href="#top" aria-label="Pingwell home">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#e8590c"/><path d="M5 18h5l3-8 5 14 3-9 2 3h4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Pingwell
+    </a>
+    <nav aria-label="Primary">
+      <a href="#features">Features</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#customers">Customers</a>
+      <a class="btn btn-primary" href="#signup">Start free</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="wrap">
+      <div>
+        <span class="eyebrow">API latency monitoring</span>
+        <h1 id="hero-title">Your API got slow. <em>Your on-call knows.</em></h1>
+        <p class="lede">Pingwell watches your endpoints and pages the engineer on call the moment latency crosses the threshold you set. Not the whole channel. Not after the customers tweet.</p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="#signup">Start monitoring free</a>
+          <a class="btn btn-ghost" href="#features">See how it works</a>
+        </div>
+        <p class="fine">Free for 5 monitors. No credit card. Set up in about 3 minutes.</p>
+      </div>
+
+      <div class="monitor" role="img" aria-label="Latency chart for GET /v1/orders rising above a 400 millisecond threshold, triggering a page to the on-call engineer">
+        <div class="monitor-head">
+          <b>GET /v1/orders</b>
+          <span class="pill">p95 over threshold</span>
+        </div>
+        <svg viewBox="0 0 400 170" aria-hidden="true">
+          <defs>
+            <linearGradient id="fill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#e8590c" stop-opacity=".38"/>
+              <stop offset="1" stop-color="#e8590c" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <g stroke="#2d333b" stroke-width="1">
+            <line x1="0" y1="30" x2="400" y2="30"/><line x1="0" y1="80" x2="400" y2="80"/>
+            <line x1="0" y1="130" x2="400" y2="130"/>
+          </g>
+          <line x1="0" y1="62" x2="400" y2="62" stroke="#ff9a5c" stroke-width="1.5" stroke-dasharray="5 5"/>
+          <text x="6" y="55" fill="#ff9a5c" font-size="11">threshold 400ms</text>
+          <path d="M0 126 L30 122 L60 128 L90 120 L120 124 L150 118 L180 121 L210 104 L240 70 L270 38 L300 22 L330 28 L360 18 L400 14 L400 170 L0 170Z" fill="url(#fill)"/>
+          <path d="M0 126 L30 122 L60 128 L90 120 L120 124 L150 118 L180 121 L210 104 L240 70 L270 38 L300 22 L330 28 L360 18 L400 14" fill="none" stroke="#e8590c" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+          <circle cx="253" cy="54" r="6" fill="#14161a" stroke="#fff" stroke-width="2"/>
+        </svg>
+        <div class="alert">
+          <span aria-hidden="true">📟</span>
+          <div>
+            <b>Paged Dana Okafor</b> · 2:14 AM
+            <small>p95 612ms for 2 min. Acknowledge or it escalates to Sam in 5.</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="strip">
+    <div class="wrap">
+      <span><strong>30s</strong> median time from breach to page</span>
+      <span><strong>12</strong> regions probing your endpoints</span>
+      <span><strong>99.99%</strong> alert delivery over the last 12 months</span>
+    </div>
+  </div>
+
+  <section id="features" aria-labelledby="features-title">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Features</span>
+        <h2 id="features-title">Built for teams of three, not three hundred.</h2>
+        <p>Everything you need to find out first, and nothing that needs a dedicated SRE to configure.</p>
+      </div>
+      <div class="grid3">
+        <article class="card">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg></div>
+          <h3>Latency thresholds that mean something</h3>
+          <p>Alert on p50, p95 or p99, per endpoint. Require a breach to last a set window so one slow request never wakes anyone.</p>
+        </article>
+        <article class="card">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0112 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 004 0"/></svg></div>
+          <h3>Pages the one person on call</h3>
+          <p>Phone call, SMS or push to whoever holds the rotation. If they don't acknowledge, it escalates to the next person automatically.</p>
+        </article>
+        <article class="card">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18"/></svg></div>
+          <h3>Multi-region checks</h3>
+          <p>Probes run from 12 regions and must agree before paging, so a flaky network hop doesn't ruin your night.</p>
+        </article>
+        <article class="card">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg></div>
+          <h3>Rotations in minutes</h3>
+          <p>Weekly or daily schedules, overrides for swaps and holidays, and a calendar feed so everyone sees who's holding the pager.</p>
+        </article>
+        <article class="card">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h10M4 18h6"/></svg></div>
+          <h3>Authenticated checks</h3>
+          <p>Send headers, bearer tokens and JSON bodies. Assert on status codes and response content, not just reachability.</p>
+        </article>
+        <article class="card">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/><path d="M9 12l2 2 4-4"/></svg></div>
+          <h3>Status page included</h3>
+          <p>Publish a public status page that updates itself, so your customers stop filing tickets to ask if it's you.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="pricing" aria-labelledby="pricing-title">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Pricing</span>
+        <h2 id="pricing-title">Flat prices. No per-seat surprises.</h2>
+        <p>Every plan includes unlimited alert recipients and a 14-day trial of the next tier up.</p>
+      </div>
+      <div class="plans">
+        <article class="plan">
+          <h3>Starter</h3>
+          <p class="for">For side projects and first APIs.</p>
+          <div class="price">$0<span> /month</span></div>
+          <ul>
+            <li>5 monitors</li>
+            <li>5-minute check interval</li>
+            <li>Email and push alerts</li>
+            <li>1 status page</li>
+          </ul>
+          <a class="btn btn-ghost" href="#signup">Start free</a>
+        </article>
+        <article class="plan featured">
+          <span class="badge">Most popular</span>
+          <h3>Team</h3>
+          <p class="for">For small teams with a real on-call rotation.</p>
+          <div class="price">$29<span> /month</span></div>
+          <ul>
+            <li>50 monitors</li>
+            <li>30-second check interval</li>
+            <li>Phone, SMS and push paging</li>
+            <li>Rotations and escalation policies</li>
+            <li>12-region verification</li>
+          </ul>
+          <a class="btn btn-primary" href="#signup">Start 14-day trial</a>
+        </article>
+        <article class="plan">
+          <h3>Scale</h3>
+          <p class="for">For growing platforms with strict SLAs.</p>
+          <div class="price">$99<span> /month</span></div>
+          <ul>
+            <li>250 monitors</li>
+            <li>10-second check interval</li>
+            <li>SSO and audit log</li>
+            <li>Slack, PagerDuty and webhook routing</li>
+            <li>Priority support</li>
+          </ul>
+          <a class="btn btn-ghost" href="#signup">Start 14-day trial</a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="customers" aria-labelledby="customers-title">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Customers</span>
+        <h2 id="customers-title">Fewer 3 AM surprises. More sleep.</h2>
+      </div>
+      <div class="grid3">
+        <figure class="card quote">
+          <blockquote>We used to learn about slow checkouts from support. Now Pingwell pages me at 450ms and I've fixed it before the first ticket arrives.</blockquote>
+          <figcaption class="who"><span class="avatar" style="background:#e8590c" aria-hidden="true">MR</span><div><b>Maya Reyes</b><span>CTO, Larkspur Commerce</span></div></figcaption>
+        </figure>
+        <figure class="card quote">
+          <blockquote>There are four of us on the rotation. Other tools wanted per-seat pricing and a week of setup. We were paging properly by lunch.</blockquote>
+          <figcaption class="who"><span class="avatar" style="background:#2f6fdb" aria-hidden="true">TW</span><div><b>Tom Wieland</b><span>Lead engineer, Hollis Health</span></div></figcaption>
+        </figure>
+        <figure class="card quote">
+          <blockquote>The multi-region check killed our false alarms. When Pingwell calls me now, something is genuinely wrong.</blockquote>
+          <figcaption class="who"><span class="avatar" style="background:#2f9e5b" aria-hidden="true">PN</span><div><b>Priya Nair</b><span>Platform engineer, Tidewater Logistics</span></div></figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section id="signup" aria-labelledby="signup-title">
+    <div class="wrap">
+      <div class="signup-box">
+        <div>
+          <span class="eyebrow">Get started</span>
+          <h2 id="signup-title">Know before your customers do.</h2>
+          <ul>
+            <li>Add your first monitor in under 3 minutes</li>
+            <li>Free plan, no credit card</li>
+            <li>Cancel or downgrade any time</li>
+          </ul>
+        </div>
+        <form id="signup-form" novalidate>
+          <label>Work email
+            <input type="email" name="email" autocomplete="email" placeholder="you@company.com" required>
+          </label>
+          <label>Team name
+            <input type="text" name="team" autocomplete="organization" placeholder="Acme Platform" required>
+          </label>
+          <label>Team size
+            <select name="size">
+              <option>1–5 engineers</option>
+              <option>6–15 engineers</option>
+              <option>16–50 engineers</option>
+              <option>50+ engineers</option>
+            </select>
+          </label>
+          <button class="btn btn-primary" type="submit">Create free account</button>
+          <p class="form-note" id="form-error" role="alert" hidden style="color:#b42318"></p>
+          <p class="success" id="form-ok" role="status">You're on the list. Check your inbox to finish setup.</p>
+          <p class="form-note">By signing up you agree to our Terms and Privacy Policy.</p>
+        </form>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 Pingwell, Inc.</span>
+    <span>Status · Docs · Terms · Privacy</span>
+  </div>
+</footer>
+
+<script>
+  // Demo handler: replace with a POST to your signup endpoint.
+  document.getElementById('signup-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var f = e.target, err = document.getElementById('form-error'), ok = document.getElementById('form-ok');
+    var email = f.email.value.trim(), team = f.team.value.trim();
+    ok.classList.remove('show');
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { err.textContent = 'Please enter a valid email address.'; err.hidden = false; f.email.focus(); return; }
+    if (!team) { err.textContent = 'Please enter your team name.'; err.hidden = false; f.team.focus(); return; }
+    err.hidden = true;
+    ok.classList.add('show');
+    f.reset();
+  });
+</script>
+</body>
+</html>

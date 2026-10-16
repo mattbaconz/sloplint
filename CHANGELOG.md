@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- [changed] Generated design systems ask for a memorable first screen instead of a plain document: a fluid `--step-display` headline step per mood (4.5rem institutional to 8rem brutalist) with `--tracking-display`, one named first-screen device per layout, at least one full-bleed `--accent` or inverted `--ink` field with its contrast stated, an imagery and ornament direction per mood, and one first-screen entrance (`--duration-entrance`, 400 to 700ms, reduced motion respected). When `DESIGN.md` is silent, agents now pick the option that sets the page apart, not the plainer one.
+- [changed] Institutional systems pair a distinct display face with the text face (Familjen Grotesk, Gloock, Archivo) instead of one family for both.
+- [changed] The specimen page opens with the display step on an `--accent` field.
+- [added] Benchmark tasks `landing-uptime`, `landing-bakery` and `landing-print` exercise the technical, warm and brutalist moods; landing screenshots wait for webfonts and the entrance.
+
 ## 0.1.0 (2026-10-15)
 
 - [added] Claude Code plugin: `/plugin install sloplint --marketplace mattbaconz/sloplint` lints every file Claude writes and adds a sloplint skill. `npx skills add mattbaconz/sloplint` installs the same skill in other agents.
