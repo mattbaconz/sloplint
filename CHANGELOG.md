@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- [added] "Score a page" on the docs site (`site/score.html`): paste a URL and get its Slop Score, findings with source excerpts, a share link and a 1200x630 score card. A Cloudflare Worker in `worker/` fetches the page HTML and up to 8 same-origin stylesheets (2 MB cap, 15-second deadline, http and https only, no cookies forwarded, robots.txt honored, 10 pages a minute per IP); the engine lints them in the browser.
+- [added] A bookmarklet on the same page scores the live DOM of the current tab, including script-rendered and signed-in pages, and shows the findings in an overlay. Sites with a strict Content-Security-Policy can block it.
+
 ## 0.2.0 (2026-10-17)
 
 - [changed] Generated design systems ask for a memorable first screen instead of a plain document: a fluid `--step-display` headline step per mood (4.5rem institutional to 8rem brutalist) with `--tracking-display`, one named first-screen device per layout, at least one full-bleed `--accent` or inverted `--ink` field with its contrast stated, an imagery and ornament direction per mood, and one first-screen entrance (`--duration-entrance`, 400 to 700ms, reduced motion respected). When `DESIGN.md` is silent, agents now pick the option that sets the page apart, not the plainer one.

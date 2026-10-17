@@ -3,6 +3,7 @@
 
 import { RULES, DOMAINS, lint, score, fixSource, diffLines, pairRows } from '../src/engine.mjs';
 import { generateStyle, specimenHtml, parseDesign, MOODS } from '../src/design.mjs';
+import { h } from './page-score.mjs';
 
 const PRESET_KEY = 'sloplint:preset';
 
@@ -50,18 +51,6 @@ const SAMPLES = {
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 const $ = (selector) => document.querySelector(selector);
-
-// Builds DOM nodes. Strings become text nodes, so nothing here is ever parsed as HTML.
-function h(tag, props = {}, ...children) {
-  const el = document.createElement(tag);
-  for (const [key, value] of Object.entries(props)) {
-    if (value == null || value === false) continue;
-    if (key.startsWith('on')) el.addEventListener(key.slice(2), value);
-    else el.setAttribute(key, value === true ? '' : String(value));
-  }
-  el.append(...children.flat().filter((c) => c != null && c !== false));
-  return el;
-}
 
 // Renders `code spans` inside rule prose as <code> elements.
 function withCode(text) {

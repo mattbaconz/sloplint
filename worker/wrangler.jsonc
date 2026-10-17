@@ -1,0 +1,21 @@
+// Page fetcher for the docs site's "Score a page" box. Not deployed from CI: deploy by hand
+// with `npx wrangler deploy` from this folder, then set FETCHER in site/score.js to its URL.
+{
+  "name": "sloplint-score",
+  "main": "fetch-page.mjs",
+  "compatibility_date": "2026-10-01",
+  "workers_dev": true,
+  "vars": {
+    // Comma-separated origins that may call the fetcher.
+    "ALLOWED_ORIGINS": "https://mattbaconz.github.io"
+  },
+  "ratelimits": [
+    {
+      // Per visitor IP, per Cloudflare location: 10 pages a minute.
+      "name": "LIMITER",
+      "namespace_id": "1001",
+      "simple": { "limit": 10, "period": 60 }
+    }
+  ],
+  "observability": { "enabled": true }
+}

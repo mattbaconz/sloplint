@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en" data-preset="obsidian-telemetry">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Score a page · sloplint</title>
+<meta name="description" content="Paste a URL and get its Slop Score: the AI-generated-code tells in a live page's HTML and stylesheets, found by the same engine as the sloplint CLI.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&family=Chivo+Mono:wght@400;500&family=Chivo:wght@400;600;800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Newsreader:opsz,wght@6..72,400;6..72,500&family=Public+Sans:wght@400;600&display=swap">
+<link rel="stylesheet" href="styles.css">
+<script>
+  try {
+    var saved = localStorage.getItem('sloplint:preset');
+    if (saved) document.documentElement.dataset.preset = saved;
+  } catch (e) {
+    // Storage blocked: keep the default preset.
+  }
+</script>
+<script type="module" src="score.js"></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="masthead">
+  <div class="wrap masthead-row">
+    <a class="wordmark" href="./" aria-label="sloplint home"><span class="mark" aria-hidden="true"></span>sloplint</a>
+    <nav class="nav" aria-label="Sections">
+      <a href="./#grader">Grader</a>
+      <a href="score.html" aria-current="page">Score a page</a>
+      <a href="./#rules">Rules</a>
+      <a href="./#cli">CLI</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <section class="wrap page-intro" aria-labelledby="page-title">
+    <p class="kicker">Score a page</p>
+    <h1 id="page-title">Paste a URL, get its Slop Score.</h1>
+    <p class="lede">sloplint reads the page's HTML and its stylesheets and grades them with the same engine as the CLI: the rules run in your browser, and the score card is yours to share.</p>
+
+    <form class="url-form" id="url-form" novalidate>
+      <label class="sr-only" for="url">Page URL</label>
+      <input id="url" name="url" type="url" inputmode="url" spellcheck="false" autocomplete="url" placeholder="https://example.com" required>
+      <button type="submit" class="btn btn-primary" id="url-submit">Score page</button>
+    </form>
+    <p class="url-status" id="url-status" role="status" aria-live="polite"></p>
+
+    <p class="fine-print">A small fetcher reads the page as a logged-out visitor: the HTML, plus up to 8 stylesheets from the same site. It sends no cookies, honors robots.txt and stops at 2 MB. Pages that render with JavaScript, or sit behind a sign-in, come back empty or wrong here: use the <a href="#bookmarklet">bookmarklet</a> on the live page instead.</p>
+  </section>
+
+  <section class="band" id="result" hidden aria-labelledby="result-title">
+    <div class="wrap result">
+      <aside class="report" id="card" aria-labelledby="result-title">
+        <div class="score" aria-live="polite">
+          <h2 class="card-host" id="result-title"></h2>
+          <p class="score-value"><span id="score-number">0</span><span class="score-max">/100</span></p>
+          <p class="score-grade" id="score-grade"></p>
+          <div class="meter" aria-hidden="true"><span id="score-fill"></span></div>
+          <p class="score-meta" id="score-meta"></p>
+        </div>
+        <dl class="domains" id="domain-counts"></dl>
+        <div class="report-actions">
+          <button type="button" class="btn btn-primary" id="copy-link">Copy share link</button>
+          <button type="button" class="btn btn-quiet" id="download-card">Download card</button>
+        </div>
+        <ul class="skipped" id="skipped"></ul>
+      </aside>
+
+      <div class="findings-panel">
+        <h3>Findings</h3>
+        <ol class="findings" id="findings"></ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap" id="bookmarklet" aria-labelledby="bookmarklet-title">
+    <header class="section-head">
+      <h2 id="bookmarklet-title">Bookmarklet: score the page you are on</h2>
+      <p>The bookmarklet grades the live page in your tab, after its JavaScript has run and with you signed in, and shows the findings in an overlay. The page itself never leaves your browser: the engine loads from this site and runs in your tab.</p>
+    </header>
+    <div class="bookmarklet-row">
+      <a class="btn btn-primary" id="bookmarklet-link" href="#bookmarklet">Slop Score</a>
+      <p>Drag the button to your bookmarks bar, open any page, then click the bookmark. Click it again to re-score.</p>
+    </div>
+    <details class="bookmarklet-manual">
+      <summary>On a phone, or the drag does not work</summary>
+      <p>Bookmark any page, edit the bookmark, and replace its URL with this code:</p>
+      <div class="command">
+        <code id="bookmarklet-code"></code>
+        <button type="button" class="btn btn-quiet" id="copy-bookmarklet">Copy code</button>
+      </div>
+    </details>
+    <p class="fine-print">Sites with a strict Content-Security-Policy (GitHub, many banks and admin consoles) can block bookmarklets from loading outside code. You will see a message saying so, or nothing at all; score those pages with the URL box above. Stylesheets from other origins that are served without CORS cannot be read by any script, so the overlay counts them instead of grading them.</p>
+  </section>
+</main>
+
+<footer class="wrap footer">
+  <p>MIT licensed. Scores come from the open <a href="./#rules">rule catalog</a>; nothing is stored.</p>
+  <p><a href="./">Docs</a><a href="../README.md">README</a></p>
+</footer>
+</body>
+</html>
