@@ -1,6 +1,6 @@
 {
   "name": "@sloplint/cli",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Zero-dependency linter that finds and fixes AI slop across UI, security, backend, copy, tests and motion video.",
   "license": "MIT",
   "repository": {
