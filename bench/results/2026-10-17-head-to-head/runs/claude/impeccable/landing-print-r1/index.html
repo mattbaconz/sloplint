@@ -1,0 +1,589 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Offset Press — hand-pulled posters and vinyl, in runs of 300 or fewer</title>
+<meta name="description" content="Offset Press is an independent screen print studio and record label. Limited-run posters and vinyl, printed by hand, never repressed.">
+<meta name="theme-color" content="#d8d7d0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=Spline+Sans+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --stock: #d8d7d0;
+    --paper: #e7e6e0;
+    --ink: #15141a;
+    --red: #ff4a2a;
+    --blue: #2b2fd0;
+    --overprint: #2a1450;
+    --muted: #4a4950;
+    --line: 2px solid var(--ink);
+    --display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+    --mono: "Spline Sans Mono", ui-monospace, "SF Mono", Consolas, monospace;
+    --ease: cubic-bezier(.16, 1, .3, 1);
+    --pad: clamp(1.25rem, 4vw, 3.5rem);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 5rem; }
+  body {
+    margin: 0;
+    background: var(--stock);
+    color: var(--ink);
+    font-family: var(--display);
+    font-size: 1.0625rem;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    caret-color: var(--red);
+  }
+  ::selection { background: var(--blue); color: var(--paper); }
+  html { scrollbar-color: var(--ink) var(--stock); }
+  ::-webkit-scrollbar { width: 12px; }
+  ::-webkit-scrollbar-track { background: var(--stock); }
+  ::-webkit-scrollbar-thumb { background: var(--ink); border: 3px solid var(--stock); }
+
+  img, svg { display: block; max-width: 100%; }
+  a { color: inherit; text-underline-offset: .18em; text-decoration-thickness: 2px; }
+  :focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
+  .on-red :focus-visible, .on-ink :focus-visible { outline-color: var(--paper); }
+
+  h1, h2, h3, p, dl, dd, ul, ol, figure { margin: 0; padding: 0; }
+  ul, ol { list-style: none; }
+  h1, h2, h3 { text-wrap: balance; font-weight: 850; font-stretch: 112%; letter-spacing: -.03em; line-height: .95; }
+  p { text-wrap: pretty; max-width: 62ch; }
+
+  .mono { font-family: var(--mono); font-size: .8125rem; letter-spacing: .02em; font-variant-numeric: tabular-nums; }
+  .wrap { padding-inline: var(--pad); max-width: 92rem; margin-inline: auto; }
+
+  /* registration crosshair, the page's one recurring mark */
+  .reg { position: relative; }
+  .reg::before, .reg::after {
+    content: ""; position: absolute; width: 30px; height: 30px; pointer-events: none;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30' fill='none' stroke='%2315141a' stroke-width='1.5'%3E%3Ccircle cx='15' cy='15' r='8'/%3E%3Cpath d='M15 0v30M0 15h30'/%3E%3C/svg%3E") center/contain no-repeat;
+  }
+  .reg::before { top: 1rem; right: var(--pad); }
+  .reg::after  { bottom: 1rem; left: var(--pad); }
+
+  /* ---------- buttons ---------- */
+  .btn {
+    --bg: var(--ink); --fg: var(--paper);
+    display: inline-flex; align-items: center; gap: .7rem;
+    background: var(--bg); color: var(--fg);
+    font: 800 .95rem/1 var(--display); font-stretch: 108%;
+    letter-spacing: .01em; text-transform: uppercase; text-decoration: none;
+    padding: 1.05rem 1.5rem; border: 2px solid var(--ink); border-radius: 0; cursor: pointer;
+    box-shadow: 0 6px 0 -2px rgba(21,20,26,.0);
+    transition: transform .35s var(--ease), background-color .2s, color .2s, box-shadow .35s var(--ease);
+  }
+  .btn svg { width: 1.1em; height: 1.1em; transition: transform .35s var(--ease); }
+  .btn:hover { transform: translateY(-3px); box-shadow: 0 10px 14px -8px rgba(21,20,26,.45); }
+  .btn:hover svg { transform: translateX(4px); }
+  .btn:active { transform: translateY(0); box-shadow: none; }
+  .btn.ghost { --bg: transparent; --fg: var(--ink); }
+  .btn.ghost:hover { --bg: var(--ink); --fg: var(--paper); }
+  .btn.small { padding: .8rem 1.1rem; font-size: .8rem; }
+
+  /* ---------- header ---------- */
+  .top {
+    position: sticky; top: 0; z-index: 10;
+    background: color-mix(in srgb, var(--stock) 92%, transparent);
+    backdrop-filter: blur(8px);
+    border-bottom: var(--line);
+  }
+  .top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; height: 4rem; }
+  .mark { display: inline-flex; align-items: center; gap: .6rem; text-decoration: none; font-weight: 900; font-stretch: 118%; letter-spacing: -.02em; font-size: 1.25rem; }
+  .mark i { position: relative; width: 1.5rem; height: 1.5rem; display: block; }
+  .mark i::before, .mark i::after { content: ""; position: absolute; inset: 0; border-radius: 50%; mix-blend-mode: multiply; }
+  .mark i::before { background: var(--red); transform: translate(-3px, -1px); }
+  .mark i::after  { background: var(--blue); transform: translate(3px, 1px); }
+  .top nav ul { display: flex; align-items: center; gap: clamp(1rem, 3vw, 2.25rem); }
+  .top nav a:not(.btn) { font-weight: 700; font-stretch: 105%; text-decoration: none; font-size: .95rem; }
+  .top nav a:not(.btn):hover { text-decoration: underline; }
+
+  /* ---------- hero ---------- */
+  .hero { padding-block: clamp(2.5rem, 6vw, 5.5rem) clamp(3rem, 7vw, 6rem); overflow: clip; }
+  .hero .wrap { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); gap: clamp(2rem, 5vw, 5rem); align-items: center; }
+  .hero h1 {
+    position: relative; font-size: clamp(3rem, 8.6vw, 6rem); color: var(--blue);
+    font-stretch: 116%; font-weight: 880; line-height: .92;
+  }
+  .hero h1::after {
+    content: attr(data-t) / ""; position: absolute; inset: 0;
+    color: var(--red); mix-blend-mode: multiply; pointer-events: none;
+    --mx: .03em; --my: .02em;
+    transform: translate(var(--mx), var(--my));
+    animation: register 1.6s .25s var(--ease) backwards;
+  }
+  @keyframes register {
+    from { transform: translate(-.1em, .07em); }
+    to   { transform: translate(var(--mx), var(--my)); }
+  }
+  .hero .lede { margin-top: 1.75rem; font-size: clamp(1.1rem, 1.6vw, 1.3rem); max-width: 34ch; font-weight: 500; }
+  .hero .cta { margin-top: 2.25rem; display: flex; flex-wrap: wrap; gap: .9rem; }
+  .hero .facts { margin-top: 3rem; display: flex; flex-wrap: wrap; gap: .5rem 1.75rem; padding-top: 1rem; border-top: var(--line); max-width: 32rem; }
+
+  .stage { position: relative; aspect-ratio: 1 / 1.05; }
+  .stage .disc {
+    position: absolute; width: 74%; aspect-ratio: 1; right: 0; top: 4%;
+    border-radius: 50%; background: #0e0d12;
+    box-shadow: 0 24px 40px -20px rgba(21,20,26,.55);
+    animation: spin 18s linear infinite;
+  }
+  .stage .poster {
+    position: absolute; left: 0; bottom: 0; width: 62%; aspect-ratio: 3 / 4;
+    transform: rotate(-3.5deg);
+    box-shadow: 0 30px 50px -22px rgba(21,20,26,.6), 0 2px 0 rgba(21,20,26,.2);
+    animation: rise 1.2s .1s var(--ease) backwards;
+  }
+  @keyframes rise { from { transform: translateY(40px) rotate(-3.5deg); opacity: 0; } }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* vinyl */
+  .disc {
+    background:
+      radial-gradient(circle at 50% 50%, transparent 0 21%, rgba(255,255,255,.0) 21%),
+      repeating-radial-gradient(circle at 50% 50%, #0e0d12 0 1.5px, #1d1c24 1.5px 3px);
+    position: relative;
+  }
+  .disc::before { /* sheen */
+    content: ""; position: absolute; inset: 0; border-radius: 50%;
+    background: conic-gradient(from 20deg, transparent 0 10%, rgba(255,255,255,.14) 14%, transparent 20% 60%, rgba(255,255,255,.1) 64%, transparent 70%);
+  }
+  .disc .label {
+    position: absolute; inset: 33%; border-radius: 50%;
+    background: var(--red); display: grid; place-items: center;
+  }
+  .disc .label::before { content: ""; position: absolute; inset: 0; border-radius: 50%; background: var(--blue); mix-blend-mode: multiply; transform: translate(4%, -3%); }
+  .disc .label::after { content: ""; width: 9%; aspect-ratio: 1; border-radius: 50%; background: var(--stock); position: relative; }
+  .disc.blue .label { background: var(--blue); }
+  .disc.blue .label::before { background: var(--red); }
+
+  /* ---------- sections ---------- */
+  section { position: relative; }
+  .sec-head { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 1.5rem 3rem; margin-bottom: clamp(2rem, 4vw, 3.5rem); }
+  .sec-head h2 { font-size: clamp(2.5rem, 6vw, 4.75rem); }
+  .sec-head p { max-width: 36ch; color: var(--muted); }
+
+  /* ---------- releases ---------- */
+  #releases { padding-block: clamp(4rem, 8vw, 7rem); border-top: var(--line); }
+  .grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: clamp(2.5rem, 5vw, 4.5rem) clamp(1.25rem, 3vw, 2.5rem); }
+  .item { display: grid; gap: 1.25rem; align-content: start; }
+  .item.a { grid-column: 1 / span 5; }
+  .item.b { grid-column: 6 / span 7; }
+  .item.c { grid-column: 1 / span 7; }
+  .item.d { grid-column: 8 / span 5; align-self: end; }
+  .art { position: relative; background: var(--paper); padding: clamp(1rem, 2.4vw, 2rem); display: grid; place-items: center; border: var(--line); overflow: hidden; }
+  .art.dark { background: var(--blue); border-color: var(--blue); }
+  .art .poster { width: min(100%, 22rem); aspect-ratio: 3 / 4; box-shadow: 0 18px 30px -16px rgba(21,20,26,.55); transition: transform .6s var(--ease); }
+  .item.b .art, .item.c .art { padding-block: clamp(1.5rem, 3vw, 2.5rem); }
+  .sleeve { position: relative; width: min(100%, 30rem); aspect-ratio: 1.45 / 1; }
+  .sleeve .disc { position: absolute; height: 92%; aspect-ratio: 1; right: 4%; top: 4%; border-radius: 50%; transition: transform .7s var(--ease); }
+  .sleeve .cover { position: absolute; left: 4%; top: 4%; height: 92%; aspect-ratio: 1; box-shadow: 0 18px 30px -16px rgba(21,20,26,.6); transition: transform .7s var(--ease); }
+  .art:hover .sleeve .disc { transform: translateX(8%) rotate(40deg); }
+  .art:hover .sleeve .cover { transform: translateX(-3%); }
+  .art:hover .poster { transform: translateY(-6px) rotate(-1deg); }
+
+  /* misregistration on hover */
+  .plate-b { transition: transform .6s var(--ease); }
+  .art:hover .plate-b { transform: translate(5px, -4px); }
+  svg .multiply { mix-blend-mode: multiply; }
+
+  .info { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .5rem 1.5rem; align-items: start; }
+  .info h3 { font-size: clamp(1.6rem, 2.6vw, 2.25rem); line-height: 1; }
+  .info .by { grid-column: 1; color: var(--muted); font-weight: 500; }
+  .price { grid-column: 2; grid-row: 1 / span 2; text-align: right; font-weight: 900; font-stretch: 112%; font-size: clamp(1.75rem, 3vw, 2.5rem); letter-spacing: -.03em; line-height: 1; font-variant-numeric: tabular-nums; }
+  .specs { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: .35rem 1.25rem; margin-top: .5rem; padding-top: .75rem; border-top: 1px solid var(--ink); }
+  .buy { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-top: .75rem; }
+  .left { color: var(--blue); font-weight: 600; }
+  .left.low { color: #b3200a; }
+
+  /* ---------- about ---------- */
+  #about { background: var(--ink); color: var(--paper); padding-block: clamp(4rem, 8vw, 7rem); }
+  #about.reg::before, #about.reg::after { filter: invert(1); }
+  #about .wrap { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(2rem, 6vw, 6rem); }
+  #about h2 { font-size: clamp(2.5rem, 6vw, 4.75rem); color: var(--paper); position: relative; }
+  #about h2 span { color: var(--red); }
+  #about h2 em { font-style: normal; color: #7b7fff; }
+  #about .text { display: grid; gap: 1.25rem; align-content: start; }
+  #about .text p { color: #d4d3cc; }
+  #about .text p:first-child { font-size: 1.25rem; color: var(--paper); font-weight: 500; }
+  .steps { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: clamp(1rem, 3vw, 2.5rem); border-top: 2px solid var(--paper); }
+  .steps li { padding: 1.25rem 1.25rem 0 0; display: grid; gap: .5rem; align-content: start; }
+  .steps li + li { padding-left: 1.25rem; border-left: 1px solid #55545c; }
+  .steps b { font-weight: 850; font-stretch: 110%; font-size: 1.4rem; letter-spacing: -.02em; }
+  .steps span { color: #bdbcb5; font-size: .98rem; }
+  .swatches { display: flex; margin-bottom: .25rem; }
+  .swatches i { width: 2.2rem; height: 2.2rem; border-radius: 50%; display: block; mix-blend-mode: screen; }
+  .swatches i:nth-child(1) { background: var(--red); }
+  .swatches i:nth-child(2) { background: #3a3ff0; margin-left: -.7rem; }
+  .swatches i:nth-child(3) { background: #f3d23a; margin-left: -.7rem; }
+
+  /* ---------- events ---------- */
+  #events { padding-block: clamp(4rem, 8vw, 7rem); }
+  .rows { border-top: var(--line); }
+  .row {
+    display: grid; grid-template-columns: 9rem minmax(0, 1.4fr) minmax(0, 1fr) auto; gap: 1rem 2rem; align-items: center;
+    padding: 1.5rem .5rem; border-bottom: var(--line); text-decoration: none;
+    transition: background-color .25s, color .25s, padding .4s var(--ease);
+  }
+  a.row:hover { background: var(--ink); color: var(--paper); padding-inline: 1.25rem; }
+  .row .date { font-weight: 900; font-stretch: 118%; font-size: 2rem; letter-spacing: -.03em; line-height: 1; }
+  .row .date small { display: block; font: 600 .8rem/1.4 var(--mono); letter-spacing: .04em; margin-top: .35rem; text-transform: uppercase; }
+  .row h3 { font-size: clamp(1.3rem, 2.2vw, 1.75rem); line-height: 1.05; }
+  .row p { margin-top: .35rem; font-size: .98rem; color: var(--muted); }
+  a.row:hover p { color: #c9c8c1; }
+  .row .where { font-weight: 600; }
+  .tag { font: 600 .75rem/1 var(--mono); letter-spacing: .05em; text-transform: uppercase; padding: .55rem .7rem; border: 2px solid currentColor; white-space: nowrap; }
+  .tag.sold { text-decoration: line-through; opacity: .65; }
+  .tag.free { background: var(--red); border-color: var(--red); color: var(--ink); }
+
+  /* ---------- signup ---------- */
+  #signup { background: var(--red); color: var(--ink); padding-block: clamp(4rem, 9vw, 8rem); overflow: clip; }
+  #signup .wrap { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: clamp(2rem, 6vw, 6rem); align-items: end; }
+  #signup h2 { font-size: clamp(2.75rem, 7vw, 6rem); position: relative; width: fit-content; }
+  #signup h2::after { content: attr(data-t) / ""; position: absolute; inset: 0; color: var(--blue); mix-blend-mode: multiply; transform: translate(.02em, .014em); pointer-events: none; }
+  #signup .sub { margin-top: 1.25rem; font-size: 1.15rem; font-weight: 500; max-width: 36ch; }
+  form { display: grid; gap: 1.5rem; }
+  label.field { display: grid; gap: .5rem; font-weight: 800; font-stretch: 108%; text-transform: uppercase; font-size: .85rem; letter-spacing: .03em; }
+  input[type="email"] {
+    font: 600 1.35rem/1.2 var(--display); color: var(--ink); width: 100%;
+    background: var(--paper); border: 2px solid var(--ink); border-radius: 0; padding: 1rem 1.1rem;
+    transition: box-shadow .25s var(--ease), transform .25s var(--ease);
+  }
+  input[type="email"]::placeholder { color: #5a5960; font-weight: 500; }
+  input[type="email"]:focus { outline: none; box-shadow: 6px 6px 0 -1px var(--ink); transform: translate(-3px, -3px); }
+  input[type="email"]:user-invalid { background: #fff1ee; box-shadow: inset 0 -5px 0 var(--ink); }
+  fieldset { border: 0; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: .6rem; }
+  legend { font-weight: 800; font-stretch: 108%; text-transform: uppercase; font-size: .85rem; letter-spacing: .03em; margin-bottom: .6rem; padding: 0; }
+  .chip { position: relative; }
+  .chip input { position: absolute; opacity: 0; inset: 0; cursor: pointer; }
+  .chip span { display: block; padding: .65rem 1rem; border: 2px solid var(--ink); font-weight: 700; font-size: .95rem; transition: background-color .2s, color .2s; }
+  .chip input:checked + span { background: var(--ink); color: var(--paper); }
+  .chip input:focus-visible + span { outline: 3px solid var(--paper); outline-offset: 3px; }
+  .fine { font-size: .9rem; max-width: 44ch; }
+  .msg { font-weight: 800; font-stretch: 108%; min-height: 1.5em; }
+  #signup .btn { --bg: var(--ink); --fg: var(--paper); justify-self: start; }
+
+  /* ---------- footer ---------- */
+  footer { background: var(--ink); color: var(--paper); padding-block: 3rem 2rem; }
+  footer .wrap { display: grid; grid-template-columns: 1fr auto; gap: 2rem; align-items: end; }
+  footer .big { font-weight: 900; font-stretch: 120%; font-size: clamp(2.2rem, 7vw, 5rem); letter-spacing: -.04em; line-height: .9; }
+  footer ul { display: flex; flex-wrap: wrap; gap: .5rem 1.5rem; margin-top: 1.25rem; }
+  footer a { font-weight: 600; }
+  footer .legal { text-align: right; color: #bdbcb5; }
+
+  /* ---------- responsive ---------- */
+  @media (max-width: 62rem) {
+    .hero .wrap, #about .wrap, #signup .wrap { grid-template-columns: 1fr; }
+    .stage { max-width: 34rem; width: 100%; }
+    .item.a, .item.b, .item.c, .item.d { grid-column: 1 / -1; align-self: start; }
+    .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .steps li:nth-child(3) { padding-left: 0; border-left: 0; }
+    .steps li:nth-child(n+3) { border-top: 1px solid #55545c; margin-top: 1.25rem; }
+    .row { grid-template-columns: 7rem minmax(0, 1fr) auto; }
+    .row .where { grid-column: 2; grid-row: 2; }
+    .row .tag { grid-column: 3; grid-row: 1 / span 2; }
+    .sec-head { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 40rem) {
+    body { font-size: 1rem; }
+    .top nav li:not(:last-child) { display: none; }
+    .hero .facts { margin-top: 2rem; }
+    .info { grid-template-columns: 1fr; }
+    .price { grid-column: 1; grid-row: auto; text-align: left; }
+    .buy { flex-direction: column; align-items: stretch; }
+    .buy .btn { justify-content: space-between; }
+    .steps { grid-template-columns: 1fr; }
+    .steps li, .steps li + li { padding: 1.25rem 0 0 0; border-left: 0; margin-top: 0; }
+    .steps li + li { border-top: 1px solid #55545c; margin-top: 1.25rem; }
+    .row { grid-template-columns: 1fr auto; padding-inline: 0; }
+    .row .date { grid-column: 1; }
+    .row > div:nth-child(2) { grid-column: 1 / -1; grid-row: 2; }
+    .row .where { grid-column: 1 / -1; grid-row: 3; }
+    .row .tag { grid-column: 2; grid-row: 1; }
+    a.row:hover { padding-inline: .75rem; }
+    footer .wrap { grid-template-columns: 1fr; }
+    footer .legal { text-align: left; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Artwork: authored two-ink plates. Each symbol is a red plate and a blue plate multiplied over paper. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="art-lowtide" viewBox="0 0 300 400">
+      <rect width="300" height="400" fill="#ecebe5"/>
+      <g class="plate-r"><circle class="multiply" cx="150" cy="150" r="96" fill="#ff4a2a"/>
+        <rect class="multiply" x="0" y="258" width="300" height="18" fill="#ff4a2a"/>
+        <rect class="multiply" x="0" y="296" width="300" height="10" fill="#ff4a2a"/></g>
+      <g class="plate-b"><rect class="multiply" x="0" y="196" width="300" height="204" fill="#2b2fd0"/>
+        <rect class="multiply" x="40" y="40" width="14" height="150" fill="#2b2fd0"/>
+        <rect class="multiply" x="246" y="40" width="14" height="150" fill="#2b2fd0"/></g>
+      <text x="22" y="378" font-family="Archivo, Arial, sans-serif" font-weight="900" font-size="22" fill="#ecebe5" style="letter-spacing:-.5px">LOW TIDE SIGNAL</text>
+    </symbol>
+    <symbol id="art-index" viewBox="0 0 300 400">
+      <rect width="300" height="400" fill="#ecebe5"/>
+      <g class="plate-r"><path class="multiply" d="M150 40 L286 300 H14 Z" fill="#ff4a2a"/>
+        <circle class="multiply" cx="236" cy="78" r="30" fill="#ff4a2a"/></g>
+      <g class="plate-b"><path class="multiply" d="M14 360 L150 100 L286 360 Z" fill="#2b2fd0"/>
+        <rect class="multiply" x="14" y="40" width="120" height="12" fill="#2b2fd0"/>
+        <rect class="multiply" x="14" y="62" width="80" height="12" fill="#2b2fd0"/></g>
+      <text x="14" y="388" font-family="Archivo, Arial, sans-serif" font-weight="900" font-size="15" fill="#15141a" style="letter-spacing:.5px">TIDAL INDEX NO. 3</text>
+    </symbol>
+    <symbol id="art-halogen" viewBox="0 0 200 200">
+      <rect width="200" height="200" fill="#ecebe5"/>
+      <g class="plate-r"><circle class="multiply" cx="100" cy="100" r="84" fill="#ff4a2a"/></g>
+      <g class="plate-b"><circle class="multiply" cx="100" cy="100" r="60" fill="none" stroke="#2b2fd0" stroke-width="14"/>
+        <circle class="multiply" cx="100" cy="100" r="30" fill="none" stroke="#2b2fd0" stroke-width="8"/>
+        <rect class="multiply" x="0" y="96" width="200" height="8" fill="#2b2fd0"/></g>
+      <text x="12" y="188" font-family="Archivo, Arial, sans-serif" font-weight="900" font-size="12" fill="#15141a">HALOGEN</text>
+    </symbol>
+    <symbol id="art-bloom" viewBox="0 0 200 200">
+      <rect width="200" height="200" fill="#2b2fd0"/>
+      <g class="plate-r"><g class="multiply" fill="#ff4a2a"><circle cx="100" cy="60" r="38"/><circle cx="140" cy="100" r="38"/><circle cx="100" cy="140" r="38"/><circle cx="60" cy="100" r="38"/></g></g>
+      <g class="plate-b"><circle cx="100" cy="100" r="22" fill="#ecebe5"/></g>
+      <text x="12" y="188" font-family="Archivo, Arial, sans-serif" font-weight="900" font-size="12" fill="#ecebe5">STATIC BLOOM</text>
+    </symbol>
+  </defs>
+</svg>
+
+<header class="top">
+  <div class="wrap">
+    <a class="mark" href="#top" aria-label="Offset Press, home"><i aria-hidden="true"></i>Offset Press</a>
+    <nav aria-label="Primary">
+      <ul>
+        <li><a href="#releases">Releases</a></li>
+        <li><a href="#about">Studio</a></li>
+        <li><a href="#events">Events</a></li>
+        <li><a class="btn small" href="#signup">Join the list</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+  <section class="hero reg" aria-labelledby="hero-title">
+    <div class="wrap">
+      <div>
+        <h1 id="hero-title" data-t="Pulled by hand. Never printed twice.">Pulled by hand. Never printed twice.</h1>
+        <p class="lede">Offset Press is a screen print studio and record label. Every poster and record we release is made in a run of 300 or fewer, then the screens are reclaimed.</p>
+        <div class="cta">
+          <a class="btn" href="#releases">Shop current releases
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M3 10h13M11 4l6 6-6 6"/></svg>
+          </a>
+          <a class="btn ghost" href="#events">See upcoming events</a>
+        </div>
+        <ul class="facts mono" aria-label="At a glance">
+          <li>4 releases in print</li>
+          <li>Runs of 300 or fewer</li>
+          <li>Signed, numbered, no repress</li>
+        </ul>
+      </div>
+
+      <div class="stage" role="img" aria-label="A two-colour screen print of a red sun over blue water, in front of a black vinyl record with a red label">
+        <div class="disc" aria-hidden="true"><div class="label"></div></div>
+        <svg class="poster" viewBox="0 0 300 400" aria-hidden="true"><use href="#art-lowtide"/></svg>
+      </div>
+    </div>
+  </section>
+
+  <section id="releases" class="reg" aria-labelledby="releases-title">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 id="releases-title">Current releases</h2>
+        <p>Four editions are in print. Each is numbered by hand. When the count hits zero, that is the end of it.</p>
+      </div>
+
+      <div class="grid">
+        <article class="item a">
+          <div class="art">
+            <svg class="poster" viewBox="0 0 300 400" role="img" aria-label="Low Tide Signal poster: red sun above blue water"><use href="#art-lowtide"/></svg>
+          </div>
+          <div class="info">
+            <h3>Low Tide Signal</h3>
+            <p class="by">Screen print by Offset Press</p>
+            <p class="price">$48</p>
+            <p class="specs mono"><span>18 × 24 in</span><span>2 colour</span><span>Edition of 150</span></p>
+            <div class="buy">
+              <span class="mono left low">38 left</span>
+              <a class="btn small" href="mailto:orders@offsetpress.example?subject=Reserve%3A%20Low%20Tide%20Signal">Reserve a print</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="item b">
+          <div class="art">
+            <div class="sleeve" role="img" aria-label="Halogen LP sleeve with a red and blue target, and a red-label record sliding out">
+              <div class="disc" aria-hidden="true"><div class="label"></div></div>
+              <svg class="cover" viewBox="0 0 200 200" aria-hidden="true"><use href="#art-halogen"/></svg>
+            </div>
+          </div>
+          <div class="info">
+            <h3>Halogen</h3>
+            <p class="by">Night Shift Choir · LP</p>
+            <p class="price">$34</p>
+            <p class="specs mono"><span>12 in, 180 g black vinyl</span><span>Screen-printed sleeve</span><span>Pressing of 300</span></p>
+            <div class="buy">
+              <span class="mono left">112 left</span>
+              <a class="btn small" href="mailto:orders@offsetpress.example?subject=Reserve%3A%20Halogen%20LP">Reserve a record</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="item c">
+          <div class="art dark">
+            <div class="sleeve" role="img" aria-label="Static Bloom EP sleeve with four red petals on blue, and a blue-label record sliding out">
+              <div class="disc blue" aria-hidden="true"><div class="label"></div></div>
+              <svg class="cover" viewBox="0 0 200 200" aria-hidden="true"><use href="#art-bloom"/></svg>
+            </div>
+          </div>
+          <div class="info">
+            <h3>Static Bloom</h3>
+            <p class="by">Paper Moons · EP</p>
+            <p class="price">$26</p>
+            <p class="specs mono"><span>12 in EP, 45 rpm</span><span>Blue vinyl</span><span>Pressing of 200</span></p>
+            <div class="buy">
+              <span class="mono left">64 left</span>
+              <a class="btn small" href="mailto:orders@offsetpress.example?subject=Reserve%3A%20Static%20Bloom%20EP">Reserve a record</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="item d">
+          <div class="art">
+            <svg class="poster" viewBox="0 0 300 400" role="img" aria-label="Tidal Index No. 3 poster: overlapping red and blue triangles"><use href="#art-index"/></svg>
+          </div>
+          <div class="info">
+            <h3>Tidal Index No. 3</h3>
+            <p class="by">Screen print by Offset Press</p>
+            <p class="price">$65</p>
+            <p class="specs mono"><span>24 × 36 in</span><span>2 colour, overprint</span><span>Edition of 75</span></p>
+            <div class="buy">
+              <span class="mono left low">9 left</span>
+              <a class="btn small" href="mailto:orders@offsetpress.example?subject=Reserve%3A%20Tidal%20Index%20No.%203">Reserve a print</a>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="about" class="reg on-ink" aria-labelledby="about-title">
+    <div class="wrap">
+      <h2 id="about-title">One press, one room, <span>two</span> <em>inks</em> at a time.</h2>
+      <div class="text">
+        <p>Offset Press is a small print studio that grew a record label. The people who pull the posters also cut the lacquers, design the sleeves, and pack the orders.</p>
+        <p>Screen printing lays one ink per screen. Where two inks overlap you get a third colour, and where the paper slips a hair you get an edge nobody drew. We keep that. It is how you tell a hand-pulled print from a copy.</p>
+        <p>We make each run once, count it out, and reclaim the screens. No restocks, no second pressing.</p>
+      </div>
+      <ol class="steps" aria-label="How a release is made">
+        <li><b>Separate</b><span>Art is split into one flat layer per ink.</span></li>
+        <li><b>Burn</b><span>Each layer is exposed onto its own mesh screen.</span></li>
+        <li><b>Pull</b><span>Ink is dragged across the screen with a squeegee, one sheet at a time.</span></li>
+        <li><b>Number</b><span>Every sheet is checked, signed and counted. Then the screens are wiped.</span></li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="events" aria-labelledby="events-title">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 id="events-title">Upcoming events</h2>
+        <p>Come see a print pulled, hear the records, and buy direct. We bring the full table to every date.</p>
+      </div>
+      <div class="rows">
+        <a class="row" href="mailto:hello@offsetpress.example?subject=Open%20Studio%20Night">
+          <div class="date">Nov 07<small>Sat · 6–10 pm</small></div>
+          <div><h3>Open studio night</h3><p>Watch a two-colour pull, then take a test strip home.</p></div>
+          <div class="where">The Studio<br><span class="mono">Loading dock entrance</span></div>
+          <span class="tag free">Free</span>
+        </a>
+        <a class="row" href="mailto:hello@offsetpress.example?subject=Halogen%20Release%20Show">
+          <div class="date">Nov 21<small>Sat · 8 pm</small></div>
+          <div><h3>Halogen release show</h3><p>Night Shift Choir play the LP front to back. Sleeves on sale at the door.</p></div>
+          <div class="where">The Garage Room<br><span class="mono">All ages</span></div>
+          <span class="tag">$15</span>
+        </a>
+        <a class="row" href="mailto:hello@offsetpress.example?subject=Poster%20Fair">
+          <div class="date">Dec 06<small>Sun · 11 am–5 pm</small></div>
+          <div><h3>Winter poster fair</h3><p>Forty independent printmakers, one hall. We have a corner table.</p></div>
+          <div class="where">Union Hall<br><span class="mono">Table 14</span></div>
+          <span class="tag free">Free</span>
+        </a>
+        <div class="row" aria-label="Sold out">
+          <div class="date">Dec 13<small>Sun · 2 pm</small></div>
+          <div><h3>Screen print workshop</h3><p>Pull your own two-colour poster. Eight seats.</p></div>
+          <div class="where">The Studio</div>
+          <span class="tag sold">Sold out</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="signup" class="reg on-red" aria-labelledby="signup-title">
+    <div class="wrap">
+      <div>
+        <h2 id="signup-title" data-t="Hear about the next run first.">Hear about the next run first.</h2>
+        <p class="sub">Most editions sell through in a few days. The list gets a head start, plus event dates. About one email a month.</p>
+      </div>
+      <form id="signup-form" action="#" method="post" novalidate>
+        <label class="field">Email address
+          <input type="email" name="email" autocomplete="email" placeholder="you@example.com" required>
+        </label>
+        <fieldset>
+          <legend>I want news about</legend>
+          <label class="chip"><input type="checkbox" name="interest" value="posters" checked><span>Posters</span></label>
+          <label class="chip"><input type="checkbox" name="interest" value="records" checked><span>Records</span></label>
+          <label class="chip"><input type="checkbox" name="interest" value="events"><span>Events</span></label>
+        </fieldset>
+        <button class="btn" type="submit">Join the list
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M3 10h13M11 4l6 6-6 6"/></svg>
+        </button>
+        <p class="msg" role="status" aria-live="polite" id="msg"></p>
+        <p class="fine">No spam, no sharing. Unsubscribe from any email.</p>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <p class="big">Offset Press</p>
+      <ul>
+        <li><a href="mailto:hello@offsetpress.example">hello@offsetpress.example</a></li>
+        <li><a href="#releases">Releases</a></li>
+        <li><a href="#events">Events</a></li>
+      </ul>
+    </div>
+    <p class="legal mono">© 2026 Offset Press<br>Printed by hand. Made once.</p>
+  </div>
+</footer>
+
+<script>
+  // Signup: validates, then confirms in place. Replace the handler body with a
+  // fetch() to your mailing-list provider's endpoint when one exists.
+  (function () {
+    var form = document.getElementById('signup-form');
+    var msg = document.getElementById('msg');
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var email = form.elements.email;
+      if (!email.checkValidity()) {
+        msg.textContent = 'Enter a valid email address, like you@example.com.';
+        email.focus();
+        return;
+      }
+      msg.textContent = 'You are on the list. Watch for the next run.';
+      form.reset();
+    });
+  })();
+</script>
+</body>
+</html>

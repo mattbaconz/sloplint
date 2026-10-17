@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Offset Press — screen-printed posters and records, in small runs</title>
+<meta name="description" content="Offset Press is an independent print studio and record label. Hand-pulled screen-printed posters and vinyl records, each in a numbered, limited run.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,500;1,6..96,500&family=Jost:wght@400;500&display=swap" rel="stylesheet">
+<script>document.documentElement.classList.add('js')</script>
+<style>
+:root {
+  --bg: #1a2039;
+  --surface: #212846;
+  --ink: #f9a3c0;
+  --muted: #b9879c;
+  --accent: #f9a3c0;
+  --accent-ink: #1a2039;
+
+  --step-small: clamp(0.8125rem, 0.79rem + 0.1vw, 0.875rem);
+  --step-body: clamp(1.0625rem, 1rem + 0.25vw, 1.1875rem);
+  --step-lead: clamp(1.25rem, 1.1rem + 0.7vw, 1.625rem);
+  --step-head: clamp(2rem, 1.3rem + 3.2vw, 4rem);
+  --step-mono: clamp(3rem, 10vw, 9.4rem);
+
+  --m: clamp(16px, 2vw, 28px);
+  --gap: clamp(88px, 11vw, 176px);
+  --serif: "Bodoni Moda", "Didot", "Bodoni 72", Georgia, serif;
+  --sans: "Jost", "Segoe UI", system-ui, sans-serif;
+  --reg: 6px;
+  --ease: cubic-bezier(.2, .7, .2, 1);
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font: 400 var(--step-body)/1.6 var(--sans); letter-spacing: .01em;
+  overflow-x: hidden;
+}
+img, svg { display: block; max-width: 100%; }
+h1, h2, h3, p { margin: 0; }
+a { color: inherit; text-decoration-thickness: 1px; text-underline-offset: .22em; }
+::selection { background: var(--ink); color: var(--bg); }
+:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+.on-ink :focus-visible { outline-color: var(--bg); }
+.display { font-family: var(--serif); font-weight: 500; letter-spacing: -.03em; line-height: .95; font-optical-sizing: auto; }
+.small { font-size: var(--step-small); }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; min-height: 56px;
+  padding: 0 28px; background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 0;
+  font: 500 var(--step-body)/1 var(--sans); text-decoration: none; cursor: pointer;
+  transition: transform .25s var(--ease), background-color .2s;
+}
+.btn:hover { transform: translateY(-3px); }
+.btn:active { transform: translateY(1px); }
+.btn.quiet { background: var(--surface); color: var(--ink); }
+
+/* ---------- top bar ---------- */
+.bar {
+  position: absolute; z-index: 5; top: 0; right: 0; left: 0;
+  display: flex; justify-content: flex-end; align-items: center; gap: clamp(16px, 2.4vw, 36px);
+  padding: 18px var(--m); font-size: var(--step-small);
+}
+.bar a { text-decoration: none; padding: 8px 0; transition: opacity .2s, transform .2s; }
+.bar a:not(.btn):hover { text-decoration: underline; }
+.bar .btn { min-height: 44px; padding: 0 20px; font-size: var(--step-small); }
+
+/* ---------- hero ---------- */
+.hero { min-height: 100svh; padding: 20px var(--m) 28px; display: grid; grid-template-rows: 1fr auto; gap: 20px; position: relative; }
+.hero-top { display: grid; grid-template-columns: 47fr 53fr; gap: var(--m); min-height: 0; padding-top: 48px; }
+.hero-photo { position: relative; overflow: hidden; min-height: 0; background: var(--surface); }
+.hero-photo img { width: 100%; height: 100%; object-fit: cover; object-position: 38% 50%; animation: drift 26s ease-in-out infinite alternate; }
+@keyframes drift { from { transform: scale(1.02) translate3d(0, 0, 0); } to { transform: scale(1.1) translate3d(-1.5%, -1%, 0); } }
+.hero-side { display: flex; flex-direction: column; justify-content: center; gap: 28px; padding: 0 clamp(0px, 3vw, 48px); }
+.hero-side .lead { font-size: var(--step-lead); line-height: 1.35; max-width: 26ch; }
+.hero-side .lead + .btn { align-self: flex-start; }
+.reg { display: grid; gap: 10px; max-width: 460px; padding: 18px 20px 20px; background: var(--surface); }
+.reg label { display: flex; justify-content: space-between; gap: 12px; font-size: var(--step-small); }
+.reg output { font-variant-numeric: tabular-nums; }
+.reg p { font-size: var(--step-small); color: var(--muted); }
+input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 44px; background: transparent; margin: 0; cursor: ew-resize; }
+input[type=range]::-webkit-slider-runnable-track { height: 10px; background: var(--bg); }
+input[type=range]::-moz-range-track { height: 10px; background: var(--bg); }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 28px; height: 28px; margin-top: -9px; background: var(--ink); border: 0; border-radius: 0; transition: transform .2s var(--ease); }
+input[type=range]::-moz-range-thumb { width: 28px; height: 28px; background: var(--ink); border: 0; border-radius: 0; }
+input[type=range]:active::-webkit-slider-thumb { transform: scale(1.18); }
+
+.wm {
+  font-family: var(--serif); font-weight: 500; font-size: clamp(3.4rem, 20vw, 28rem);
+  letter-spacing: -.05em; line-height: .8; white-space: nowrap; text-transform: lowercase;
+  display: block; padding-bottom: .12em; transform-origin: 0 100%;
+}
+.wm span { position: relative; display: inline-block; isolation: isolate; }
+.wm span::after {
+  content: attr(data-t); position: absolute; inset: 0; z-index: -1; color: var(--muted);
+  transform: translate(var(--reg), calc(var(--reg) * .6)); pointer-events: none; transition: transform .15s linear;
+}
+.hero .wm { animation: wm-shrink linear both; animation-timeline: scroll(root); animation-range: 0 90vh; }
+@keyframes wm-shrink { to { transform: scale(.94); } }
+
+/* ---------- releases ---------- */
+.releases { padding-top: var(--gap); }
+.plate-split { display: grid; grid-template-columns: 1fr 1fr; gap: var(--m); min-height: min(88svh, 900px); padding: 0 var(--m); }
+.plate { background: var(--accent); align-self: center; aspect-ratio: 1; width: 100%; overflow: hidden; }
+.plate svg { width: 100%; height: 100%; }
+.plate .back { transform: translate(calc(var(--reg) * 1.7), calc(var(--reg) * 1.1)); transition: transform .15s linear; }
+.plate-copy { display: flex; flex-direction: column; justify-content: space-between; gap: 48px; padding: 8px 0 0 clamp(0px, 3vw, 48px); }
+.plate-copy h2 { font-size: var(--step-head); }
+.plate-copy .title { font-weight: 500; font-size: var(--step-lead); line-height: 1.2; }
+.plate-copy .desc { max-width: 34ch; margin-top: 28px; }
+.plate-copy .facts { margin-top: 20px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.cells { display: grid; grid-template-columns: 1fr 1fr; }
+.cells .btn { min-height: 72px; justify-content: space-between; }
+.cells .btn:hover { transform: none; filter: none; background: var(--ink); color: var(--bg); }
+.cells .quiet:hover { background: var(--ink); color: var(--bg); }
+.reg.inline { margin-top: 28px; max-width: none; }
+
+.catalogue { padding: var(--gap) var(--m) 0; }
+.catalogue h2 { font-size: var(--step-head); margin-bottom: 36px; }
+table.cat { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.cat th { text-align: left; font-weight: 400; font-size: var(--step-small); color: var(--muted); padding: 0 18px 14px; }
+.cat td { padding: 22px 18px; vertical-align: baseline; }
+.cat tbody tr:nth-child(odd) { background: var(--surface); }
+.cat tbody tr { transition: background-color .2s; }
+.cat tbody tr:hover { background: var(--ink); color: var(--bg); }
+.cat tbody tr:hover td { color: var(--bg); }
+.cat .name { font-weight: 500; font-size: var(--step-lead); line-height: 1.2; }
+.cat .price { text-align: right; font-size: var(--step-lead); white-space: nowrap; }
+.cat a { text-decoration: none; }
+.cat td.act { text-align: right; width: 1%; white-space: nowrap; }
+.cat .act a { text-decoration: underline; }
+
+.rec-band { display: grid; grid-template-columns: 7fr 5fr; gap: var(--m); padding: var(--gap) var(--m) 0; align-items: end; }
+.rec-band img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; }
+.rec-band p { font-size: var(--step-lead); line-height: 1.4; max-width: 24ch; }
+.rec-band p + p { font-size: var(--step-body); line-height: 1.6; max-width: 38ch; margin-top: 20px; }
+
+/* ---------- studio ---------- */
+.studio { background: var(--surface); margin-top: var(--gap); padding: var(--gap) var(--m); display: grid; grid-template-columns: 5fr 7fr; gap: var(--m); align-items: start; }
+.studio-text { position: sticky; top: 32px; }
+.studio-text h2 { font-size: var(--step-mono); letter-spacing: -.05em; line-height: .85; }
+.studio-text p { max-width: 40ch; margin-top: 36px; }
+.studio-text p + p { margin-top: 18px; }
+.studio-pics { display: grid; gap: clamp(40px, 5vw, 72px); }
+.studio-pics figure { margin: 0; }
+.studio-pics img, .studio-pics video { width: 100%; object-fit: cover; }
+.studio-pics video { height: auto; aspect-ratio: 16 / 10; background: var(--bg); }
+.studio-pics .a { width: 64%; justify-self: end; }
+.studio-pics .a img { aspect-ratio: 4 / 5; object-position: 62% 50%; }
+.studio-pics .b { width: 70%; }
+.studio-pics .b img { aspect-ratio: 5 / 4; }
+.studio-pics .c { width: 60%; justify-self: end; }
+.studio-pics .c img { aspect-ratio: 4 / 5; object-position: 44% 50%; }
+.studio-pics figcaption { margin-top: 12px; font-size: var(--step-small); max-width: 36ch; }
+
+/* ---------- events ---------- */
+.events { padding: var(--gap) 0 var(--gap); }
+.events h2 { font-size: var(--step-head); padding: 0 var(--m); margin-bottom: 64px; }
+.events ol { list-style: none; margin: 0; padding: 0; }
+.ev {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 24px; padding: 6px var(--m);
+  text-decoration: none; transition: background-color .2s, color .2s, padding-left .35s var(--ease);
+}
+.ev .t { font-family: var(--serif); font-weight: 500; font-size: var(--step-mono); letter-spacing: -.04em; line-height: .96; text-transform: lowercase; }
+.ev .d { text-align: right; font-size: var(--step-lead); line-height: 1.25; font-variant-numeric: tabular-nums; flex: none; }
+.ev .d span { display: block; font-size: var(--step-body); color: var(--muted); }
+.ev:hover, .ev:focus-visible { background: var(--ink); color: var(--bg); padding-left: calc(var(--m) + 24px); }
+.ev:hover .d span { color: var(--bg); }
+.events .note { padding: 40px var(--m) 0; max-width: 60ch; }
+
+/* ---------- list signup ---------- */
+.join { background: var(--surface); padding: var(--gap) var(--m); display: grid; grid-template-columns: 1fr 1fr; gap: var(--m); }
+.join h2 { font-size: var(--step-mono); letter-spacing: -.04em; line-height: .9; }
+.join .lead { font-size: var(--step-lead); line-height: 1.35; max-width: 30ch; margin-top: 32px; }
+.join form { align-self: end; display: grid; gap: 28px; }
+.field { display: grid; gap: 10px; }
+.field > label, fieldset legend { font-size: var(--step-small); padding: 0; }
+fieldset { border: 0; margin: 0; padding: 0; display: grid; gap: 10px; }
+.choices { display: flex; flex-wrap: wrap; gap: 10px; }
+.choices label { position: relative; }
+.choices input { position: absolute; opacity: 0; inset: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
+.choices span { display: inline-flex; align-items: center; min-height: 48px; padding: 0 22px; background: var(--bg); transition: background-color .2s, color .2s; }
+.choices input:checked + span { background: var(--ink); color: var(--bg); }
+.choices input:focus-visible + span { outline: 3px solid var(--ink); outline-offset: 3px; }
+.email-row { display: grid; grid-template-columns: 1fr auto; }
+.email-row input {
+  min-height: 64px; padding: 0 22px; background: var(--bg); color: var(--ink); border: 0; border-radius: 0;
+  font: 400 var(--step-lead)/1 var(--sans); min-width: 0;
+}
+.email-row input::placeholder { color: var(--muted); opacity: 1; }
+.email-row .btn { min-height: 64px; padding: 0 32px; }
+.join .fine { font-size: var(--step-small); color: var(--muted); max-width: 52ch; }
+.join .done { display: none; font-size: var(--step-lead); }
+
+/* ---------- footer ---------- */
+footer { background: var(--ink); color: var(--bg); padding: 0 var(--m) 28px; overflow: hidden; }
+footer a { color: var(--bg); }
+footer .wm { margin: 0 0 -.1em; padding-top: .04em; padding-bottom: 0; height: .82em; overflow: hidden; transform-origin: 0 100%; }
+footer .wm span::after { color: var(--muted); }
+@supports (animation-timeline: view()) {
+  footer .wm { animation: wm-grow linear both; animation-timeline: view(); animation-range: entry 0% entry 100%; }
+}
+@keyframes wm-grow { from { transform: scale(.94); } to { transform: scale(1); } }
+.f-places { display: grid; grid-template-columns: 5fr 7fr; gap: var(--m); padding-top: 64px; }
+.f-places ul { list-style: none; margin: 0; padding: 0; }
+.f-places .big a { font-weight: 500; font-size: var(--step-lead); line-height: 1.5; text-decoration: none; }
+.f-places .big a:hover { text-decoration: underline; }
+.f-cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--m); font-size: var(--step-small); line-height: 1.9; }
+.f-cols strong { font-weight: 500; display: block; margin-bottom: 6px; }
+.credits { margin-top: 72px; font-size: var(--step-small); line-height: 1.6; max-width: 110ch; }
+.f-last { display: flex; justify-content: space-between; gap: 24px; margin-top: 40px; font-size: var(--step-small); }
+
+/* ---------- entrance ---------- */
+.js [data-r] { opacity: 0; transform: translate3d(0, 28px, 0); transition: opacity .8s var(--ease), transform .9s var(--ease); transition-delay: calc(var(--i, 0) * 80ms); }
+.js [data-r].in { opacity: 1; transform: none; }
+
+/* ---------- phone ---------- */
+@media (max-width: 860px) {
+  .bar .hide-s { display: none; }
+  .hero { min-height: 0; padding-top: 12px; }
+  .hero-top { grid-template-columns: 1fr; padding-top: 52px; gap: 24px; }
+  .hero-photo { height: 56svh; }
+  .hero-side { padding: 0; gap: 22px; }
+  .wm { font-size: 35vw; line-height: .82; }
+  .wm span { display: block; }
+  .hero .wm { animation: none; }
+  footer .wm { height: auto; overflow: visible; margin-bottom: 0; padding-top: 24px; }
+  .plate-split { grid-template-columns: 1fr; min-height: 0; }
+  .plate-copy { padding: 8px 0 0; }
+  .cells { grid-template-columns: 1fr; gap: 8px; }
+  .cells .btn { min-height: 60px; }
+  .cat thead { display: none; }
+  .cat, .cat tbody, .cat tr, .cat td { display: block; width: 100%; }
+  .cat tr { padding: 18px 16px 20px; display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; }
+  .cat td { padding: 0; }
+  .cat td.name { grid-column: 1; grid-row: 1; }
+  .cat td.price { grid-column: 2; grid-row: 1; text-align: right; }
+  .cat td.fmt { grid-column: 1 / -1; grid-row: 2; }
+  .cat td.run { grid-column: 1 / -1; grid-row: 3; color: var(--muted); }
+  .cat td.act { grid-column: 1 / -1; grid-row: 4; text-align: left; padding-top: 10px; width: auto; }
+  .rec-band { grid-template-columns: 1fr; }
+  .studio { grid-template-columns: 1fr; }
+  .studio-text { position: static; margin-bottom: 56px; }
+  .studio-pics .a, .studio-pics .b, .studio-pics .c { width: 82%; }
+  .studio-pics .b { justify-self: start; }
+  .events h2 { margin-bottom: 40px; }
+  .ev { flex-direction: column; gap: 4px; padding: 14px var(--m) 24px; }
+  .ev .t { font-size: 14vw; }
+  .ev .d { text-align: left; }
+  .ev:hover { padding-left: var(--m); }
+  .join { grid-template-columns: 1fr; gap: 56px; }
+  .join h2 { font-size: 19vw; }
+  .email-row { grid-template-columns: 1fr; gap: 8px; }
+  .f-places { grid-template-columns: 1fr; gap: 40px; padding-top: 40px; }
+  .f-cols { grid-template-columns: 1fr 1fr; }
+  .f-last { flex-direction: row; }
+}
+@media (max-width: 520px) {
+  .bar { gap: 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .hero-photo img, .hero .wm, footer .wm { animation: none; }
+  .js [data-r] { opacity: 1; transform: none; transition: none; }
+  .btn, .ev, .wm span::after, .plate .back { transition: none; }
+}
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <a href="#releases">Releases</a>
+  <a href="#studio" class="hide-s">The studio</a>
+  <a href="#events">Events</a>
+  <a href="#list" class="btn">Join the list</a>
+</header>
+
+<main>
+<section class="hero" aria-labelledby="name">
+  <div class="hero-top">
+    <div class="hero-photo" data-r>
+      <img src="assets/screen-printing-demonstration-at-tedxutm.jpg" width="1920" height="1280" alt="Two hands pulling a squeegee of black ink across a screen on a printing frame">
+    </div>
+    <div class="hero-side">
+      <p class="lead" data-r style="--i:1">Hand-pulled posters and vinyl records.</p>
+      <a class="btn" href="#releases" data-r style="--i:2">Shop the current releases</a>
+      <div class="reg" data-r style="--i:3">
+        <label for="reg1">Slide the second ink out of register <output data-out>6 pt</output></label>
+        <input id="reg1" type="range" min="0" max="28" value="6" data-reg aria-describedby="reg-note">
+        <p id="reg-note">Every print is a stack of single-colour layers. Our name is what happens when they don’t line up, and our runs never top a few hundred.</p>
+      </div>
+    </div>
+  </div>
+  <h1 class="wm" id="name" aria-label="Offset Press"><span data-t="offset" aria-hidden="true">offset</span> <span data-t="press" aria-hidden="true">press</span></h1>
+</section>
+
+<section class="releases" id="releases" aria-labelledby="rel-h">
+  <div class="plate-split">
+    <div class="plate" data-r>
+      <svg viewBox="0 0 400 400" role="img" aria-label="Slack Tide poster: a large sun over three bands of water, printed in two inks that sit slightly out of register">
+        <defs>
+          <g id="art">
+            <circle cx="200" cy="158" r="88"/>
+            <path d="M0 262 Q50 238 100 262 T200 262 T300 262 T400 262 V292 H0Z"/>
+            <path d="M0 308 Q50 284 100 308 T200 308 T300 308 T400 308 V338 H0Z"/>
+            <path d="M0 354 Q50 330 100 354 T200 354 T300 354 T400 354 V400 H0Z"/>
+            <rect x="28" y="28" width="62" height="10"/>
+            <rect x="310" y="28" width="62" height="10"/>
+          </g>
+        </defs>
+        <rect width="400" height="400" fill="#f9a3c0"/>
+        <use class="back" href="#art" fill="#b9879c"/>
+        <use href="#art" fill="#1a2039"/>
+      </svg>
+    </div>
+    <div class="plate-copy">
+      <h2 class="display" id="rel-h" data-r>Current releases</h2>
+      <div>
+        <p class="title" data-r style="--i:1">Slack Tide, screen print</p>
+        <p class="desc" data-r style="--i:2">Two inks on 300gsm cotton rag, pulled by hand and signed on the back. The sun is the first pass; the water is the second.</p>
+        <p class="facts" data-r style="--i:3">18 × 24 in · edition of 120 · $45</p>
+        <div class="reg inline" data-r style="--i:4">
+          <label for="reg2">Out of register by <output data-out>6 pt</output></label>
+          <input id="reg2" type="range" min="0" max="28" value="6" data-reg>
+        </div>
+      </div>
+      <div class="cells" data-r>
+        <a class="btn on-ink" href="mailto:orders@offsetpress.example?subject=Reserve%20Slack%20Tide%20(18%20x%2024%20in)&amp;body=Hi%20Offset%20Press%2C%20I%27d%20like%20to%20reserve%20one%20copy%20of%20Slack%20Tide%20at%20%2445.">Reserve one <span>$45</span></a>
+        <a class="btn quiet" href="#catalogue">More in this run <span aria-hidden="true">↓</span></a>
+      </div>
+    </div>
+  </div>
+
+  <div class="catalogue" id="catalogue">
+    <h2 class="display" data-r>Also in the shop</h2>
+    <table class="cat" data-r>
+      <thead><tr><th scope="col">Release</th><th scope="col">Format</th><th scope="col">Run</th><th scope="col" style="text-align:right">Price</th><th scope="col"><span class="vh" style="position:absolute;left:-9999px">Order</span></th></tr></thead>
+      <tbody>
+        <tr><td class="name">Night Ferry</td><td class="fmt">Three-colour screen print, 24 × 36 in</td><td class="run">Edition of 80</td><td class="price">$70</td><td class="act"><a href="mailto:orders@offsetpress.example?subject=Reserve%20Night%20Ferry">Reserve</a></td></tr>
+        <tr><td class="name">Salt Lines, Tidewrack</td><td class="fmt">12-inch LP, 180g pink marbled vinyl</td><td class="run">300 copies</td><td class="price">$32</td><td class="act"><a href="mailto:orders@offsetpress.example?subject=Reserve%20Salt%20Lines">Reserve</a></td></tr>
+        <tr><td class="name">Loud Neighbours</td><td class="fmt">Two-colour screen print, 12 × 18 in</td><td class="run">Edition of 200</td><td class="price">$30</td><td class="act"><a href="mailto:orders@offsetpress.example?subject=Reserve%20Loud%20Neighbours">Reserve</a></td></tr>
+        <tr><td class="name">Quiet Machinery, The Low Rooms</td><td class="fmt">12-inch LP, clear vinyl with pink splatter</td><td class="run">150 copies</td><td class="price">$34</td><td class="act"><a href="mailto:orders@offsetpress.example?subject=Reserve%20Quiet%20Machinery">Reserve</a></td></tr>
+        <tr><td class="name">Hand Signals, Marguerite Fell</td><td class="fmt">7-inch single, 45rpm, black vinyl</td><td class="run">200 copies</td><td class="price">$14</td><td class="act"><a href="mailto:orders@offsetpress.example?subject=Reserve%20Hand%20Signals">Reserve</a></td></tr>
+        <tr><td class="name">Paper Lanterns</td><td class="fmt">Four-colour screen print, 18 × 24 in</td><td class="run">Edition of 60</td><td class="price">$85</td><td class="act"><a href="mailto:orders@offsetpress.example?subject=Reserve%20Paper%20Lanterns">Reserve</a></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="rec-band">
+    <img src="assets/vinyl-pressing-machine.jpg" width="1920" height="1277" loading="lazy" alt="A record lathe cutting a groove into a disc" data-r>
+    <div>
+      <p data-r style="--i:1">Records get the same treatment as posters: small runs, nothing reprinted.</p>
+      <p data-r style="--i:2">Each record ships in a sleeve we print ourselves, with the colour of the vinyl matched to the second ink. When a run is gone, it’s gone.</p>
+    </div>
+  </div>
+</section>
+
+<section class="studio" id="studio" aria-labelledby="studio-h">
+  <div class="studio-text">
+    <h2 class="display" id="studio-h" data-r>the studio</h2>
+    <p data-r style="--i:1">Offset Press is one print room and one small label under the same roof. We pull posters on a hand bench, one colour at a time, and we release records by bands we’d buy anyway.</p>
+    <p data-r style="--i:2">Every run is numbered and capped. When an edition sells out, we reclaim the screens, so a print you own stays a print few others have.</p>
+  </div>
+  <div class="studio-pics">
+    <figure class="a" data-r>
+      <img src="assets/screen-print-hand-bench-proffesional-print-bench.jpg" width="1920" height="1406" loading="lazy" alt="A blue hand-printing bench with its screen raised, beside a tall rack of drying shelves">
+      <figcaption>A hand bench and drying rack: the room every poster passes through. Reference photo of a print studio.</figcaption>
+    </figure>
+    <figure class="b" data-r>
+      <video src="assets/video-proses-silk-screen.webm" poster="assets/video-proses-silk-screen-poster.jpg" width="1280" height="720" muted loop playsinline autoplay preload="metadata" aria-label="A worker pulling ink through a screen onto paper"></video>
+      <figcaption>A screen being pulled, in a working print shop. Reference footage.</figcaption>
+    </figure>
+    <figure class="c" data-r>
+      <img src="assets/pro-ject-debut-iii-with-ortofon-cartridge.jpg" width="1200" height="800" loading="lazy" alt="Purple vinyl on a turntable with the stylus down">
+      <figcaption>Coloured vinyl, the second ink in record form. Reference photo.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="events" id="events" aria-labelledby="ev-h">
+  <h2 class="display" id="ev-h" data-r>Upcoming events</h2>
+  <ol>
+    <li data-r><a class="ev" href="mailto:hello@offsetpress.example?subject=Open%20studio%20-%20Nov%207"><span class="t">open studio</span><span class="d">Sat, Nov 7<span>12 to 6pm, free</span></span></a></li>
+    <li data-r><a class="ev" href="mailto:hello@offsetpress.example?subject=Salt%20Lines%20release%20show"><span class="t">salt lines</span><span class="d">Sat, Nov 21<span>Release show, 8pm</span></span></a></li>
+    <li data-r><a class="ev" href="mailto:hello@offsetpress.example?subject=Print%20swap"><span class="t">print swap</span><span class="d">Sat, Dec 5<span>Bring a poster, 2pm</span></span></a></li>
+    <li data-r><a class="ev" href="mailto:hello@offsetpress.example?subject=Winter%20fair"><span class="t">winter fair</span><span class="d">Dec 12 and 13<span>Stall 14, 10am to 5pm</span></span></a></li>
+    <li data-r><a class="ev" href="mailto:hello@offsetpress.example?subject=Pressing%20day"><span class="t">pressing day</span><span class="d">Sat, Jan 16<span>Watch a run get pulled</span></span></a></li>
+  </ol>
+  <p class="note" data-r>Dates, venues and times are listed here first. Join the list below and we’ll send each event a week ahead.</p>
+</section>
+
+<section class="join" id="list" aria-labelledby="join-h">
+  <div>
+    <h2 class="display" id="join-h" data-r>join the list</h2>
+    <p class="lead" data-r style="--i:1">One email per release or event. Sometimes a first look at a poster before it’s printed.</p>
+  </div>
+  <form action="mailto:list@offsetpress.example" method="get" data-r style="--i:2">
+    <fieldset>
+      <legend>I want to hear about</legend>
+      <div class="choices">
+        <label><input type="radio" name="interest" value="posters"><span>Posters</span></label>
+        <label><input type="radio" name="interest" value="records"><span>Records</span></label>
+        <label><input type="radio" name="interest" value="both" checked><span>Both</span></label>
+      </div>
+    </fieldset>
+    <div class="field">
+      <label for="email">Email address</label>
+      <div class="email-row">
+        <input id="email" name="email" type="email" required autocomplete="email" placeholder="you@example.com">
+        <button class="btn on-ink" type="submit">Subscribe</button>
+      </div>
+    </div>
+    <p class="fine">Our list is a short, occasional email, and you can leave it at any time. We never share addresses.</p>
+  </form>
+</section>
+</main>
+
+<footer>
+  <h2 class="wm" aria-label="Offset Press"><span data-t="offset" aria-hidden="true">offset</span> <span data-t="press" aria-hidden="true">press</span></h2>
+  <div class="f-places on-ink">
+    <ul class="big">
+      <li><a href="mailto:hello@offsetpress.example">hello@offsetpress.example</a></li>
+      <li><a href="#">@offsetpress</a></li>
+      <li>Unit 4, Wharf Lane</li>
+    </ul>
+    <div class="f-cols">
+      <div><strong>Shop</strong><a href="#releases">Posters</a><br><a href="#releases">Records</a><br><a href="#catalogue">All releases</a></div>
+      <div><strong>Studio</strong><a href="#studio">About</a><br><a href="#events">Events</a><br><a href="mailto:hello@offsetpress.example?subject=Commission">Commissions</a></div>
+      <div><strong>Stay close</strong><a href="#list">Mailing list</a><br><a href="mailto:hello@offsetpress.example">Contact</a></div>
+    </div>
+  </div>
+  <p class="credits">Pictures: <a href="https://commons.wikimedia.org/wiki/File:Screen_printing_demonstration_at_TEDxUTM.jpg">“Screen printing demonstration at TEDxUTM”</a> by Ahmad Ali Karim, <a href="https://creativecommons.org/publicdomain/zero/1.0/deed.en">CC0</a>; <a href="https://commons.wikimedia.org/wiki/File:Screen_print_hand_bench_proffesional_print_bench_in_Squeegee_%26_Ink_studio.jpg">“Screen print hand bench… in Squeegee &amp; Ink studio”</a> by Scrud123, <a href="https://creativecommons.org/licenses/by-sa/3.0">CC BY-SA 3.0</a>; <a href="https://commons.wikimedia.org/wiki/File:Vinyl_pressing_machine.jpg">“Vinyl pressing machine”</a> by Christina Xu, <a href="https://creativecommons.org/licenses/by-sa/2.0">CC BY-SA 2.0</a>; <a href="https://commons.wikimedia.org/wiki/File:Pro-Ject_Debut_III_with_Ortofon_cartridge_spinning_coloured_vinyl_(3).jpg">“Pro-Ject Debut III … coloured vinyl (3)”</a> by traaf, <a href="https://creativecommons.org/licenses/by-sa/2.0">CC BY-SA 2.0</a>. Footage: <a href="https://commons.wikimedia.org/wiki/File:Video_Proses_Silk_Screen.webm">“Video Proses Silk Screen”</a> by Encik Tekateki, <a href="https://creativecommons.org/licenses/by-sa/4.0">CC BY-SA 4.0</a>. All via Wikimedia Commons.</p>
+  <div class="f-last on-ink"><span>© 2026 Offset Press. Hand-pulled, numbered, small.</span><a href="#top" onclick="window.scrollTo({top:0})">Back to top</a></div>
+</footer>
+
+<script>
+(function () {
+  var root = document.documentElement;
+  var inputs = [].slice.call(document.querySelectorAll('[data-reg]'));
+  var outs = [].slice.call(document.querySelectorAll('[data-out]'));
+  function setReg(v) {
+    root.style.setProperty('--reg', v + 'px');
+    inputs.forEach(function (i) { i.value = v; });
+    outs.forEach(function (o) { o.textContent = v + ' pt'; });
+  }
+  inputs.forEach(function (i) { i.addEventListener('input', function () { setReg(i.value); }); });
+
+  var items = [].slice.call(document.querySelectorAll('[data-r]'));
+  if (!('IntersectionObserver' in window)) { items.forEach(function (e) { e.classList.add('in'); }); return; }
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } });
+  }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+  items.forEach(function (e) { io.observe(e); });
+  setTimeout(function () { items.forEach(function (e) { if (e.getBoundingClientRect().top < innerHeight) e.classList.add('in'); }); }, 1200);
+})();
+</script>
+</body>
+</html>

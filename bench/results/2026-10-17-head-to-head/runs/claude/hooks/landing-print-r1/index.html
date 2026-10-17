@@ -1,0 +1,475 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Offset Press — Screen-printed posters and vinyl records</title>
+<meta name="description" content="Offset Press is an independent print studio and record label. Limited-run screen-printed posters and vinyl records, numbered by hand.">
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Archivo+Black:wght@400&family=Archivo:wght@400;600;800&family=Space+Mono:wght@400;700&display=swap");
+
+:root {
+  --bg: #f3f4f3;
+  --surface: #f8f9f8;
+  --surface-2: #e8e8e8;
+  --line: #c9c9c9;
+  --ink: #202120;
+  --ink-2: #666666;
+  --accent: #028108;
+  --accent-ink: #028108;
+  --on-accent: #f6fcf5;
+  --danger: #a7463e;
+  --font-display: "Archivo Black", system-ui, sans-serif;
+  --font-text: "Archivo", system-ui, sans-serif;
+  --font-mono: "Space Mono", ui-monospace, Menlo, Consolas, monospace;
+  --step-0: 1rem;
+  --step-1: 1.5rem;
+  --step-2: 2.25rem;
+  --step-3: 3.375rem;
+  --step-4: clamp(3.375rem, 6.33vw, 5.063rem);
+  --step--1: 0.667rem;
+  --step-display: clamp(2.5rem, 10vw, 8rem);
+  --tracking-display: -0.01em;
+  --leading: 1.45;
+  --measure: 62ch;
+  --radius: 0px;
+  --border: 2px;
+  --shadow: 4px 4px 0 var(--ink);
+  --duration: 80ms;
+  --duration-entrance: 400ms;
+  --ease: linear;
+  --gap: 24px;
+  --section: 96px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: auto; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-text);
+  font-size: var(--step-0);
+  line-height: var(--leading);
+  overflow-x: clip;
+}
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  text-transform: uppercase;
+  line-height: 1.05;
+  letter-spacing: 0;
+  margin: 0;
+}
+p { margin: 0; max-width: var(--measure); }
+a { color: inherit; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.mono, .tag, th, td.num, label, .cap {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+.tag {
+  display: inline-block;
+  border: 1px solid currentColor;
+  padding: 2px 8px;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.wrap { max-width: 1200px; margin: 0 auto; padding: 0 var(--gap); }
+
+/* buttons */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  height: 40px; padding: 0 16px;
+  border: var(--border) solid var(--ink);
+  border-radius: var(--radius);
+  font: 600 var(--step-0)/1 var(--font-text);
+  text-decoration: none; cursor: pointer;
+  background: var(--bg); color: var(--ink);
+  transition: background-color var(--duration) var(--ease), color var(--duration) var(--ease);
+}
+.btn:hover { background: var(--ink); color: var(--bg); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.btn.primary:hover { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+.btn.secondary { background: transparent; border-color: var(--line); }
+.btn.secondary:hover { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+
+/* nav */
+.nav { border-bottom: var(--border) solid var(--ink); background: var(--bg); }
+.nav .wrap { display: flex; flex-wrap: wrap; gap: 8px 24px; align-items: center; justify-content: space-between; padding-top: 12px; padding-bottom: 12px; }
+.nav .brand { font-family: var(--font-display); text-transform: uppercase; text-decoration: none; }
+.nav ul { display: flex; flex-wrap: wrap; gap: 4px 20px; list-style: none; margin: 0; padding: 0; font-family: var(--font-mono); font-size: 0.8125rem; text-transform: uppercase; }
+.nav a.l { text-decoration: none; }
+.nav a.l:hover { text-decoration: underline; text-underline-offset: 4px; }
+
+/* hero split */
+.hero { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); border-bottom: var(--border) solid var(--ink); overflow: clip; }
+.hero-l { background: var(--accent); color: var(--on-accent); container-type: inline-size; }
+.hero-l .stick { position: sticky; top: 0; min-height: 100vh; display: flex; flex-direction: column; justify-content: space-between; gap: 32px; padding: 32px var(--gap); }
+.hero h1 { font-size: min(var(--step-display), 17cqw); line-height: 0.92; letter-spacing: var(--tracking-display); }
+.hero-l p { font-size: var(--step-1); line-height: 1.2; font-weight: 600; max-width: 18ch; }
+.hero-l .actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.hero-l .btn.secondary { border-color: var(--on-accent); color: var(--on-accent); }
+.hero-l .btn.secondary:hover { background: var(--bg); color: var(--ink); border-color: var(--bg); }
+.hero-l .btn.primary { background: var(--bg); color: var(--ink); border-color: var(--bg); }
+.hero-l .btn.primary:hover { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.hero-r { padding: 40px var(--gap); display: grid; gap: 40px; align-content: start; position: relative; }
+.hero-r > * { min-width: 0; }
+
+/* poster object */
+.poster {
+  position: relative; aspect-ratio: 3 / 4; max-width: 460px; width: 100%; margin: 0 auto;
+  background: var(--surface); border: var(--border) solid var(--ink); box-shadow: var(--shadow);
+  display: grid; grid-template-rows: auto 1fr auto; padding: 20px; overflow: clip;
+}
+.poster .top { display: flex; justify-content: space-between; gap: 8px; font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase; }
+.poster .art { position: relative; display: grid; place-items: center; }
+.poster .circle { position: absolute; width: 62%; aspect-ratio: 1; background: var(--accent); }
+.poster .circle.b { background: var(--ink); transform: translate(10%, 8%); mix-blend-mode: multiply; }
+.poster .art span { position: relative; font-family: var(--font-display); font-size: clamp(2.5rem, 12vw, 4.4rem); line-height: 0.9; text-transform: uppercase; color: var(--bg); mix-blend-mode: difference; text-align: center; }
+.poster .bot { display: flex; justify-content: space-between; align-items: end; gap: 8px; font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase; }
+.reg { position: absolute; width: 18px; height: 18px; border: 1px solid var(--ink); border-radius: 50%; }
+.reg::before, .reg::after { content: ""; position: absolute; background: var(--ink); }
+.reg::before { left: 50%; top: -5px; bottom: -5px; width: 1px; }
+.reg::after { top: 50%; left: -5px; right: -5px; height: 1px; }
+.reg.tl { top: 6px; left: 50%; }
+.reg.br { bottom: 6px; right: 50%; }
+.stamp { position: absolute; right: 16px; top: 52px; transform: rotate(8deg); border: var(--border) solid var(--accent-ink); color: var(--accent-ink); padding: 2px 8px; font-family: var(--font-mono); font-weight: 700; font-size: 0.8125rem; text-transform: uppercase; background: var(--surface); }
+
+.sheet { border: var(--border) solid var(--ink); background: var(--surface); }
+.sheet table { width: 100%; border-collapse: collapse; }
+.scroll { overflow-x: auto; }
+th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--line); font-size: 0.8125rem; vertical-align: baseline; white-space: nowrap; }
+th { text-transform: uppercase; font-weight: 400; color: var(--ink-2); }
+td.num, th.num { text-align: right; }
+tr:last-child td { border-bottom: 0; }
+.sheet caption { text-align: left; padding: 10px 12px; font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase; border-bottom: var(--border) solid var(--ink); }
+
+/* sections */
+section.s { padding: var(--section) 0; }
+.s-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 24px; border-top: var(--border) solid var(--ink); padding-top: 16px; margin-bottom: 40px; }
+.s-head .idx { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 0.875rem; }
+.s-head h2 { font-size: clamp(2.25rem, 6vw, var(--step-4)); }
+
+/* releases */
+.grid-rel { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--gap); }
+.rel { border: var(--border) solid var(--ink); background: var(--surface); display: grid; grid-template-rows: auto 1fr; transition: transform var(--duration) var(--ease), box-shadow var(--duration) var(--ease); }
+.rel:hover { transform: translate(-4px, -4px); box-shadow: var(--shadow); }
+.rel.lead { grid-column: span 7; }
+.rel.side { grid-column: span 5; }
+.rel.third { grid-column: span 4; }
+.cover { position: relative; aspect-ratio: 16 / 10; border-bottom: var(--border) solid var(--ink); overflow: clip; background: var(--surface-2); }
+.rel.third .cover, .rel.side .cover { aspect-ratio: 4 / 3; }
+.cover .rec { position: absolute; right: -12%; top: 50%; width: 62%; aspect-ratio: 1; transform: translateY(-50%); border-radius: 50%; background: var(--ink); }
+.cover .rec::after { content: ""; position: absolute; inset: 36%; border-radius: 50%; background: var(--accent); }
+.cover .slab { position: absolute; left: 8%; top: 12%; bottom: 12%; width: 46%; background: var(--accent); border: var(--border) solid var(--ink); display: grid; align-content: end; padding: 10px; color: var(--on-accent); font-family: var(--font-display); text-transform: uppercase; font-size: 1.5rem; line-height: 0.95; }
+.cover .slab.ink { background: var(--ink); color: var(--bg); }
+.cover .slab.paper { background: var(--bg); color: var(--ink); }
+.cover .bars { position: absolute; inset: 0; background: repeating-linear-gradient(90deg, transparent 0 22px, var(--ink) 22px 26px); opacity: 0.12; }
+.rel-b { padding: 16px; display: grid; gap: 12px; align-content: start; }
+.rel-b h3 { font-size: var(--step-1); }
+.rel-b .row { display: flex; flex-wrap: wrap; gap: 8px; }
+.rel-b .buy { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: auto; padding-top: 12px; border-top: 1px solid var(--line); }
+.price { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-weight: 700; font-size: var(--step-1); }
+.rel.lead .price { color: var(--accent-ink); }
+
+/* about */
+.about { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--gap); }
+.about .big { grid-column: span 7; font-family: var(--font-display); text-transform: uppercase; font-size: clamp(1.75rem, 4vw, var(--step-2)); line-height: 1.05; }
+.about .body { grid-column: span 5; display: grid; gap: 16px; }
+.about dl { grid-column: 1 / -1; margin: 24px 0 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(14rem, 100%), 1fr)); border: var(--border) solid var(--ink); }
+.about dl div { padding: 16px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); background: var(--surface); }
+.about dt { font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase; color: var(--ink-2); }
+.about dd { margin: 4px 0 0; font-weight: 600; }
+
+/* events */
+.events { background: var(--surface-2); border-top: var(--border) solid var(--ink); border-bottom: var(--border) solid var(--ink); }
+.ev { list-style: none; margin: 0; padding: 0; border: var(--border) solid var(--ink); background: var(--surface); }
+.ev li { display: grid; grid-template-columns: 7rem minmax(0, 1fr) auto; gap: 8px 24px; align-items: center; padding: 16px; border-bottom: 1px solid var(--line); }
+.ev li:last-child { border-bottom: 0; }
+.ev .d { font-family: var(--font-display); font-size: var(--step-1); text-transform: uppercase; line-height: 1; font-variant-numeric: tabular-nums; }
+.ev .d small { display: block; font-family: var(--font-mono); font-size: 0.75rem; margin-top: 4px; }
+.ev h3 { font-size: 1.125rem; }
+.ev p { color: var(--ink-2); font-size: 0.9375rem; }
+
+/* signup: inverted ink field */
+.signup { background: var(--ink); color: var(--bg); padding: var(--section) 0; }
+.signup .grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: var(--gap) 48px; align-items: start; }
+.signup h2 { font-size: clamp(2.5rem, 7vw, var(--step-4)); }
+.signup p { margin-top: 16px; }
+form { display: grid; gap: 16px; }
+.field { display: grid; gap: 6px; }
+label { font-size: 0.8125rem; text-transform: uppercase; }
+input[type=text], input[type=email] {
+  height: 40px; padding: 0 12px; border: var(--border) solid var(--line); border-radius: var(--radius);
+  background: var(--surface); color: var(--ink); font: 400 var(--step-0) var(--font-text); width: 100%;
+  transition: border-color var(--duration) var(--ease);
+}
+input:focus-visible { outline: 3px solid var(--bg); outline-offset: 2px; border-color: var(--bg); }
+fieldset { border: var(--border) solid var(--line); margin: 0; padding: 12px 16px; display: flex; flex-wrap: wrap; gap: 8px 24px; }
+legend { font-family: var(--font-mono); font-size: 0.8125rem; text-transform: uppercase; padding: 0 6px; }
+fieldset label { display: inline-flex; align-items: center; gap: 8px; text-transform: none; font-family: var(--font-text); font-size: var(--step-0); }
+input[type=checkbox] { width: 20px; height: 20px; accent-color: var(--accent); margin: 0; }
+.signup .btn { background: var(--bg); color: var(--ink); border-color: var(--bg); justify-self: start; }
+.signup .btn:hover { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.note { font-family: var(--font-mono); font-size: 0.75rem; }
+
+footer { background: var(--bg); border-top: var(--border) solid var(--ink); }
+footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: space-between; padding-top: 20px; padding-bottom: 20px; font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase; }
+
+/* entrance: first screen only, stepped, opacity + transform */
+@keyframes cut { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+.in { animation: cut var(--duration-entrance) steps(4, end) both; }
+.in.a { animation-delay: 0ms; }
+.in.b { animation-delay: 160ms; }
+.in.c { animation-delay: 320ms; }
+@media (prefers-reduced-motion: reduce) {
+  .in { animation: none; }
+  .rel { transition: none; }
+  .rel:hover { transform: none; }
+}
+
+@media (max-width: 1023px) {
+  .rel.lead, .rel.side { grid-column: span 12; }
+  .rel.third { grid-column: span 6; }
+}
+@media (max-width: 767px) {
+  :root { --section: 56px; }
+  .hero { grid-template-columns: minmax(0, 1fr); }
+  .hero-l .stick { position: static; min-height: 0; }
+  .hero-r { padding: 32px var(--gap); }
+  .grid-rel, .about { grid-template-columns: minmax(0, 1fr); }
+  .rel.lead, .rel.side, .rel.third, .about .big, .about .body { grid-column: auto; }
+  .ev li { grid-template-columns: minmax(0, 1fr); }
+  .signup .grid { grid-template-columns: minmax(0, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="#top">Offset Press</a>
+    <nav aria-label="Primary">
+      <ul>
+        <li><a class="l" href="#releases">Releases</a></li>
+        <li><a class="l" href="#studio">Studio</a></li>
+        <li><a class="l" href="#events">Events</a></li>
+        <li><a class="l" href="#list">Mailing list</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero" aria-label="Offset Press">
+    <div class="hero-l">
+      <div class="stick">
+        <h1 class="in a">Offset<br>Press</h1>
+        <div class="in c" style="display:grid;gap:24px">
+          <p>Screen-printed posters. Pressed vinyl. Numbered by hand.</p>
+          <div class="actions">
+            <a class="btn primary" href="#releases">Shop current releases</a>
+            <a class="btn secondary" href="#list">Join the mailing list</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-r">
+      <figure class="poster in b" style="margin:0 auto" aria-label="Sample poster: Low Tide, three-colour screen print">
+        <span class="reg tl" aria-hidden="true"></span>
+        <span class="reg br" aria-hidden="true"></span>
+        <div class="top"><span>Low Tide</span><span>3 colours</span></div>
+        <div class="art" aria-hidden="true">
+          <div class="circle"></div>
+          <div class="circle b"></div>
+          <span>Low<br>Tide</span>
+        </div>
+        <div class="bot"><span>18 × 24 in<br>Edition of 150</span><span>No. 047 / 150</span></div>
+        <span class="stamp">Hand pulled</span>
+      </figure>
+
+      <div class="sheet in b">
+        <div class="scroll">
+          <table>
+            <caption>Press sheet · this month</caption>
+            <thead><tr><th>Item</th><th>Format</th><th class="num">Edition</th><th class="num">USD</th></tr></thead>
+            <tbody>
+              <tr><td>Low Tide</td><td>Poster 18×24</td><td class="num">150</td><td class="num">45.00</td></tr>
+              <tr><td>Night Shift</td><td>12" LP</td><td class="num">300</td><td class="num">32.00</td></tr>
+              <tr><td>Saltwater Hymn</td><td>7" single</td><td class="num">200</td><td class="num">12.00</td></tr>
+              <tr><td>Grid Study 04</td><td>Poster 24×36</td><td class="num">75</td><td class="num">68.00</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="s" id="releases">
+    <div class="wrap">
+      <div class="s-head">
+        <span class="idx">01</span>
+        <h2>Current releases</h2>
+      </div>
+
+      <div class="grid-rel">
+        <article class="rel lead">
+          <div class="cover" aria-hidden="true">
+            <div class="bars"></div>
+            <div class="rec"></div>
+            <div class="slab">Night<br>Shift</div>
+          </div>
+          <div class="rel-b">
+            <div class="row"><span class="tag">12" LP</span><span class="tag">Black vinyl</span><span class="tag">New</span></div>
+            <h3>Night Shift</h3>
+            <p>Eight tracks of drum machine and bass guitar, cut for 33⅓ rpm. Gatefold sleeve, screen-printed in two inks.</p>
+            <div class="buy"><span class="price">$32.00</span><a class="btn primary" href="#list">Reserve Night Shift</a></div>
+          </div>
+        </article>
+
+        <article class="rel side">
+          <div class="cover" aria-hidden="true">
+            <div class="slab paper" style="width:60%">Low<br>Tide</div>
+          </div>
+          <div class="rel-b">
+            <div class="row"><span class="tag">Poster 18×24</span><span class="tag">3 colours</span></div>
+            <h3>Low Tide</h3>
+            <p>Green, black and bone on 100 lb cotton stock. Signed and numbered, edition of 150.</p>
+            <div class="buy"><span class="price">$45.00</span><a class="btn" href="#list">Reserve Low Tide</a></div>
+          </div>
+        </article>
+
+        <article class="rel third">
+          <div class="cover" aria-hidden="true">
+            <div class="rec" style="background:var(--accent)"></div>
+            <div class="slab ink" style="width:50%">Salt<br>water</div>
+          </div>
+          <div class="rel-b">
+            <div class="row"><span class="tag">7" single</span><span class="tag">Green vinyl</span></div>
+            <h3>Saltwater Hymn</h3>
+            <p>Two sides, one take. Edition of 200.</p>
+            <div class="buy"><span class="price">$12.00</span><a class="btn" href="#list">Reserve Saltwater Hymn</a></div>
+          </div>
+        </article>
+
+        <article class="rel third">
+          <div class="cover" aria-hidden="true">
+            <div class="bars" style="opacity:.25"></div>
+            <div class="slab" style="width:60%">Grid<br>04</div>
+          </div>
+          <div class="rel-b">
+            <div class="row"><span class="tag">Poster 24×36</span><span class="tag">1 colour</span></div>
+            <h3>Grid Study 04</h3>
+            <p>One pass of green on heavy off-white. Edition of 75.</p>
+            <div class="buy"><span class="price">$68.00</span><a class="btn" href="#list">Reserve Grid Study 04</a></div>
+          </div>
+        </article>
+
+        <article class="rel third">
+          <div class="cover" aria-hidden="true">
+            <div class="rec" style="right:auto;left:-14%"></div>
+            <div class="slab paper" style="left:auto;right:8%;width:44%">Wire<br>Choir</div>
+          </div>
+          <div class="rel-b">
+            <div class="row"><span class="tag">12" EP</span><span class="tag">Sold out</span></div>
+            <h3>Wire Choir</h3>
+            <p>First pressing is gone. Join the list to hear about a repress.</p>
+            <div class="buy"><span class="price">$22.00</span><a class="btn secondary" href="#list">Get repress alerts</a></div>
+          </div>
+        </article>
+      </div>
+      <p class="note" style="margin-top:16px">Prices in USD, before shipping and tax.</p>
+    </div>
+  </section>
+
+  <section class="s" id="studio" style="padding-top:0">
+    <div class="wrap">
+      <div class="s-head">
+        <span class="idx">02</span>
+        <h2>The studio</h2>
+      </div>
+      <div class="about">
+        <p class="big">One room. One press. Every sheet pulled by hand, every record sleeved by us.</p>
+        <div class="body">
+          <p>Offset Press is a print studio and record label run by the same small crew. We pull posters on a manual four-colour press and press vinyl in short runs, so a release is never larger than the people who want it.</p>
+          <p>Editions are capped and numbered. When a run ends, the screens are reclaimed and the art is retired.</p>
+        </div>
+        <dl>
+          <div><dt>Process</dt><dd>Water-based screen printing</dd></div>
+          <div><dt>Stock</dt><dd>100 lb cotton and uncoated board</dd></div>
+          <div><dt>Records</dt><dd>7" and 12", short-run pressing</dd></div>
+          <div><dt>Numbering</dt><dd>Signed and numbered, by hand</dd></div>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <section class="s events" id="events">
+    <div class="wrap">
+      <div class="s-head" style="border-top:0;padding-top:0">
+        <span class="idx">03</span>
+        <h2>Upcoming events</h2>
+      </div>
+      <ul class="ev">
+        <li>
+          <div class="d">07 Nov<small>2026 · Sat</small></div>
+          <div><h3>Night Shift release show</h3><p>Live set, listening party and first access to the LP.</p></div>
+          <span class="tag">Doors 19:00</span>
+        </li>
+        <li>
+          <div class="d">21 Nov<small>2026 · Sat</small></div>
+          <div><h3>Open studio: pull a print</h3><p>Squeegee a one-colour poster yourself and take it home.</p></div>
+          <span class="tag">12:00–16:00</span>
+        </li>
+        <li>
+          <div class="d">12 Dec<small>2026 · Sat</small></div>
+          <div><h3>Winter poster fair</h3><p>Table of editions, test prints and back-catalogue vinyl.</p></div>
+          <span class="tag">10:00–18:00</span>
+        </li>
+      </ul>
+      <p class="note" style="margin-top:16px">Venues and tickets are sent to the mailing list first.</p>
+    </div>
+  </section>
+
+  <section class="signup" id="list">
+    <div class="wrap grid">
+      <div>
+        <h2>Get the drop first</h2>
+        <p>One email per release. Edition size, price and the hour it goes live.</p>
+      </div>
+      <form action="mailto:hello@offsetpress.example" method="post" enctype="text/plain">
+        <div class="field">
+          <label for="name">Name</label>
+          <input id="name" name="name" type="text" autocomplete="name" required>
+        </div>
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" autocomplete="email" required>
+        </div>
+        <fieldset>
+          <legend>Send me</legend>
+          <label><input type="checkbox" name="interest" value="posters" checked> Posters</label>
+          <label><input type="checkbox" name="interest" value="records" checked> Records</label>
+          <label><input type="checkbox" name="interest" value="events"> Events</label>
+        </fieldset>
+        <button class="btn" type="submit">Join the mailing list</button>
+        <p class="note">Unsubscribe with one reply. We do not share addresses.</p>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Offset Press</span>
+    <span>Posters · Records</span>
+    <a href="#top">Back to top</a>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Offset Press: screen-printed posters and vinyl records</title>
+<meta name="description" content="Offset Press is an independent print studio and record label. Limited-run screen-printed posters and vinyl records, pressed in small editions.">
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Archivo+Black:wght@400&family=Archivo:wght@400;600;800&family=Space+Mono:wght@400;700&display=swap");
+
+:root {
+  --bg: #f6f3f2;
+  --surface: #faf9f8;
+  --surface-2: #ebe8e6;
+  --line: #ccc9c7;
+  --ink: #242120;
+  --ink-2: #696564;
+  --accent: #c64902;
+  --accent-ink: #c04804;
+  --on-accent: #fef9f7;
+  --danger: #a7463e;
+  --font-display: "Archivo Black", system-ui, sans-serif;
+  --font-text: "Archivo", system-ui, sans-serif;
+  --font-mono: "Space Mono", ui-monospace, Menlo, Consolas, monospace;
+  --step-0: 1rem;
+  --step-1: 1.5rem;
+  --step-2: 2.25rem;
+  --step-3: 3.375rem;
+  --step-4: clamp(3.375rem, 6.33vw, 5.063rem);
+  --step--1: 0.667rem;
+  --step-display: clamp(2.5rem, 10vw, 8rem);
+  --tracking-display: -0.01em;
+  --leading: 1.45;
+  --measure: 62ch;
+  --radius: 0px;
+  --border: 2px;
+  --shadow: 4px 4px 0 var(--ink);
+  --duration: 80ms;
+  --duration-entrance: 400ms;
+  --ease: linear;
+  --section-gap: 96px;
+}
+
+* { box-sizing: border-box; margin: 0; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-text);
+  font-size: var(--step-0);
+  line-height: var(--leading);
+  overflow-x: clip;
+}
+a { color: inherit; }
+:focus-visible { outline: var(--border) solid var(--accent); outline-offset: 3px; }
+
+.wrap { max-width: 1248px; margin: 0 auto; padding: 0 24px; }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 400; text-transform: uppercase; }
+h2 { font-size: var(--step-3); line-height: 1.05; letter-spacing: 0; overflow-wrap: break-word; }
+p { max-width: var(--measure); }
+.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.label {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--step--1);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* buttons */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 40px; padding: 0 16px;
+  font: 600 var(--step-0)/1 var(--font-text);
+  text-decoration: none; cursor: pointer;
+  border: var(--border) solid transparent; border-radius: var(--radius);
+  transition: background-color var(--duration) var(--ease), color var(--duration) var(--ease), border-color var(--duration) var(--ease);
+}
+.btn-primary { background: var(--accent); color: var(--on-accent); }
+.btn-primary:hover { background: var(--ink); color: var(--bg); }
+.btn-secondary { background: transparent; color: var(--ink); border-color: var(--line); }
+.btn-secondary:hover { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.btn-field { background: var(--bg); color: var(--ink); }
+.btn-field:hover { background: var(--ink); color: var(--bg); }
+
+/* nav */
+header.top { border-bottom: var(--border) solid var(--ink); background: var(--bg); position: relative; z-index: 2; }
+header.top .wrap { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 24px; padding-top: 12px; padding-bottom: 12px; }
+.brand { font-family: var(--font-display); text-transform: uppercase; text-decoration: none; font-size: var(--step-1); line-height: 1; }
+nav ul { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 4px 24px; }
+nav a { font-family: var(--font-mono); font-size: var(--step-0); text-decoration: none; padding: 8px 0; display: inline-block; border-bottom: var(--border) solid transparent; transition: border-color var(--duration) var(--ease), color var(--duration) var(--ease); }
+nav a:hover { border-color: var(--accent); color: var(--accent-ink); }
+
+/* hero */
+.hero { position: relative; overflow: clip; min-height: calc(100svh - 64px); display: flex; }
+.hero .wrap { position: relative; width: 100%; display: flex; flex-direction: column; justify-content: space-between; padding-top: 32px; padding-bottom: 32px; gap: 40px; }
+.cols { position: absolute; inset: 0; max-width: 1248px; margin: 0 auto; padding: 0 24px; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px; pointer-events: none; }
+.cols span { border-left: 1px solid var(--line); }
+.cols span:last-child { border-right: 1px solid var(--line); }
+.hero h1 { position: relative; font-size: var(--step-display); line-height: 0.92; letter-spacing: var(--tracking-display); }
+.hero h1 span { display: block; }
+.hero h1 .hot { color: var(--accent-ink); }
+.hero-foot { position: relative; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px; align-items: end; }
+.hero-foot .stamp { grid-column: 1 / span 5; align-self: end; }
+.hero-foot .col { grid-column: 9 / span 4; background: var(--bg); border-top: var(--border) solid var(--ink); padding-top: 16px; display: grid; gap: 16px; justify-items: start; }
+.hero-foot .col p { font-weight: 600; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.stamp-box { display: inline-block; border: var(--border) solid var(--ink); padding: 6px 10px; transform: rotate(-3deg); background: var(--bg); }
+
+@keyframes cut-in { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+.in { animation: cut-in var(--duration-entrance) steps(4, end) both; }
+.in-1 { animation-delay: 0ms; }
+.in-2 { animation-delay: 120ms; }
+.in-3 { animation-delay: 240ms; }
+@media (prefers-reduced-motion: reduce) { .in { animation: none; } }
+
+/* proof */
+section.block { padding-top: var(--section-gap); }
+.proof { border-top: var(--border) solid var(--ink); padding-top: 32px; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px; row-gap: 16px; }
+.proof .label { grid-column: 1 / span 3; }
+.proof p { grid-column: 4 / span 8; font-size: var(--step-1); line-height: 1.25; font-weight: 600; max-width: 34ch; }
+
+.head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 24px; margin-bottom: 32px; }
+
+/* tables */
+.scroll { overflow-x: auto; border-top: var(--border) solid var(--ink); border-bottom: var(--border) solid var(--ink); }
+table { width: 100%; border-collapse: collapse; min-width: 640px; }
+th, td { padding: 16px 12px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: middle; }
+tbody tr:last-child td { border-bottom: 0; }
+th { font-family: var(--font-mono); font-size: var(--step--1); font-weight: 400; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-2); }
+td.num, th.num { text-align: right; font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+td.idx { font-family: var(--font-display); font-size: var(--step-2); line-height: 1; width: 1%; padding-left: 0; color: var(--accent-ink); }
+td.title { font-family: var(--font-display); text-transform: uppercase; font-size: var(--step-1); line-height: 1.1; }
+td.title small { display: block; font-family: var(--font-text); text-transform: none; font-size: var(--step-0); color: var(--ink-2); margin-top: 4px; }
+tbody tr { transition: background-color var(--duration) var(--ease); }
+tbody tr:hover { background: var(--surface-2); }
+td.go { text-align: right; width: 1%; white-space: nowrap; padding-right: 0; }
+.price { font-size: var(--step-1); }
+
+/* about */
+.about { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px; row-gap: 32px; }
+.about h2 { grid-column: 1 / span 7; }
+.about .body { grid-column: 1 / span 6; display: grid; gap: 16px; }
+.about .specs { grid-column: 8 / span 5; grid-row: 1 / span 2; background: var(--surface); border: var(--border) solid var(--ink); box-shadow: var(--shadow); padding: 24px; align-self: start; }
+.specs dl { display: grid; grid-template-columns: auto 1fr; gap: 0; }
+.specs dt, .specs dd { padding: 10px 0; border-bottom: 1px solid var(--line); }
+.specs dt { font-family: var(--font-mono); font-size: var(--step--1); text-transform: uppercase; letter-spacing: 0.08em; padding-right: 16px; align-self: center; color: var(--ink-2); }
+.specs dd { text-align: right; font-weight: 600; }
+.specs dt:last-of-type, .specs dd:last-of-type { border-bottom: 0; }
+.specs .label { display: block; margin-bottom: 8px; }
+
+/* events */
+.when { font-family: var(--font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.tag { font-family: var(--font-mono); font-size: var(--step--1); text-transform: uppercase; letter-spacing: 0.08em; border: var(--border) solid var(--ink); padding: 2px 6px; white-space: nowrap; }
+
+/* signup: the one accent field */
+.field-section { margin-top: var(--section-gap); background: var(--accent); color: var(--on-accent); padding: var(--section-gap) 0; overflow: clip; position: relative; }
+.field-section .grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px; row-gap: 32px; }
+.field-section h2 { grid-column: 1 / span 7; font-size: var(--step-4); }
+.field-section .side { grid-column: 8 / span 5; display: grid; gap: 16px; align-content: start; }
+form { display: grid; gap: 16px; }
+.f { display: grid; gap: 6px; }
+.f label, .f legend { font-family: var(--font-mono); font-size: var(--step--1); text-transform: uppercase; letter-spacing: 0.08em; }
+.f input[type=email], .f input[type=text] {
+  min-height: 40px; padding: 0 12px; width: 100%;
+  font: var(--step-0) var(--font-text);
+  background: var(--surface); color: var(--ink);
+  border: var(--border) solid var(--line); border-radius: var(--radius);
+  transition: border-color var(--duration) var(--ease), background-color var(--duration) var(--ease);
+}
+.f input:focus-visible { outline: var(--border) solid var(--ink); outline-offset: 2px; border-color: var(--ink); }
+.f input:user-invalid { border-color: var(--danger); }
+.f .err { display: none; background: var(--surface); color: var(--danger); font-weight: 600; padding: 2px 8px; width: fit-content; }
+.f input:user-invalid ~ .err { display: block; }
+fieldset { border: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 24px; }
+fieldset legend { margin-bottom: 8px; padding: 0; }
+.check { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; cursor: pointer; }
+.check input { width: 20px; height: 20px; accent-color: var(--ink); margin: 0; }
+.fine { font-size: var(--step-0); }
+.fine a { text-underline-offset: 3px; }
+
+footer { padding: 32px 0; }
+footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; }
+footer a { text-underline-offset: 3px; }
+
+@media (max-width: 1023px) {
+  .hero-foot .stamp { grid-column: 1 / span 12; margin-bottom: 24px; }
+  .hero-foot .col { grid-column: 5 / span 8; }
+  .about .specs { grid-column: 1 / span 12; grid-row: auto; }
+  .about .body, .about h2 { grid-column: 1 / span 12; }
+  .field-section h2, .field-section .side { grid-column: 1 / span 12; }
+}
+@media (max-width: 767px) {
+  :root { --section-gap: 56px; }
+  h2 { font-size: var(--step-2); }
+  .field-section h2 { font-size: var(--step-3); }
+  .cols { grid-template-columns: repeat(4, minmax(0, 1fr)); column-gap: 12px; }
+  .cols span:nth-child(n+5) { display: none; }
+  .cols span:nth-child(4) { border-right: 1px solid var(--line); }
+  .hero-foot, .proof, .about, .field-section .grid { grid-template-columns: minmax(0, 1fr); }
+  .hero-foot .stamp, .hero-foot .col, .proof .label, .proof p, .about h2, .about .body, .about .specs, .field-section h2, .field-section .side { grid-column: 1 / -1; }
+  .proof p { font-size: var(--step-1); }
+  .specs { padding: 16px; }
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#top">Offset Press</a>
+    <nav aria-label="Primary">
+      <ul>
+        <li><a href="#releases">Releases</a></li>
+        <li><a href="#studio">Studio</a></li>
+        <li><a href="#events">Events</a></li>
+        <li><a href="#list">Mailing list</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="cols" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+    <div class="wrap">
+      <h1 id="hero-title" class="in in-1">
+        <span>Posters.</span>
+        <span>Records.</span>
+        <span class="hot">Small</span>
+        <span>runs.</span>
+      </h1>
+      <div class="hero-foot">
+        <div class="stamp in in-2"><span class="stamp-box label">Screen-printed + pressed in-house</span></div>
+        <div class="col in in-3">
+          <p>Hand-pulled posters and 12-inch vinyl from one independent studio. Every release is numbered, then gone.</p>
+          <div class="actions">
+            <a class="btn btn-primary" href="#releases">Shop current releases</a>
+            <a class="btn btn-secondary" href="#list">Join the mailing list</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <section class="block" aria-label="Summary">
+      <div class="proof">
+        <span class="label">Offset Press / Index</span>
+        <p>Offset Press is a print studio and a record label under one roof. Below: what is in stock now.</p>
+      </div>
+    </section>
+
+    <section class="block" id="releases" aria-labelledby="releases-title">
+      <div class="head">
+        <h2 id="releases-title">Releases</h2>
+        <span class="label">Prices in USD. Ships when the run is done.</span>
+      </div>
+      <div class="scroll" role="region" aria-label="Current releases" tabindex="0">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">No.</th>
+              <th scope="col">Release</th>
+              <th scope="col">Format</th>
+              <th scope="col" class="num">Edition</th>
+              <th scope="col" class="num">Price</th>
+              <th scope="col"><span class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)">Order</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="idx">01</td>
+              <td class="title">Night Shift<small>Two-color poster, 18 x 24 in</small></td>
+              <td>Screen print</td>
+              <td class="num">of 100</td>
+              <td class="num price">$45</td>
+              <td class="go"><a class="btn btn-primary" href="mailto:orders@offsetpress.example?subject=Order%20poster%3A%20Night%20Shift">Order poster</a></td>
+            </tr>
+            <tr>
+              <td class="idx">02</td>
+              <td class="title">Low Tide Sessions<small>12-inch LP, black vinyl</small></td>
+              <td>Vinyl</td>
+              <td class="num">of 300</td>
+              <td class="num price">$28</td>
+              <td class="go"><a class="btn btn-primary" href="mailto:orders@offsetpress.example?subject=Order%20LP%3A%20Low%20Tide%20Sessions">Order LP</a></td>
+            </tr>
+            <tr>
+              <td class="idx">03</td>
+              <td class="title">Concrete Hours<small>Three-color poster, 24 x 36 in</small></td>
+              <td>Screen print</td>
+              <td class="num">of 60</td>
+              <td class="num price">$60</td>
+              <td class="go"><a class="btn btn-primary" href="mailto:orders@offsetpress.example?subject=Order%20poster%3A%20Concrete%20Hours">Order poster</a></td>
+            </tr>
+            <tr>
+              <td class="idx">04</td>
+              <td class="title">Static Garden<small>7-inch single, orange vinyl</small></td>
+              <td>Vinyl</td>
+              <td class="num">of 200</td>
+              <td class="num price">$14</td>
+              <td class="go"><a class="btn btn-primary" href="mailto:orders@offsetpress.example?subject=Order%207-inch%3A%20Static%20Garden">Order 7-inch</a></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="block" id="studio" aria-labelledby="studio-title">
+      <div class="about">
+        <h2 id="studio-title">One room. Two presses.</h2>
+        <div class="body">
+          <p>Offset Press started as a screen-print bench and grew a record label. Posters are pulled by hand, one color at a time, on uncoated stock. Records are cut, pressed and sleeved in small batches.</p>
+          <p>Artists keep their masters. When an edition sells out, the screens are reclaimed and the run is closed.</p>
+        </div>
+        <aside class="specs" aria-label="Studio facts">
+          <span class="label">Spec sheet</span>
+          <dl>
+            <dt>Posters</dt><dd>Hand-pulled, numbered</dd>
+            <dt>Ink</dt><dd>Water-based</dd>
+            <dt>Records</dt><dd>7-inch and 12-inch</dd>
+            <dt>Reprints</dt><dd>Never</dd>
+          </dl>
+        </aside>
+      </div>
+    </section>
+
+    <section class="block" id="events" aria-labelledby="events-title">
+      <div class="head">
+        <h2 id="events-title">Events</h2>
+        <span class="label">Studio floor, doors open to the public</span>
+      </div>
+      <div class="scroll" role="region" aria-label="Upcoming events" tabindex="0">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Date</th>
+              <th scope="col">Event</th>
+              <th scope="col">Type</th>
+              <th scope="col" class="num">Doors</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="when">Sat 14 Nov 2026</td>
+              <td class="title">Open print night<small>Pull a one-color print yourself.</small></td>
+              <td><span class="tag">Workshop</span></td>
+              <td class="num">18:00</td>
+            </tr>
+            <tr>
+              <td class="when">Fri 4 Dec 2026</td>
+              <td class="title">Low Tide Sessions listening party<small>Full LP on the studio system, then Q&amp;A.</small></td>
+              <td><span class="tag">Listening</span></td>
+              <td class="num">19:30</td>
+            </tr>
+            <tr>
+              <td class="when">Sat 19 Dec 2026</td>
+              <td class="title">Winter poster sale<small>Last pulls of the year. Cash and card.</small></td>
+              <td><span class="tag">Sale</span></td>
+              <td class="num">12:00</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <section class="field-section" id="list" aria-labelledby="list-title">
+    <div class="wrap">
+      <div class="grid">
+        <h2 id="list-title">Get the drop first.</h2>
+        <div class="side">
+          <p>One email per release, sent before the shop opens. Nothing else.</p>
+          <form action="mailto:list@offsetpress.example" method="post" enctype="text/plain">
+            <div class="f">
+              <label for="email">Email address</label>
+              <input id="email" name="email" type="email" autocomplete="email" required placeholder="you@example.com">
+              <span class="err">Enter a valid email address, like you@example.com.</span>
+            </div>
+            <fieldset>
+              <legend>Send me</legend>
+              <label class="check"><input type="checkbox" name="interest" value="posters" checked> Posters</label>
+              <label class="check"><input type="checkbox" name="interest" value="records" checked> Records</label>
+            </fieldset>
+            <div><button class="btn btn-field" type="submit">Join the mailing list</button></div>
+          </form>
+          <p class="fine">Opens your mail app with the request addressed to the studio. Unsubscribe by replying "stop".</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span class="label">Offset Press, independent print studio and record label</span>
+    <a class="label" href="mailto:hello@offsetpress.example">hello@offsetpress.example</a>
+  </div>
+</footer>
+
+</body>
+</html>

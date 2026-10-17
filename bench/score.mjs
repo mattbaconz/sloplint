@@ -4,7 +4,8 @@
 //   node bench/score.mjs --runs ../bench-runs/2026-10-14 --out bench/results/2026-10-14
 //
 // Every run is scored on what the agent wrote: seed files it left alone, sloplint's own files
-// (DESIGN.md, CLAUDE.md, GEMINI.md, AGENTS.md, .cursor/, .claude/) and node_modules are excluded,
+// (DESIGN.md, CLAUDE.md, GEMINI.md, AGENTS.md, .cursor/, .claude/), the skills' working files
+// (PRODUCT.md, assets/credits.json and dot-folders such as .hallmark/) and node_modules are excluded,
 // so the arms are measured on the same footing. As with `sloplint check`, a run that has a
 // DESIGN.md is also held to its tokens (UI-011, UI-012), which only makes the sloplint arms
 // stricter. Task checks do not use sloplint: syntax, a test-suite mutation score, README accuracy
@@ -25,8 +26,13 @@ import { MUTANTS } from './tasks/tests/mutants.mjs';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const TASKS = join(ROOT, 'bench', 'tasks');
-const SLOPLINT_FILES = /^(DESIGN\.md|CLAUDE\.md|GEMINI\.md|AGENTS\.md|\.cursor\/.*|\.claude\/.*)$/;
+const TOOL_FILES = /^(DESIGN\.md|PRODUCT\.md|CLAUDE\.md|GEMINI\.md|AGENTS\.md|assets\/credits\.json|\.[^/]+\/.*)$/;
+// sloplint's arms first, then each skill followed by "<skill>+hooks".
 const ARMS = ['baseline', 'sloplint', 'hooks'];
+const armRank = (arm) => (ARMS.includes(arm) ? ARMS.indexOf(arm) : ARMS.length);
+const armOrder = (a, b) => armRank(a) - armRank(b) || a.localeCompare(b);
+// A skill arm is compared with baseline, and "<skill>+hooks" with the skill alone.
+const controlOf = (arm) => (arm.includes('+') ? arm.split('+')[0] : 'baseline');
 const SKIP_DIRS = new Set(['node_modules', '.git', 'dist', 'build', '.next', 'coverage']);
 const TEXT = /\.(m?[jt]sx?|cjs|json|html?|css|scss|md|mdx|vue|svelte|py|txt|ya?ml)$/i;
 
@@ -40,7 +46,7 @@ function authored(work, task) {
   const files = [];
   const seedModified = [];
   for (const rel of walk(work)) {
-    if (SLOPLINT_FILES.test(rel) || /(^|\/)package-lock\.json$/.test(rel) || !TEXT.test(rel)) continue;
+    if (TOOL_FILES.test(rel) || /(^|\/)package-lock\.json$/.test(rel) || !TEXT.test(rel)) continue;
     const text = readFileSync(join(work, rel), 'utf8');
     const original = existsSync(join(seed, rel)) ? readFileSync(join(seed, rel), 'utf8') : null;
     if (original === text) continue;
@@ -97,6 +103,19 @@ function readmeAccuracy(work) {
 }
 
 const isLanding = (task) => task.startsWith('landing');
+
+// Numbers the prompts never supply, so each one on a page is invented: percentages, "2,400+"-style
+// counts, multipliers, ratings and rows of stars. Prices and times are not counted. A crude regex
+// over the rendered text, independent of sloplint's rules (it overlaps COPY-005 in intent).
+const CLAIMS = [/\b\d+(?:[.,]\d+)?\s?%/g, /\b\d[\d,.]*\s?[kKmM]?\+/g, /\b\d+(?:\.\d+)?[x×](?=\s+[a-z])/g, /\b[1-5](?:\.\d)?\s?(?:\/\s?5|out of 5|stars?)\b/gi, /[★⭐]{3,}/g];
+const claimsIn = (text) => CLAIMS.flatMap((re) => text.match(re) ?? []);
+// Twelve 30-degree hue families, so "distinct CTA hues" ignores small shifts within one color.
+const HUES = ['red', 'orange', 'yellow', 'lime', 'green', 'teal', 'cyan', 'azure', 'blue', 'violet', 'magenta', 'rose'];
+const isColored = (c) => c && c.s >= 0.25 && c.l >= 0.15 && c.l <= 0.88;
+const hueFamily = (hex) => {
+  const c = hex && colorsIn(hex)[0];
+  return isColored(c) ? HUES[Math.round(c.h / 30) % 12] : 'neutral';
+};
 const shotName = (r) => `${r.agent}-${r.arm}-${r.task}-r${r.rep}`;
 
 async function landing(work, shots, name) {
@@ -109,7 +128,19 @@ async function landing(work, shots, name) {
     const tab = await ctx.newPage();
     const errors = [];
     tab.on('pageerror', (e) => errors.push(e.message));
-    await tab.route(/^https?:\/\/(?!fonts\.(googleapis|gstatic)\.com)/, (route) => route.abort());
+    // Remote fonts, stylesheets and images load, so a page that uses a font service or hotlinks a photo
+    // renders as its author meant; remote scripts and requests are blocked, and both are recorded.
+    const remoteHosts = new Set();
+    let blocked = 0;
+    await tab.route(/^https?:\/\//, (route) => {
+      const req = route.request();
+      if (!['font', 'stylesheet', 'image', 'media'].includes(req.resourceType())) {
+        blocked++;
+        return route.abort();
+      }
+      remoteHosts.add(new URL(req.url()).host);
+      return route.continue();
+    });
     await tab.goto(pathToFileURL(page).href, { waitUntil: 'load', timeout: 20_000 }).catch((e) => errors.push(e.message));
     // Let webfonts load and a first-screen entrance (at most 700ms) finish before the screenshot.
     await tab.evaluate(() => document.fonts.ready);
@@ -118,7 +149,7 @@ async function landing(work, shots, name) {
     await tab.screenshot({ path: join(shots, `${name}.jpg`), type: 'jpeg', quality: 72 });
     // The look: declared typefaces of the headline and body text, and the first colored fill on a
     // link or button, which is the primary call to action on nearly every landing page.
-    const { fills, ...info } = await tab.evaluate(() => {
+    const { fills, bodyText, ...info } = await tab.evaluate(() => {
       const face = (el) => (el ? getComputedStyle(el).fontFamily.split(',')[0].replace(/["']/g, '').trim() : null);
       const clear = /^(transparent|rgba\(0, 0, 0, 0\))$/;
       return {
@@ -126,17 +157,16 @@ async function landing(work, shots, name) {
         height: document.documentElement.scrollHeight,
         display: face(document.querySelector('h1')),
         text: face(document.querySelector('p') ?? document.body),
+        bodyText: document.body.innerText,
         fills: [...document.querySelectorAll('a, button')]
           .filter((el) => el.getBoundingClientRect().width > 0 && !clear.test(getComputedStyle(el).backgroundColor))
           .map((el) => getComputedStyle(el).backgroundColor),
       };
     });
     const hexes = fills.map(rgbaOf).filter(Boolean).map((c) => `#${c.slice(0, 3).map((v) => v.toString(16).padStart(2, '0')).join('')}`);
-    const colored = (hex) => {
-      const c = colorsIn(hex)[0];
-      return c && c.s >= 0.25 && c.l >= 0.15 && c.l <= 0.88;
-    };
-    info.cta = hexes.find(colored) ?? hexes[0] ?? null;
+    info.cta = hexes.find((hex) => isColored(colorsIn(hex)[0])) ?? hexes[0] ?? null;
+    const claims = claimsIn(bodyText);
+    Object.assign(info, { claims: claims.length, claimSamples: [...new Set(claims)].slice(0, 8), remoteHosts: [...remoteHosts].sort(), blockedRequests: blocked });
     await tab.setViewportSize({ width: 375, height: 812 });
     await tab.waitForTimeout(300);
     const overflow = await tab.evaluate(() => document.documentElement.scrollWidth > 375);
@@ -145,6 +175,51 @@ async function landing(work, shots, name) {
   } finally {
     await browser.close();
   }
+}
+
+// A contact sheet of first-viewport shots: one row per label, one column per run.
+async function grid(out, file, title, rows) {
+  const { chromium } = await import(pathToFileURL(join(ROOT, 'node_modules', '@playwright', 'test', 'index.mjs')).href);
+  const cols = Math.max(...rows.map((r) => r.shots.length));
+  const cell = (shot) => (shot ? `<img src="../shots/${shot}.jpg">` : '<div class="none">no page</div>');
+  const html = `<!doctype html><meta charset="utf-8"><style>
+    body { margin: 0; padding: 24px; background: #111; color: #eee; font: 15px/1.3 system-ui, sans-serif; width: max-content; }
+    h1 { font-size: 22px; margin: 0 0 16px; } .row { display: flex; gap: 12px; align-items: center; margin-bottom: 12px; }
+    .label { width: 170px; flex: none; } img, .none { width: 400px; height: 250px; display: block; }
+    .none { display: grid; place-items: center; background: #222; color: #888; }
+  </style><h1>${title}</h1>${rows.map((r) => `<div class="row"><div class="label">${r.label}</div>${Array.from({ length: cols }, (_, i) => cell(r.shots[i])).join('')}</div>`).join('')}`;
+  const page = join(out, 'grids', `_${file}.html`);
+  mkdirSync(join(out, 'grids'), { recursive: true });
+  writeFileSync(page, html);
+  const browser = await chromium.launch({ channel: 'chromium' });
+  try {
+    const tab = await browser.newPage({ viewport: { width: 400, height: 300 } });
+    await tab.goto(pathToFileURL(page).href, { waitUntil: 'load' });
+    await tab.screenshot({ path: join(out, 'grids', `${file}.jpg`), type: 'jpeg', quality: 80, fullPage: true });
+  } finally {
+    await browser.close();
+    rmSync(page);
+  }
+}
+
+async function grids(runs, out) {
+  const pages = runs.filter((r) => isLanding(r.task) && r.check.exists);
+  const reps = [...new Set(pages.map((r) => r.rep))].sort((a, b) => a - b);
+  const shot = (agent, arm, task) => reps.map((rep) => (pages.some((r) => r.agent === agent && r.arm === arm && r.task === task && r.rep === rep) ? shotName({ agent, arm, task, rep }) : null));
+  const made = [];
+  for (const agent of [...new Set(pages.map((r) => r.agent))]) {
+    const arms = [...new Set(pages.filter((r) => r.agent === agent).map((r) => r.arm))].sort(armOrder);
+    const tasks = [...new Set(pages.map((r) => r.task))].sort();
+    for (const arm of arms) {
+      await grid(out, `${agent}-${arm}`, `${agent} ${arm}`, tasks.map((task) => ({ label: task, shots: shot(agent, arm, task) })));
+      made.push({ kind: 'arm', agent, arm, file: `grids/${agent}-${arm}.jpg` });
+    }
+    for (const task of tasks) {
+      await grid(out, `${agent}-${task}`, `${agent} ${task}`, arms.map((arm) => ({ label: arm, shots: shot(agent, arm, task) })));
+      made.push({ kind: 'task', agent, task, file: `grids/${agent}-${task}.jpg` });
+    }
+  }
+  return made;
 }
 
 function syntax(work, files) {
@@ -198,13 +273,23 @@ const hueOf = (hex) => colorsIn(hex)[0];
 function report(runs, meta) {
   const agents = [...new Set(runs.map((r) => r.agent))];
   const tasks = [...new Set(runs.map((r) => r.task))];
-  const pick = (agent, arm, task) => runs.filter((r) => r.agent === agent && r.arm === arm && (!task || r.task === task));
-  const armsOf = (agent) => ARMS.filter((arm) => pick(agent, arm).length);
+  const pick = (agent, arm, task) => runs.filter((r) => r.agent === agent && (!arm || r.arm === arm) && (!task || r.task === task));
+  const armsOf = (agent) => [...new Set(pick(agent).map((r) => r.arm))].sort(armOrder);
   const cols = agents.flatMap((a) => armsOf(a).map((arm) => [a, arm]));
   const head = (first) => [`| ${first} | ${cols.map(([a, arm]) => `${a} ${arm}`).join(' | ')} |`, `| ${first.split(' | ').map(() => '---').join(' | ')} | ${cols.map(() => '---').join(' | ')} |`];
   const out = [];
   out.push(`# Benchmark: ${meta.date}`, '');
   out.push(`Same prompt, same model, fresh directory per run. \`baseline\` gets the task only; \`sloplint\` also gets \`sloplint init --brief <the prompt's first sentence>\` and a local install; \`hooks\` is \`sloplint\` plus \`--hooks\` (Claude Code only). ${runs.length} scored runs, up to ${meta.reps} per cell. Method and caveats: [bench/README.md](../../README.md).`, '');
+  const skills = [...new Map(runs.filter((r) => r.skill).map((r) => [r.skill.name, r.skill])).values()];
+  if (skills.length) {
+    out.push('A skill arm installs that third-party skill at a pinned commit as a project skill (`.claude/skills/<name>/`) with Claude Code\'s bundled skills turned off, so it is the only skill the agent sees; `<skill>+hooks` adds sloplint\'s hooks to it. The prompt never names the skill, so the agent loads it or not on its own.', '');
+    out.push('| Skill | Source at the pinned commit | Runs that loaded it | Runs of its scripts per run |', '| --- | --- | --- | --- |');
+    for (const sk of skills) {
+      const rs = runs.filter((r) => r.skill?.name === sk.name);
+      out.push(`| \`${sk.name}\` | [${sk.repo}@${sk.commit.slice(0, 7)}](${sk.url}) | ${rs.filter((r) => r.skillCalls?.length).length} of ${rs.length} | ${fmt(mean(rs.map((r) => r.skillScripts ?? 0)), 1)} |`);
+    }
+    out.push('');
+  }
   if (meta.failed.length) out.push(`Not scored (agent CLI error or timeout): ${meta.failed.map((f) => `${f.agent}/${f.arm}/${f.task} run ${f.rep}`).join(', ')}.`, '');
   out.push('## Summary', '');
   out.push('| Agent | Model | Arm | Mean Slop Score | Findings | Errors | Suppressions | Mean time | Mean turns | Mean tokens in/out | Mean cost |', '| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |');
@@ -215,12 +300,13 @@ function report(runs, meta) {
   }
   out.push('');
   for (const [agent, arm] of cols.filter(([, arm]) => arm !== 'baseline')) {
+    const control = controlOf(arm);
     const verdicts = tasks.map((task) => {
-      const b = mean(pick(agent, 'baseline', task).map((r) => r.score));
+      const b = mean(pick(agent, control, task).map((r) => r.score));
       const s = mean(pick(agent, arm, task).map((r) => r.score));
       return b == null || s == null ? null : Math.sign(s - b);
     }).filter((v) => v != null);
-    out.push(`- **${agent} ${arm}** against baseline: the mean score was lower on ${verdicts.filter((v) => v < 0).length} of ${verdicts.length} tasks, equal on ${verdicts.filter((v) => v === 0).length} and higher on ${verdicts.filter((v) => v > 0).length}.`);
+    out.push(`- **${agent} ${arm}** against ${control}: the mean score was lower on ${verdicts.filter((v) => v < 0).length} of ${verdicts.length} tasks, equal on ${verdicts.filter((v) => v === 0).length} and higher on ${verdicts.filter((v) => v > 0).length}.`);
   }
   out.push('', '## Slop Score by task', '', 'Mean score per cell, lower is better; individual runs in brackets.', '');
   out.push(...head('Task'));
@@ -242,6 +328,7 @@ function report(runs, meta) {
   for (const task of tasks.filter(isLanding)) {
     row(task, 'Overflows at 375px', (r) => (r.check.exists ? (r.check.overflowAt375 ? 'yes' : 'no') : 'missing'));
     row(task, 'Page errors', (r) => String(r.check.pageErrors ?? 'n/a'));
+    row(task, 'Invented numeric claims', (r) => String(r.check.claims ?? 'n/a'));
   }
   row('video', 'Files present', (r) => (r.check.exists ? 'yes' : 'no'));
   row('dashboard', 'File present', (r) => (r.check.exists ? 'yes' : 'no'));
@@ -249,19 +336,21 @@ function report(runs, meta) {
   const pages = runs.filter((r) => isLanding(r.task) && r.check.exists);
   if (pages.length) {
     out.push('', '## Landing page look', '', 'Declared headline and body typefaces, and the fill of the first filled link or button (the primary call to action), read from the rendered page. "AI purple" is the saturated indigo-to-violet band of UI-001.', '');
-    out.push('| Task | Agent | Arm | Run | Design system | Headline face | Body face | CTA fill |', '| --- | --- | --- | --- | --- | --- | --- | --- |');
+    out.push('| Task | Agent | Arm | Run | Design system | Headline face | Body face | CTA fill | Remote hosts |', '| --- | --- | --- | --- | --- | --- | --- | --- | --- |');
     for (const r of pages) {
       const c = r.check.cta && hueOf(r.check.cta);
-      const fill = r.check.cta ? `\`${r.check.cta}\` hue ${Math.round(c.h)}${isNeonPurple(c) ? ', AI purple' : ''}` : 'none';
-      out.push(`| ${r.task} | ${r.agent} | ${r.arm} | ${r.rep} | ${r.system ?? 'none'} | ${r.check.display ?? 'n/a'} | ${r.check.text ?? 'n/a'} | ${fill} |`);
+      const fill = r.check.cta ? `\`${r.check.cta}\` ${hueFamily(r.check.cta)}${isNeonPurple(c) ? ', AI purple' : ''}` : 'none';
+      out.push(`| ${r.task} | ${r.agent} | ${r.arm} | ${r.rep} | ${r.system ?? 'none'} | ${r.check.display ?? 'n/a'} | ${r.check.text ?? 'n/a'} | ${fill} | ${r.check.remoteHosts?.join(', ') || 'none'} |`);
     }
-    out.push('');
+    out.push('', 'Distinctiveness across each arm\'s pages: distinct headline faces and distinct CTA hue families (twelve 30° families; "neutral" when the first filled button is gray, black or white). More is more varied; the three briefs ask for three different businesses.', '');
+    out.push('| Agent | Arm | Pages | Headline faces | CTA hue families | AI-purple CTAs | Overflow at 375px | Mean invented claims |', '| --- | --- | --- | --- | --- | --- | --- | --- |');
     for (const [agent, arm] of cols) {
       const ps = pick(agent, arm).filter((r) => isLanding(r.task) && r.check.exists);
       if (!ps.length) continue;
       const faces = new Set(ps.map((r) => r.check.display ?? 'no h1'));
+      const hues = new Set(ps.map((r) => hueFamily(r.check.cta)));
       const purple = ps.filter((r) => r.check.cta && isNeonPurple(hueOf(r.check.cta))).length;
-      out.push(`- **${agent} ${arm}**: ${faces.size} distinct headline face${faces.size === 1 ? '' : 's'} in ${ps.length} page${ps.length === 1 ? '' : 's'} (${[...faces].join(', ')}); ${purple} AI-purple call${purple === 1 ? '' : 's'} to action.`);
+      out.push(`| ${agent} | ${arm} | ${ps.length} | ${faces.size}: ${[...faces].join(', ')} | ${hues.size}: ${[...hues].join(', ')} | ${purple} | ${ps.filter((r) => r.check.overflowAt375).length} | ${fmt(mean(ps.map((r) => r.check.claims ?? 0)), 1)} |`);
     }
   }
 
@@ -270,15 +359,10 @@ function report(runs, meta) {
   for (const id of [...new Set(runs.flatMap((r) => r.findings.map((f) => f.rule)))].sort()) {
     out.push(`| ${id} ${RULE_BY_ID.get(id)?.slug ?? ''} | ${cols.map(([a, arm]) => String(pick(a, arm).reduce((n, r) => n + r.findings.filter((f) => f.rule === id).length, 0))).join(' | ')} |`);
   }
-  if (existsSync(join(meta.outDir, 'shots'))) {
-    out.push('', '## Landing pages', '', 'First viewport at 1280px. Full outputs are under `runs/`.', '');
-    for (const task of tasks.filter(isLanding)) for (const agent of agents) {
-      for (const rep of [...new Set(runs.map((r) => r.rep))]) {
-        const shots = armsOf(agent).map((arm) => [arm, `shots/${shotName({ agent, arm, task, rep })}.jpg`]).filter(([, s]) => existsSync(join(meta.outDir, s)));
-        if (shots.length < 2) continue;
-        out.push(`**${task}, ${agent}, run ${rep}**`, '', `| ${shots.map(([arm]) => arm).join(' | ')} |`, `| ${shots.map(() => '---').join(' | ')} |`, `| ${shots.map(([arm, s]) => `![${arm}](${s})`).join(' | ')} |`, '');
-      }
-    }
+  if (meta.grids.length) {
+    out.push('', '## Landing pages', '', 'First viewport at 1280px, one column per run; 375px shots are in `shots/` and full outputs under `runs/`.', '');
+    for (const g of meta.grids.filter((g) => g.kind === 'task')) out.push(`**${g.task}, ${g.agent}, every arm**`, '', `![${g.task}](${g.file})`, '');
+    out.push('Per arm, every task: ' + meta.grids.filter((g) => g.kind === 'arm').map((g) => `[${g.arm}](${g.file})`).join(', ') + '.');
   }
   return `${out.join('\n')}\n`;
 }
@@ -312,10 +396,11 @@ async function main() {
     else runs.push(await scoreRun(dir, { out, shots: join(out, 'shots') }));
     process.stdout.write('.');
   }
-  runs.sort((a, b) => a.agent.localeCompare(b.agent) || a.task.localeCompare(b.task) || ARMS.indexOf(a.arm) - ARMS.indexOf(b.arm) || a.rep - b.rep);
+  runs.sort((a, b) => a.agent.localeCompare(b.agent) || a.task.localeCompare(b.task) || armOrder(a.arm, b.arm) || a.rep - b.rep);
   const date = new Date().toISOString().slice(0, 10);
   writeFileSync(join(out, 'results.json'), `${JSON.stringify({ date, runs, failed }, null, 2)}\n`);
-  writeFileSync(join(out, 'README.md'), report(runs, { date, failed, reps: Math.max(...runs.map((r) => r.rep)), outDir: out }));
+  const made = await grids(runs, out);
+  writeFileSync(join(out, 'README.md'), report(runs, { date, failed, reps: Math.max(...runs.map((r) => r.rep)), outDir: out, grids: made }));
   console.log(`\n${runs.length} runs scored -> ${out}`);
 }
 

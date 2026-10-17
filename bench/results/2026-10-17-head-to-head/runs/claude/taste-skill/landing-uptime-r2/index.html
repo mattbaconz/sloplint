@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pingwell: pages your on-call engineer when API latency crosses your line</title>
+<meta name="description" content="Pingwell checks your API every 10 seconds and pages whoever is on call the moment latency crosses the threshold you set.">
+<link rel="preconnect" href="https://api.fontshare.com">
+<link rel="preconnect" href="https://cdn.fontshare.com" crossorigin>
+<link href="https://api.fontshare.com/v2/css?f[]=switzer@400,500,600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0d14; --surface:#131824; --surface-2:#1b2233;
+  --ink:#e9edf3; --muted:#a3acbb; --accent:#5a9bfc; --accent-ink:#0a0d14;
+  --alert:#ff7a6b;
+  --band-a:#16335f; --band-b:#12423f; --band-c:#2a4c85; --band-d:#5a2a2a;
+  --m:clamp(20px,2.8vw,40px);
+  --step-small:clamp(.875rem,.85rem + .1vw,.9375rem);
+  --step-body:clamp(1.0625rem,1rem + .25vw,1.1875rem);
+  --step-lead:clamp(1.375rem,1.1rem + .9vw,1.875rem);
+  --step-head:clamp(2rem,1.3rem + 3.2vw,4rem);
+  --ease:cubic-bezier(.16,1,.3,1);
+  --radius:0px;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Switzer",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:var(--step-body);line-height:1.5;letter-spacing:-.005em;-webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
+h1,h2,h3,p,ol,ul,figure,blockquote{margin:0;padding:0}
+ol,ul{list-style:none}
+img{display:block;max-width:100%;height:auto}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+::selection{background:var(--accent);color:var(--accent-ink)}
+.wrap{padding-inline:var(--m)}
+.grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:clamp(12px,1.6vw,24px)}
+h1,h2,h3{font-weight:600;letter-spacing:-.04em;line-height:.98}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 26px;background:var(--accent);color:var(--accent-ink);font:600 1.0625rem/1 inherit;font-family:inherit;border:0;border-radius:var(--radius);text-decoration:none;cursor:pointer;transition:transform .2s var(--ease),background-color .2s}
+.btn:hover{background:#7db1ff;transform:translateY(-2px)}
+.btn:active{transform:translateY(1px) scale(.98)}
+.btn.light{background:var(--ink)}
+.btn.light:hover{background:#fff}
+.soft{color:var(--muted)}
+
+/* hero */
+.hero{display:grid;grid-template-columns:1fr 1fr;min-height:100svh;position:relative}
+.hero-l{padding:var(--m);display:flex;flex-direction:column;justify-content:space-between;gap:48px}
+.hero-r{background:var(--surface);display:flex;align-items:center;justify-content:center;padding:calc(var(--m)*2) var(--m)}
+.mark{display:inline-flex;align-items:center;gap:12px;font-weight:600;font-size:1.25rem;letter-spacing:-.03em;text-decoration:none}
+.mark svg{width:28px;height:28px}
+.signin{position:absolute;top:var(--m);right:var(--m);font-size:15px;text-decoration:none;transition:color .2s}
+.signin:hover{color:var(--accent)}
+.hero h1{font-size:clamp(1.75rem,2.6vw,2.5rem);line-height:1.08;letter-spacing:-.035em;font-weight:500}
+.hero h1 .ln{display:block;overflow:hidden;padding-bottom:.12em;margin-bottom:-.12em}
+.hero h1 .ln>span{display:block}
+.hero-l p.sub{margin:20px 0 28px;max-width:44ch;font-size:var(--step-body);color:var(--muted)}
+.hero-note{margin-top:16px;font-size:15px;color:var(--muted)}
+
+/* the live fragment */
+.probe{width:min(100%,470px);background:var(--bg);color:var(--ink);border:1px solid #2a3348;border-radius:10px;padding:18px;font-size:14px;line-height:1.4}
+.probe-h{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.probe-h b{font-weight:500}
+.probe-ms{font-size:34px;font-weight:600;letter-spacing:-.04em;line-height:1}
+.probe-ms small{font-size:14px;font-weight:400;color:var(--muted);margin-left:2px;letter-spacing:0}
+.probe svg{display:block;width:100%;height:auto;margin:14px 0 6px}
+.probe .gl{stroke:#232b3d;stroke-width:1}
+.probe .tl{stroke:var(--alert);stroke-width:1.5;stroke-dasharray:5 4}
+.probe .ln-l{fill:none;stroke:var(--ink);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.probe .dot{fill:var(--ink)}
+.probe .dot.hot{fill:var(--alert)}
+.probe .ax{fill:var(--muted);font-size:11px}
+.probe label{display:flex;justify-content:space-between;color:var(--muted);margin:10px 0 2px}
+.probe label output{color:var(--ink);font-weight:500}
+.probe input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:44px;background:transparent;cursor:pointer;margin:0}
+.probe input[type=range]::-webkit-slider-runnable-track{height:4px;background:#2a3348;border-radius:2px}
+.probe input[type=range]::-moz-range-track{height:4px;background:#2a3348;border-radius:2px}
+.probe input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;margin-top:-9px;border-radius:50%;background:var(--alert);border:0;transition:transform .15s}
+.probe input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--alert);border:0}
+.probe input[type=range]:hover::-webkit-slider-thumb{transform:scale(1.15)}
+.lcd{background:#b4c0a1;color:#1b2418;border-radius:6px;padding:12px 14px;min-height:78px;display:flex;flex-direction:column;justify-content:center;font-weight:600;letter-spacing:.02em;font-size:15px;line-height:1.3;text-transform:uppercase;transition:background-color .2s}
+.lcd small{font-size:12px;font-weight:500;text-transform:none;letter-spacing:0;opacity:.8}
+.lcd.on{background:#d3dca0}
+.lcd.on b{animation:blink 1s steps(2,start) infinite}
+@keyframes blink{50%{opacity:.25}}
+.probe-foot{display:flex;justify-content:space-between;color:var(--muted);margin-top:10px}
+
+/* feature bands */
+.bands{margin-top:clamp(120px,14vw,220px)}
+.band{display:block;width:100%;min-height:20vh;background:var(--bg);color:var(--muted);transition:background-color .4s var(--ease),color .4s var(--ease)}
+.band .grid{align-items:center;min-height:20vh;padding-block:28px}
+.band .sent{grid-column:1/11;font-size:clamp(1.6rem,3.2vw,3.25rem);font-weight:600;letter-spacing:-.04em;line-height:1.05}
+.band .sent h3{font-size:inherit;letter-spacing:inherit;line-height:inherit}
+.band .sent p{display:block;font-weight:400;font-size:var(--step-body);letter-spacing:-.005em;line-height:1.45;max-height:0;opacity:0;overflow:hidden;transition:max-height .5s var(--ease),opacity .4s,margin .4s;max-width:62ch}
+.band .tog{grid-column:11/13;justify-self:end;background:none;border:0;padding:0;cursor:pointer;color:inherit;font-size:clamp(1.5rem,2.6vw,2.5rem)}
+.band[data-on="true"]{color:var(--ink)}
+.band[data-on="true"] .sent p{max-height:9em;opacity:1;margin-top:10px}
+.band:nth-child(1)[data-on="true"]{background:var(--band-a)}
+.band:nth-child(2)[data-on="true"]{background:var(--band-b)}
+.band:nth-child(3)[data-on="true"]{background:var(--band-c)}
+.band:nth-child(4)[data-on="true"]{background:var(--band-d)}
+.band:hover:not([data-on="true"]){background:var(--surface)}
+.sw{display:block;width:1.9em;height:1.1em;background:#3a4358;border-radius:1em;position:relative;transition:background-color .25s}
+.sw::after{content:"";position:absolute;top:.12em;left:.12em;width:.86em;height:.86em;border-radius:50%;background:#fff;transition:transform .3s var(--ease)}
+.tog[aria-checked="true"] .sw{background:var(--accent)}
+.tog[aria-checked="true"] .sw::after{transform:translateX(.8em)}
+.tog:focus-visible{outline-offset:6px}
+
+/* lighthouse */
+.beacon{margin-top:clamp(120px,14vw,220px)}
+.beacon-pic{height:min(80svh,760px);overflow:hidden;background:var(--surface)}
+.beacon-pic img{width:100%;height:120%;object-fit:cover;object-position:60% 40%;will-change:transform}
+.beacon-txt{padding-block:clamp(48px,6vw,96px) 0}
+.beacon-txt p{grid-column:2/9;font-size:clamp(1.375rem,2.3vw,2.25rem);line-height:1.2;letter-spacing:-.03em;font-weight:500;max-width:25em}
+
+/* how it travels */
+.how{margin-top:clamp(120px,14vw,220px)}
+.how h2{font-size:var(--step-head);max-width:12em;margin-bottom:clamp(56px,7vw,110px)}
+.how ol{display:grid;gap:clamp(64px,9vw,140px)}
+.how li{align-items:end}
+.how li h3{font-size:var(--step-lead);letter-spacing:-.03em;line-height:1.1;margin-bottom:12px;font-weight:600}
+.how li p{color:var(--muted);max-width:40ch}
+.how .r1 figure{grid-column:1/8}
+.how .r1 .t{grid-column:9/13}
+.how .r2 .t{grid-column:1/5;grid-row:1}
+.how .r2 figure{grid-column:6/10;grid-row:1}
+.how .r3 .t{grid-column:1/4;grid-row:1}
+.how .r3 figure{grid-column:4/13;grid-row:1}
+.how figure img{width:100%;object-fit:cover}
+.how .r1 img{aspect-ratio:3/2}
+.how .r2 img{aspect-ratio:1/1}
+.how .r3 img{aspect-ratio:21/9;object-position:50% 38%}
+
+/* pricing */
+.pricing{margin-top:clamp(120px,14vw,220px)}
+.pricing h2{font-size:var(--step-head);max-width:10em}
+.pricing .lead{margin-top:16px;max-width:46ch;color:var(--muted)}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;align-items:end;margin-top:clamp(48px,6vw,88px)}
+.tile{position:relative;z-index:1;padding:clamp(24px,2.4vw,36px);display:flex;flex-direction:column;justify-content:space-between;gap:28px}
+.tile:nth-child(1){min-height:400px;background:var(--surface)}
+.tile:nth-child(2){min-height:520px;background:#223a66}
+.tile:nth-child(3){min-height:640px;background:var(--accent);color:var(--accent-ink)}
+.tile h3{font-size:var(--step-lead);letter-spacing:-.03em;line-height:1.1}
+.tile .who{max-width:30ch;opacity:.85;margin-top:-12px}
+.price{font-size:clamp(5rem,9vw,8.5rem);font-weight:600;letter-spacing:-.06em;line-height:.85;display:flex;align-items:flex-start}
+.price sup{font-size:.5em;line-height:1;margin-right:.04em;margin-top:.04em;vertical-align:top}
+.price span{font-size:1.0625rem;font-weight:400;letter-spacing:0;align-self:flex-end;margin-left:10px;line-height:1.2;opacity:.85}
+.tile ul{display:grid;gap:6px}
+.tile .btn{width:100%}
+.tile:nth-child(3) .btn{background:var(--accent-ink);color:var(--ink)}
+.tile:nth-child(3) .btn:hover{background:#1b2233}
+.tile:nth-child(2) .btn,.tile:nth-child(1) .btn{background:var(--ink);color:var(--accent-ink)}
+.tile:nth-child(2) .btn:hover,.tile:nth-child(1) .btn:hover{background:#fff}
+
+/* testimonials */
+.voices{margin-top:clamp(120px,14vw,220px)}
+.cmt{display:grid;grid-template-columns:auto 1fr;column-gap:.8em;font-size:16px;background:var(--surface);padding:1.25em 1.4em 1.1em;border:1px solid #2a3348;border-radius:10px}
+.cmt .av{width:2.5em;height:2.5em;border-radius:50%;background:#2a4c85;color:var(--ink);display:grid;place-items:center;font-weight:600;font-size:.9em;grid-row:1/4}
+.cmt .who{font-weight:600}
+.cmt .who span{color:var(--muted);font-weight:400;margin-left:.5em;font-size:.88em}
+.cmt p{margin-top:.55em;line-height:1.3;letter-spacing:-.02em}
+.cmt .st{margin-top:.8em;color:var(--muted);font-size:.85em}
+.cmt.big{font-size:clamp(1rem,1.15vw + .2rem,1.25rem);grid-column:2/10}
+.cmt.big p{font-size:clamp(1.375rem,2.3vw,2.25rem);font-weight:500;max-width:27em}
+.cmt.big .who{font-size:.8em}
+.replies{grid-column:3/10;display:grid;gap:32px;margin-top:32px;justify-items:start}
+.replies .cmt{width:min(100%,460px)}
+.replies .cmt p{font-size:1.0625rem;font-weight:400}
+.replies .cmt:nth-child(2) .av{background:#12423f}
+
+/* cta */
+.cta{margin-top:clamp(120px,14vw,220px)}
+.cta h2{font-size:clamp(2.4rem,6vw,6.25rem);line-height:1.08;letter-spacing:-.04em}
+.cta form{display:contents}
+.cta .fld{display:inline-block;width:7.2em;height:1.1em;vertical-align:baseline;background:var(--surface-2);border:0;border-radius:var(--radius);color:var(--ink);font:inherit;letter-spacing:-.03em;padding:0 .25em;margin-right:.18em;vertical-align:-.12em}
+.cta .fld::placeholder{color:var(--muted);opacity:1}
+.cta .fld:focus{outline:3px solid var(--accent);outline-offset:0}
+.cta .go{display:inline-block;height:1.1em;vertical-align:-.12em;background:var(--accent);color:var(--accent-ink);border:0;border-radius:var(--radius);font:inherit;letter-spacing:-.04em;font-weight:600;padding:0 .35em;cursor:pointer;transition:background-color .2s,transform .2s var(--ease)}
+.cta .go:hover{background:#7db1ff;transform:translateY(-3px)}
+.cta .go:active{transform:scale(.97)}
+.cta .after{margin-top:20px;color:var(--muted);font-size:1rem;max-width:60ch}
+.cta .ok{margin-top:12px;color:var(--ink);font-weight:500;min-height:1.5em}
+
+/* footer */
+footer{margin-top:max(30svh,200px);padding-bottom:30px;font-size:15px}
+.foot{display:grid;grid-template-columns:1fr auto 1fr;align-items:baseline;gap:24px}
+.foot nav{display:flex;gap:24px}
+.foot nav a,.foot .r a{text-decoration:none;color:var(--ink);transition:color .2s}
+.foot nav a:hover,.foot .r a:hover{color:var(--accent)}
+.foot .r{text-align:right}
+.foot .l,.foot .r span{color:var(--muted)}
+.credits{margin-top:48px;font-size:15px;line-height:1.55;color:var(--muted);max-width:90ch}
+.credits a{color:var(--ink)}
+
+/* motion */
+.js .rv{opacity:0;transform:translateY(26px);transition:opacity .8s var(--ease),transform .8s var(--ease);transition-delay:calc(var(--d,0)*1ms)}
+.js .rv.in{opacity:1;transform:none}
+.js .hero h1 .ln>span{transform:translateY(105%);transition:transform .9s var(--ease)}
+.js .hero.go h1 .ln>span{transform:none}
+.js .hero h1 .ln:nth-child(2)>span{transition-delay:110ms}
+.js .hero .fade{opacity:0;transform:translateY(16px);transition:opacity .7s var(--ease) .55s,transform .7s var(--ease) .55s}
+.js .hero.go .fade{opacity:1;transform:none}
+
+@media (max-width:900px){
+  .tile{gap:20px}
+  .tile .who{margin-top:-8px}
+  .hero{grid-template-columns:1fr}
+  .hero-r{order:-1;min-height:58svh;padding:84px var(--m) 28px}
+  .hero-l{padding-top:28px;padding-bottom:40px;gap:24px}
+  .hero-l .mark{position:absolute;top:var(--m);left:var(--m);z-index:2}
+  .hero h1{font-size:clamp(1.75rem,6.4vw,2.25rem)}
+  .probe{width:min(100%,78vw + 40px)}
+  .band .sent{grid-column:1/10;font-size:6.4vw}
+  .band .tog{grid-column:10/13;padding:10px 0 10px 10px;font-size:7vw}
+  .band .grid{min-height:132px}
+  .band .sent p{font-size:var(--step-body)}
+  .beacon-txt p,.cmt.big,.replies{grid-column:1/-1}
+  .beacon-txt p{font-size:24px}
+  .how .r1 figure,.how .r1 .t,.how .r2 figure,.how .r2 .t,.how .r3 figure,.how .r3 .t{grid-column:1/-1;grid-row:auto}
+  .how li{row-gap:20px}
+  .how .r2 figure{order:-1;max-width:70%}
+  .how .r3 img{aspect-ratio:4/3}
+  .tiles{grid-template-columns:1fr}
+  .tile:nth-child(n){min-height:0}
+  .price{font-size:min(34vw,9rem);line-height:.9}
+  .tiles{gap:56px}
+  .cmt.big{font-size:15px}
+  .cmt.big p{font-size:22px}
+  .replies{margin-left:28px;margin-top:24px;gap:24px}
+  .replies .cmt{width:calc(100% - 28px)}
+  .cta h2{font-size:10vw}
+  .cta .fld{display:block;width:100%;margin:.12em 0}
+  .foot{grid-template-columns:1fr;gap:8px}
+  .foot nav{flex-wrap:wrap;gap:6px 18px}
+  .foot .r{text-align:left}
+  footer{margin-top:20svh}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation:none!important}
+  .js .rv,.js .hero .fade,.js .hero h1 .ln>span{transform:none!important;transition:opacity .3s!important}
+  .beacon-pic img{height:100%!important;transform:none!important}
+}
+</style>
+</head>
+<body>
+<main>
+
+<header class="hero" id="top">
+  <div class="hero-l">
+    <a class="mark" href="#top" aria-label="Pingwell home">
+      <svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="5" fill="#5a9bfc"/><path d="M14 2a12 12 0 0 1 12 12" fill="none" stroke="#e9edf3" stroke-width="3" stroke-linecap="round"/></svg>
+      Pingwell
+    </a>
+    <div>
+      <h1 aria-label="Your API slows down. Your on-call gets paged."><span class="ln"><span>Your API slows down.</span></span><span class="ln"><span>Your on-call gets paged.</span></span></h1>
+      <p class="sub fade">Pingwell checks every endpoint every 10 seconds and rings whoever is on call the moment latency crosses the line you set.</p>
+      <div class="fade"><a class="btn" href="#signup">Start free for 14 days</a>
+      <p class="hero-note">No card. Drag the red dot to move the line and see where it would have rung.</p></div>
+    </div>
+  </div>
+  <a class="signin" href="#signup">Sign in</a>
+  <div class="hero-r">
+    <div class="probe" data-ui id="probe">
+      <div class="probe-h"><b>api.acme.io/v2/orders</b><span class="probe-ms"><span id="ms">142</span><small>ms</small></span></div>
+      <svg viewBox="0 0 434 170" role="img" aria-label="Live latency of the last 40 checks with your page threshold as a dashed red line">
+        <line class="gl" x1="0" x2="434" y1="30" y2="30"/><line class="gl" x1="0" x2="434" y1="85" y2="85"/><line class="gl" x1="0" x2="434" y1="140" y2="140"/>
+        <polyline id="trace" class="ln-l" points="0,128 11,126 22,129 33,124 43,127 54,122 65,125 76,128 87,118 98,126 108,123 119,127 130,125 141,120 152,126 163,123 173,128 184,100 195,124 206,126 217,122 228,127 238,125 249,119 260,126 271,128 282,123 293,126 303,124 314,121 325,127 336,125 347,122 358,126 368,128 379,123 390,126 401,121 412,125 423,124 434,122"/>
+        <line id="thr" class="tl" x1="0" x2="434" y1="57" y2="57"/>
+        <circle id="head" class="dot" cx="430" cy="122" r="4"/>
+        <text class="ax" x="2" y="26">800 ms</text><text class="ax" x="2" y="165">0</text>
+      </svg>
+      <label for="thrIn">Page me above <output id="thrOut" for="thrIn">500 ms</output></label>
+      <input id="thrIn" type="range" min="150" max="800" step="10" value="500" aria-describedby="lcdTxt">
+      <div class="lcd" id="lcd" aria-live="polite"><span id="lcdTxt">No pages</span><small id="lcdSub">All checks under 500 ms. Dana is on call.</small></div>
+      <div class="probe-foot"><span>Pages in this session</span><b id="pages">0</b></div>
+    </div>
+  </div>
+</header>
+
+<section class="bands" aria-label="What Pingwell does">
+  <div class="band" data-on="true"><div class="grid wrap"><div class="sent rv"><h3>Pages the person on call, no one else.</h3><p>One SMS and one phone call go to whoever the rota says is on duty. The rest of the team sees it in the channel, silently.</p></div><button class="tog rv" role="switch" aria-checked="true" aria-label="Page only the on-call engineer" data-ui><span class="sw"></span></button></div></div>
+  <div class="band" data-on="true"><div class="grid wrap"><div class="sent rv"><h3>Checks every endpoint every ten seconds.</h3><p>Six regions, every 10 seconds: 51,840 checks a day for each endpoint, so a slow region cannot hide.</p></div><button class="tog rv" role="switch" aria-checked="true" aria-label="Check every ten seconds" data-ui><span class="sw"></span></button></div></div>
+  <div class="band" data-on="false"><div class="grid wrap"><div class="sent rv"><h3>Waits for a second slow check.</h3><p>Two checks in a row over your line, 20 seconds apart, before anyone's phone rings. One slow reply is only a data point.</p></div><button class="tog rv" role="switch" aria-checked="false" aria-label="Wait for a second slow check" data-ui><span class="sw"></span></button></div></div>
+  <div class="band" data-on="false"><div class="grid wrap"><div class="sent rv"><h3>Moves on if nobody answers.</h3><p>If Dana hasn't acknowledged in 5 minutes, the page goes to Sam, then to you. Every step is written to the incident log.</p></div><button class="tog rv" role="switch" aria-checked="false" aria-label="Escalate when nobody answers" data-ui><span class="sw"></span></button></div></div>
+</section>
+
+<section class="beacon" aria-label="Why it only speaks when it matters">
+  <div class="beacon-pic"><img id="beaconImg" src="assets/la-martre-lighthouse-la-martre-qc-ca.jpg" width="1920" height="1272" alt="A red wooden lighthouse at dusk with its lamp lit above a quiet sea" loading="lazy"></div>
+  <div class="beacon-txt grid wrap"><p class="rv">A lighthouse doesn't send a daily report. It stays dark and calm until something is wrong, and then nobody can miss it.</p></div>
+</section>
+
+<section class="how wrap" id="how">
+  <h2 class="rv">From one slow reply to a ringing phone</h2>
+  <ol>
+    <li class="r1 grid">
+      <figure class="rv"><img src="assets/racks-amravati-data-center.jpg" width="1920" height="1281" alt="Rows of server racks in a data centre" loading="lazy"></figure>
+      <div class="t"><h3 class="rv" style="--d:80">We ping from six regions</h3><p class="rv" style="--d:160">Each check measures time to first byte and full response, from places your customers actually are.</p></div>
+    </li>
+    <li class="r2 grid">
+      <div class="t"><h3 class="rv">Two slow checks make a page</h3><p class="rv" style="--d:80">You pick the threshold per endpoint. Cross it twice and Pingwell opens an incident, quietly.</p></div>
+      <figure class="rv" style="--d:100"><img src="assets/wac-telephone-switchboard-operators.jpg" width="1920" height="1476" alt="Telephone switchboard operators connecting calls by hand" loading="lazy"></figure>
+    </li>
+    <li class="r3 grid">
+      <div class="t"><h3 class="rv">One person's phone rings</h3><p class="rv" style="--d:80">The rota decides who. Everyone else keeps sleeping.</p></div>
+      <figure class="rv" style="--d:100"><img src="assets/beeper-motorola-bravo-express-ctc-chile-1.jpg" width="1920" height="1920" alt="An old pager whose screen reads that there are no messages" loading="lazy"></figure>
+    </li>
+  </ol>
+</section>
+
+<section class="pricing wrap" id="pricing">
+  <h2 class="rv">Priced per team, not per ping</h2>
+  <p class="lead rv" style="--d:80">Every plan includes unlimited alert recipients and the on-call rota. Pay monthly, cancel whenever.</p>
+  <div class="tiles">
+    <article class="tile rv">
+      <h3>Side project</h3>
+      <div class="price"><sup>$</sup>0<span>forever</span></div>
+      <p class="who">One dev, a few endpoints.</p>
+      <ul><li>5 monitors</li><li>1-minute checks, 2 regions</li><li>Email and Slack alerts</li></ul>
+      <a class="btn" href="#signup">Start free</a>
+    </article>
+    <article class="tile rv" style="--d:90">
+      <h3>Team</h3>
+      <div class="price"><sup>$</sup>29<span>per month</span></div>
+      <p class="who">A small team with a real rota.</p>
+      <ul><li>50 monitors</li><li>10-second checks, 6 regions</li><li>SMS and phone-call paging</li><li>One on-call rota with escalation</li></ul>
+      <a class="btn" href="#signup">Start 14-day trial</a>
+    </article>
+    <article class="tile rv" style="--d:180">
+      <h3>Scale</h3>
+      <div class="price"><sup>$</sup>99<span>per month</span></div>
+      <p class="who">Several services, several rotas.</p>
+      <ul><li>250 monitors</li><li>5-second checks, 6 regions</li><li>Unlimited rotas and escalations</li><li>SSO and a 12-month incident log</li><li>Support that answers in an hour</li></ul>
+      <a class="btn" href="#signup">Start 14-day trial</a>
+    </article>
+  </div>
+</section>
+
+<section class="voices wrap" aria-label="What on-call engineers say">
+  <!-- SAMPLE TESTIMONIALS: placeholder text and names, replace with real customer quotes before launch -->
+  <div class="grid">
+    <div class="cmt big rv" data-ui><span class="av" aria-hidden="true">MO</span><div class="who">Maya Okafor<span>Platform lead, sample company · Oct 3</span></div><p>We stopped muting the channel. A page now means latency really crossed our line, so we get up.</p><div class="st">Resolved by 4 people · 12 reactions</div></div>
+    <div class="replies">
+      <div class="cmt rv" data-ui><span class="av" aria-hidden="true">TL</span><div class="who">Tomas Lind<span>Backend engineer · Oct 4</span></div><p>Setting the threshold per endpoint was the whole point for us. The checkout API and the docs site shouldn't share a number.</p><div class="st">Resolved</div></div>
+      <div class="cmt rv" data-ui style="--d:100"><span class="av" aria-hidden="true">PR</span><div class="who">Priya Raman<span>CTO, sample startup · Oct 6</span></div><p>Four of us share one rota and it finally feels fair. Escalation means nobody carries it alone.</p><div class="st">Resolved</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="cta wrap" id="signup">
+  <form action="mailto:hello@pingwell.example?subject=Pingwell%20setup%20link" method="post" enctype="text/plain" id="signupForm">
+    <h2 class="rv">Send my setup link to <label class="fld-wrap" for="email" style="position:absolute;left:-9999px">Work email</label><input class="fld" id="email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="you@team.dev" required> <button class="go" type="submit">Start</button></h2>
+    <p class="after rv">You'll get one email with a link to add your first endpoint and pick your threshold. The 14 days start when you add it. No card.</p>
+    <p class="ok" id="ok" role="status"></p>
+  </form>
+</section>
+
+</main>
+
+<footer class="wrap">
+  <div class="foot">
+    <span class="l">Latency paging for dev teams</span>
+    <nav aria-label="Footer"><a href="#how">How it works</a><a href="#pricing">Pricing</a><a href="#signup">Sign up</a></nav>
+    <span class="r"><span>2026</span> <a href="#">Privacy</a></span>
+  </div>
+  <p class="credits">Pictures: <a href="https://commons.wikimedia.org/wiki/File:Racks_Amravati_Data_Center.jpg">“Racks Amravati Data Center”</a> by PiDatacenters, <a href="https://creativecommons.org/licenses/by-sa/4.0">CC BY-SA 4.0</a>; <a href="https://commons.wikimedia.org/wiki/File:La_Martre_lighthouse_-_La_Martre,_QC,_CA_-_16-06-2013.jpg">“La Martre lighthouse”</a> by Letartean, <a href="https://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>; <a href="https://commons.wikimedia.org/wiki/File:Beeper_Motorola_Bravo_Express_-_CTC_Chile_-_1.jpg">“Beeper Motorola Bravo Express - CTC Chile - 1”</a> by Jorgebarrios, <a href="https://creativecommons.org/licenses/by-sa/4.0">CC BY-SA 4.0</a>; <a href="https://commons.wikimedia.org/w/index.php?curid=131249837">“WAC telephone switchboard operators”</a> by PhotosNormandie, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC BY-SA 2.0</a>. All via Wikimedia Commons.</p>
+</footer>
+
+<script>
+(function(){
+  var root=document.documentElement; root.classList.add('js');
+  var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // hero entrance
+  requestAnimationFrame(function(){requestAnimationFrame(function(){document.getElementById('top').classList.add('go')})});
+
+  // reveal on scroll, once
+  var rv=[].slice.call(document.querySelectorAll('.rv'));
+  if('IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.15,rootMargin:'0px 0px -6% 0px'});
+    rv.forEach(function(el,i){
+      if(!el.style.getPropertyValue('--d')){var sib=el.parentElement.querySelectorAll(':scope > .rv');var k=[].indexOf.call(sib,el);if(k>0)el.style.setProperty('--d',k*70)}
+      io.observe(el)});
+  } else rv.forEach(function(el){el.classList.add('in')});
+
+  // switches
+  [].forEach.call(document.querySelectorAll('.tog'),function(b){
+    b.addEventListener('click',function(){
+      var on=b.getAttribute('aria-checked')!=='true';
+      b.setAttribute('aria-checked',on);
+      b.closest('.band').setAttribute('data-on',on);
+    });
+  });
+
+  // beacon picture drift
+  var img=document.getElementById('beaconImg');
+  if(img&&!reduce){
+    var tick=false;
+    function drift(){tick=false;var r=img.parentElement.getBoundingClientRect(),vh=innerHeight;
+      var p=Math.max(-1,Math.min(1,(r.top+r.height/2-vh/2)/vh));
+      img.style.transform='translateY('+(p*-8)+'%)'}
+    addEventListener('scroll',function(){if(!tick){tick=true;requestAnimationFrame(drift)}},{passive:true});drift();
+  }
+
+  // live probe
+  var W=434,H=170,N=40,top=30,bot=140,MAX=800;
+  var trace=document.getElementById('trace'),thr=document.getElementById('thr'),head=document.getElementById('head');
+  var inp=document.getElementById('thrIn'),out=document.getElementById('thrOut'),msEl=document.getElementById('ms');
+  var lcd=document.getElementById('lcd'),lt=document.getElementById('lcdTxt'),ls=document.getElementById('lcdSub'),pg=document.getElementById('pages');
+  var data=[],pages=0,hot=0,paged=false,seed=7;
+  function rnd(){seed=(seed*16807)%2147483647;return seed/2147483647}
+  function y(v){return bot-(v/MAX)*(bot-top)*(110/110)} // 0..800 -> 140..30
+  function next(){
+    var v=125+rnd()*40;
+    if(rnd()<.14)v=300+rnd()*420;
+    return Math.round(v);
+  }
+  for(var i=0;i<N;i++)data.push(i===N-6?420:next());
+  function draw(){
+    var pts=data.map(function(v,i){return (i*W/(N-1)).toFixed(1)+','+y(v).toFixed(1)}).join(' ');
+    trace.setAttribute('points',pts);
+    var last=data[N-1];head.setAttribute('cx',W-4);head.setAttribute('cy',y(last));
+    head.setAttribute('class','dot'+(last>+inp.value?' hot':''));
+    msEl.textContent=last;
+    var t=+inp.value;thr.setAttribute('y1',y(t));thr.setAttribute('y2',y(t));out.textContent=t+' ms';
+  }
+  function judge(){
+    var t=+inp.value,a=data[N-1],b=data[N-2];
+    if(a>t&&b>t){
+      if(!paged){paged=true;pages++;pg.textContent=pages}
+      lcd.classList.add('on');lt.innerHTML='<b>Page sent</b>';ls.textContent='api.acme.io '+a+' ms, over '+t+' ms twice. Dana is ringing.';
+    } else if(a>t){
+      lcd.classList.remove('on');lt.textContent='One slow check';ls.textContent=a+' ms is over '+t+' ms. Waiting for a second before waking Dana.';paged=false;
+    } else {
+      paged=false;lcd.classList.remove('on');lt.textContent='No pages';ls.textContent='All checks under '+t+' ms. Dana is on call.';
+    }
+  }
+  inp.addEventListener('input',function(){draw();judge()});
+  draw();judge();
+  if(!reduce){setInterval(function(){data.shift();data.push(next());draw();judge()},900)}
+
+  // signup: native mailto fallback, plus a visible confirmation
+  var f=document.getElementById('signupForm'),ok=document.getElementById('ok');
+  f.addEventListener('submit',function(){ok.textContent='Opening your email app. Send it and we will reply with your setup link.'});
+})();
+</script>
+</body>
+</html>

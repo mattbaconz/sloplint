@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Offset Press: screen-printed posters and vinyl records</title>
+<meta name="description" content="Offset Press is an independent print studio and record label. Limited-run screen-printed posters and vinyl, pressed in small editions.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,500..800&family=Literata:ital,opsz,wght@0,7..72,400..600;1,7..72,400&display=swap" rel="stylesheet">
+<style>
+/* Two spot inks on uncoated stock. Overlaps multiply into a third colour, like a real overprint. */
+:root{
+  --paper:#E9EBEE;
+  --paper-deep:#DADDE3;
+  --ink:#16143A;
+  --blue:#2A3BE0;
+  --pink:#FF5A8F;
+  --violet:#5B2FA8;
+  --display:"Bricolage Grotesque","Arial Narrow",Arial,sans-serif;
+  --body:"Literata",Georgia,serif;
+  --gutter:clamp(1.25rem,4vw,3.5rem);
+}
+*{box-sizing:border-box;margin:0}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:1.0625rem;line-height:1.65;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
+.wrap{max-width:78rem;margin:0 auto;padding:0 var(--gutter)}
+h1,h2,h3{font-family:var(--display);font-stretch:75%;font-weight:800;line-height:.92;letter-spacing:-.015em}
+h2{font-size:clamp(2.75rem,7vw,5.5rem);margin-bottom:1.25rem}
+p{max-width:38rem}
+
+/* nav */
+.nav{display:flex;justify-content:space-between;align-items:center;padding:1.25rem 0;font-family:var(--display);font-weight:600;font-size:1rem}
+.nav ul{display:flex;gap:clamp(1rem,3vw,2.25rem);list-style:none;padding:0}
+.nav a{text-decoration:none;padding:.25rem 0;border-bottom:2px solid transparent}
+.nav a:hover{border-color:var(--pink)}
+.logo{font-weight:800;font-stretch:75%;font-size:1.35rem}
+
+/* hero */
+.hero{padding:clamp(2rem,6vw,5rem) 0 clamp(3rem,7vw,6rem)}
+.mark{font-size:clamp(5.5rem,24vw,21rem);line-height:.8;color:var(--blue);margin-bottom:2rem;position:relative;isolation:isolate}
+.mark span{display:block;position:relative;width:max-content}
+.mark span::after{content:attr(data-t);position:absolute;inset:0;color:var(--pink);mix-blend-mode:multiply;transform:translate(.045em,.03em);animation:register 1.6s cubic-bezier(.2,.8,.2,1) both}
+@keyframes register{from{transform:translate(.28em,-.12em)}to{transform:translate(.045em,.03em)}}
+.mark span:nth-child(2){margin-left:.35em}
+.hero-row{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:2rem 4rem;align-items:end}
+.hero-row p{font-size:1.25rem;line-height:1.55}
+.cta{display:flex;flex-wrap:wrap;gap:1rem;justify-content:flex-start}
+.btn{font-family:var(--display);font-weight:700;font-size:1.125rem;text-decoration:none;padding:.9rem 1.6rem;border:2px solid var(--ink);display:inline-block;transition:background .15s,color .15s}
+.btn.solid{background:var(--ink);color:var(--paper)}
+.btn.solid:hover{background:var(--blue);border-color:var(--blue)}
+.btn.line:hover{background:var(--pink);border-color:var(--pink)}
+.hero-note{grid-column:1/-1;font-style:italic;font-size:.95rem;opacity:.75}
+
+/* releases */
+.releases{background:var(--ink);color:var(--paper);padding:clamp(3.5rem,8vw,7rem) 0}
+.releases h2{color:var(--paper)}
+.sec-intro{margin-bottom:3rem}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:2.5rem 1.75rem;align-items:end}
+.item{display:flex;flex-direction:column;gap:.9rem}
+.item:nth-child(1){grid-column:span 5}
+.item:nth-child(2){grid-column:span 4}
+.item:nth-child(3){grid-column:span 3}
+.item:nth-child(4){grid-column:span 4}
+.item:nth-child(5){grid-column:span 4}
+.item:nth-child(6){grid-column:span 4}
+.art{position:relative;overflow:hidden;background:var(--paper)}
+.poster{aspect-ratio:3/4}
+.poster.wide{aspect-ratio:2/3}
+.art i{position:absolute;display:block;mix-blend-mode:multiply}
+/* poster 1: tide table */
+.p1 .a{background:var(--blue);inset:50% -10% -10% -10%;border-radius:50% 50% 0 0/ 30% 30% 0 0}
+.p1 .b{background:var(--pink);width:62%;aspect-ratio:1;border-radius:50%;left:19%;top:12%}
+.p1 .c{background:var(--blue);height:4px;left:10%;right:10%;top:44%;box-shadow:0 14px 0 var(--blue),0 28px 0 var(--blue)}
+/* poster 2: night shift */
+.p2 .a{background:var(--pink);inset:0 50% 0 0}
+.p2 .b{background:var(--blue);inset:0 0 0 30%;clip-path:polygon(0 100%,35% 20%,70% 100%)}
+.p2 .c{background:var(--violet);width:30%;aspect-ratio:1;border-radius:50%;right:12%;top:10%;mix-blend-mode:normal;opacity:.9}
+/* vinyl */
+.disc{aspect-ratio:1;border-radius:50%;background:
+  radial-gradient(circle,var(--paper) 0 7%,var(--ink) 7.5% 8.5%,transparent 9%),
+  repeating-radial-gradient(circle,rgba(255,255,255,.07) 0 1px,transparent 1px 4px),
+  var(--ink)}
+.vinyl{background:transparent;overflow:visible}
+.vinyl .disc{position:relative;box-shadow:0 0 0 1px rgba(255,255,255,.18)}
+.vinyl .disc::before{content:"";position:absolute;inset:30%;border-radius:50%}
+.v1 .disc{background:
+  radial-gradient(circle,var(--paper) 0 4%,transparent 4.5%),
+  radial-gradient(circle,var(--blue) 0 33%,transparent 33.5%),
+  repeating-radial-gradient(circle,rgba(255,255,255,.12) 0 1px,transparent 1px 4px),
+  #23216a}
+.v2 .disc{background:
+  radial-gradient(circle,var(--paper) 0 4%,transparent 4.5%),
+  radial-gradient(circle,var(--ink) 0 33%,transparent 33.5%),
+  repeating-radial-gradient(circle,rgba(255,255,255,.22) 0 1px,transparent 1px 4px),
+  linear-gradient(100deg,var(--pink) 50%,var(--blue) 50%)}
+.v3 .disc{background:
+  radial-gradient(circle,var(--paper) 0 5%,transparent 5.5%),
+  radial-gradient(circle,var(--pink) 0 36%,transparent 36.5%),
+  repeating-radial-gradient(circle,rgba(255,255,255,.08) 0 1px,transparent 1px 4px),
+  var(--ink)}
+.v3{max-width:78%}
+.meta{display:flex;justify-content:space-between;gap:1rem;align-items:baseline}
+.meta h3{font-size:1.75rem;line-height:1}
+.price{font-family:var(--display);font-weight:700;font-size:1.5rem;color:var(--pink)}
+.item p{font-size:.95rem;line-height:1.55;opacity:.85;max-width:none}
+.buy{font-family:var(--display);font-weight:700;color:var(--paper);align-self:flex-start;text-decoration:none;border-bottom:2px solid var(--pink);padding-bottom:.1rem}
+.buy:hover{color:var(--pink)}
+.soldout .price{color:var(--paper);opacity:.6;text-decoration:line-through}
+
+/* about */
+.about{padding:clamp(3.5rem,8vw,7rem) 0}
+.about-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:3rem 5rem;align-items:start}
+.about h2 span{display:block}
+.about p+p{margin-top:1.1rem}
+.facts{display:grid;grid-template-columns:repeat(3,auto);gap:1.5rem 2rem;margin-top:2rem;justify-content:start}
+.facts dt{font-family:var(--display);font-stretch:75%;font-weight:800;font-size:2.75rem;line-height:1;color:var(--blue)}
+.facts dd{font-size:.9rem;line-height:1.35}
+.inks{display:flex;gap:0;height:7rem;margin-top:2.5rem;max-width:26rem}
+.inks i{display:block;width:60%;background:var(--blue);mix-blend-mode:multiply;border-radius:50%}
+.inks i+i{background:var(--pink);margin-left:-20%}
+
+/* events */
+.events{background:var(--paper-deep);padding:clamp(3.5rem,8vw,7rem) 0}
+.events ol{list-style:none;padding:0;border-top:2px solid var(--ink)}
+.events li{display:grid;grid-template-columns:8.5rem 1fr auto;gap:.5rem 2rem;align-items:baseline;padding:1.5rem 0;border-bottom:2px solid var(--ink)}
+.date{font-family:var(--display);font-stretch:75%;font-weight:800;font-size:3rem;line-height:.9;color:var(--blue)}
+.date small{display:block;font-size:1rem;font-weight:600;font-stretch:100%;color:var(--ink);margin-top:.3rem}
+.events h3{font-size:1.75rem;line-height:1.05;margin-bottom:.3rem}
+.events li p{font-size:.98rem;line-height:1.5}
+.tag{font-family:var(--display);font-weight:700;font-size:.95rem;padding:.3rem .8rem;border:2px solid var(--ink);border-radius:2rem;white-space:nowrap}
+.tag.free{background:var(--pink);border-color:var(--pink)}
+
+/* signup */
+.signup{background:var(--blue);color:#fff;padding:clamp(3.5rem,8vw,7rem) 0}
+.signup-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:2.5rem 5rem;align-items:end}
+.signup h2{color:#fff}
+form{display:flex;flex-direction:column;gap:1.1rem}
+label{font-family:var(--display);font-weight:600;font-size:1.05rem;display:block;margin-bottom:.35rem}
+input[type=email],input[type=text]{width:100%;font:inherit;font-size:1.1rem;padding:.9rem 1rem;border:2px solid #fff;background:transparent;color:#fff;border-radius:0}
+input::placeholder{color:rgba(255,255,255,.65)}
+input:focus-visible{outline:3px solid var(--pink);outline-offset:2px}
+fieldset{border:0;padding:0}
+legend{font-family:var(--display);font-weight:600;font-size:1.05rem;margin-bottom:.5rem}
+.checks{display:flex;flex-wrap:wrap;gap:.5rem 1.5rem}
+.checks label{display:flex;align-items:center;gap:.5rem;font-family:var(--body);font-weight:400;font-size:1rem;margin:0}
+.checks input{width:1.15rem;height:1.15rem;accent-color:var(--pink)}
+.signup .btn{background:var(--pink);border-color:var(--pink);color:var(--ink);cursor:pointer;align-self:flex-start}
+.signup .btn:hover{background:#fff;border-color:#fff}
+.fine{font-size:.9rem;opacity:.85}
+
+footer{background:var(--ink);color:var(--paper);padding:2.5rem 0;font-size:.95rem}
+footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:1rem}
+footer a{text-underline-offset:.2em}
+
+@media (max-width:860px){
+  .hero-row,.about-grid,.signup-grid{grid-template-columns:1fr}
+  .grid{grid-template-columns:repeat(2,1fr)}
+  .item:nth-child(n){grid-column:span 1}
+  .item:nth-child(1){grid-column:span 2}
+  .events li{grid-template-columns:6rem 1fr}
+  .tag{grid-column:2;justify-self:start}
+  .date{font-size:2.4rem}
+  .nav ul li:nth-child(n+4){display:none}
+}
+@media (max-width:520px){
+  .grid{grid-template-columns:1fr}
+  .item:nth-child(n){grid-column:span 1}
+  .facts{grid-template-columns:1fr 1fr}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .mark span::after{animation:none}
+}
+</style>
+</head>
+<body>
+
+<header class="wrap">
+  <nav class="nav" aria-label="Main">
+    <a class="logo" href="#top">Offset Press</a>
+    <ul>
+      <li><a href="#releases">Releases</a></li>
+      <li><a href="#about">Studio</a></li>
+      <li><a href="#events">Events</a></li>
+      <li><a href="#list">Mailing list</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main id="top">
+<section class="hero wrap">
+  <h1 class="mark" aria-label="Offset Press">
+    <span data-t="Offset">Offset</span>
+    <span data-t="Press">Press</span>
+  </h1>
+  <div class="hero-row">
+    <p>We screen-print posters by hand and press records in small runs. Every edition is numbered, and when it sells out, it’s gone.</p>
+    <div class="cta">
+      <a class="btn solid" href="#releases">Shop current releases</a>
+      <a class="btn line" href="#list">Join the mailing list</a>
+    </div>
+    <p class="hero-note">Look closely: the pink never quite lines up with the blue. That’s how our prints come off the press, and we like it.</p>
+  </div>
+</section>
+
+<section class="releases" id="releases" aria-labelledby="rel-h">
+  <div class="wrap">
+    <div class="sec-intro">
+      <h2 id="rel-h">On the press now</h2>
+      <p>Five editions available this season. Posters ship flat in a rigid mailer. Records ship in a protective sleeve with a download code.</p>
+    </div>
+    <div class="grid">
+      <article class="item">
+        <div class="art poster p1" role="img" aria-label="Poster artwork: a pink sun over blue water"><i class="a"></i><i class="b"></i><i class="c"></i></div>
+        <div class="meta"><h3>Tide Table</h3><span class="price">$45</span></div>
+        <p>Two-colour screen print on 100 lb cotton stock. 18 × 24 in. Edition of 120, numbered and signed.</p>
+        <a class="buy" href="#list">Reserve a print</a>
+      </article>
+      <article class="item">
+        <div class="art poster wide p2" role="img" aria-label="Poster artwork: a blue mountain beside a pink field with a violet moon"><i class="a"></i><i class="b"></i><i class="c"></i></div>
+        <div class="meta"><h3>Night Shift Bakery</h3><span class="price">$68</span></div>
+        <p>Three-colour screen print, 24 × 36 in. Edition of 75, printed for the Canal Street bakery’s tenth year.</p>
+        <a class="buy" href="#list">Reserve a print</a>
+      </article>
+      <article class="item">
+        <div class="art vinyl v3"><div class="disc" role="img" aria-label="Pink-label 7 inch record"></div></div>
+        <div class="meta"><h3>Paper Lanterns<br>Ghost Plate</h3><span class="price">$12</span></div>
+        <p>7″ single, black vinyl, 45 rpm. Edition of 300.</p>
+        <a class="buy" href="#list">Reserve a record</a>
+      </article>
+      <article class="item">
+        <div class="art vinyl v1"><div class="disc" role="img" aria-label="Translucent blue 12 inch record"></div></div>
+        <div class="meta"><h3>Halfmoon Ferry<br>Slow Water</h3><span class="price">$28</span></div>
+        <p>12″ LP on 180 g translucent blue vinyl. Letterpress jacket. Edition of 500.</p>
+        <a class="buy" href="#list">Reserve a record</a>
+      </article>
+      <article class="item">
+        <div class="art vinyl v2"><div class="disc" role="img" aria-label="Split pink and blue 12 inch record"></div></div>
+        <div class="meta"><h3>Dot Matrix Choir<br>Registration</h3><span class="price">$30</span></div>
+        <p>12″ LP on pink and blue split vinyl, with a two-colour screen-printed insert. Edition of 400.</p>
+        <a class="buy" href="#list">Reserve a record</a>
+      </article>
+      <article class="item soldout">
+        <div class="art vinyl v3"><div class="disc" role="img" aria-label="Black 12 inch record with a pink label"></div></div>
+        <div class="meta"><h3>Linen Hours<br>Second Pressing</h3><span class="price">$26</span></div>
+        <p>Sold out. Join the mailing list and we’ll tell you before the next pressing opens.</p>
+        <a class="buy" href="#list">Get notified</a>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="about wrap" id="about" aria-labelledby="about-h">
+  <div class="about-grid">
+    <div>
+      <h2 id="about-h">Ink first, then everything else</h2>
+      <div class="inks" aria-hidden="true"><i></i><i></i></div>
+    </div>
+    <div>
+      <p>Offset Press is a three-person studio working out of a former sign shop. We pull every poster by hand on a four-post press, one colour at a time, and we cut our own stencils.</p>
+      <p>The label grew out of the print shop. Bands kept asking for posters, then for a record to go with them. Now we do both: we press short runs of vinyl for artists we’d buy anyway, and print the sleeves and inserts in the same room.</p>
+      <p>We keep editions small so each one stays worth owning. Nothing gets reprinted.</p>
+      <dl class="facts">
+        <div><dt>3</dt><dd>people in the studio</dd></div>
+        <div><dt>41</dt><dd>poster editions since 2019</dd></div>
+        <div><dt>18</dt><dd>records released</dd></div>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<section class="events" id="events" aria-labelledby="ev-h">
+  <div class="wrap">
+    <h2 id="ev-h">Come by the studio</h2>
+    <p style="margin-bottom:2.5rem">All events happen on the studio floor at 14 Canal Street. Doors open an hour before anything starts.</p>
+    <ol>
+      <li>
+        <div class="date">07<small>Nov, Saturday</small></div>
+        <div><h3>Halfmoon Ferry release show</h3><p>Live set from the band, the first listen of <em>Slow Water</em> on the studio sound system, and a fresh pull of Tide Table.</p></div>
+        <span class="tag">$10 at the door</span>
+      </li>
+      <li>
+        <div class="date">21<small>Nov, Saturday</small></div>
+        <div><h3>Independent print fair</h3><p>Twenty small presses and zine makers under one roof. We’ll have the full catalogue and a few misprints at half price.</p></div>
+        <span class="tag free">Free</span>
+      </li>
+      <li>
+        <div class="date">05<small>Dec, Saturday</small></div>
+        <div><h3>Squeegee 101 workshop</h3><p>Learn to pull a two-colour print from start to finish. You take home what you make. Ten spots.</p></div>
+        <span class="tag">$65, book ahead</span>
+      </li>
+      <li>
+        <div class="date">16<small>Jan, Saturday</small></div>
+        <div><h3>Dot Matrix Choir listening party</h3><p>Hear <em>Registration</em> all the way through, then watch the insert being printed.</p></div>
+        <span class="tag free">Free</span>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<section class="signup" id="list" aria-labelledby="list-h">
+  <div class="wrap signup-grid">
+    <div>
+      <h2 id="list-h">Hear before it sells out</h2>
+      <p>One email when a new edition opens, a day before the public announcement. About twice a month.</p>
+    </div>
+    <form action="#" method="post">
+      <div>
+        <label for="name">First name</label>
+        <input type="text" id="name" name="name" autocomplete="given-name">
+      </div>
+      <div>
+        <label for="email">Email address</label>
+        <input type="email" id="email" name="email" autocomplete="email" placeholder="you@example.com" required>
+      </div>
+      <fieldset>
+        <legend>I want to hear about</legend>
+        <div class="checks">
+          <label><input type="checkbox" name="interest" value="posters" checked> Posters</label>
+          <label><input type="checkbox" name="interest" value="records" checked> Records</label>
+          <label><input type="checkbox" name="interest" value="events"> Events</label>
+        </div>
+      </fieldset>
+      <button class="btn" type="submit">Join the list</button>
+      <p class="fine">We only send news about new editions and events. Unsubscribe from any email.</p>
+    </form>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Offset Press, 14 Canal Street. Open Thursday to Saturday, noon to 6 pm.</span>
+    <a href="mailto:hello@offsetpress.example">hello@offsetpress.example</a>
+  </div>
+</footer>
+
+</body>
+</html>

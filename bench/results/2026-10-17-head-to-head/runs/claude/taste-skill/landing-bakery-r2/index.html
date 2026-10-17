@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Crumb &amp; Rye · Weekend sourdough and pastries, preordered</title>
+<meta name="description" content="Preorder weekend sourdough, rye and pastries from Crumb &amp; Rye by Thursday night and collect them warm on Saturday.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders:wght@800&family=Public+Sans:wght@400;600&display=swap" rel="stylesheet">
+<script>document.documentElement.classList.add('js')</script>
+<style>
+:root {
+  --bg: #2b2216;
+  --surface: #382d1e;
+  --mid: #4b3b27;
+  --deep: #1c150d;
+  --ink: #e4e2da;
+  --muted: #b3aa9b;
+  --accent: #bda38b;
+  --display: "Big Shoulders", "Arial Narrow", "Helvetica Neue", Impact, sans-serif;
+  --text: "Public Sans", "Segoe UI", Helvetica, Arial, sans-serif;
+  --step-small: clamp(0.875rem, 0.85rem + 0.1vw, 0.9375rem);
+  --step-body: clamp(1.0625rem, 1rem + 0.25vw, 1.1875rem);
+  --step-lead: clamp(1.25rem, 1.1rem + 0.7vw, 1.625rem);
+  --step-head: clamp(2.75rem, 1.4rem + 5vw, 5.5rem);
+  --step-display: clamp(4rem, 10.2vw, 11rem);
+  --m: clamp(16px, 2.5vw, 32px);
+  --gap: clamp(96px, 12vw, 180px);
+  --ease: cubic-bezier(.2,.7,.2,1);
+}
+* { box-sizing: border-box; margin: 0; }
+html { overflow-x: clip; scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body { background: var(--bg); color: var(--ink); font: 400 var(--step-body)/1.5 var(--text); overflow-x: hidden; }
+img { display: block; max-width: 100%; }
+a { color: inherit; }
+::selection { background: var(--accent); color: var(--deep); }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+h1, h2, h3 { font-family: var(--display); font-weight: 800; text-transform: uppercase; letter-spacing: -0.005em; line-height: 0.88; }
+h2 { font-size: var(--step-head); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px; padding-inline: var(--m); }
+section { padding-block: var(--gap); }
+section, footer, header.hero { overflow-x: clip; }
+.tnum { font-variant-numeric: tabular-nums; }
+
+/* buttons: one shape, the folder tab's cut top corners */
+.btn { display: inline-flex; align-items: center; justify-content: center; min-height: 56px; padding: 0 32px; border: 0; background: var(--accent); color: var(--deep); font: 600 1.0625rem/1 var(--text); text-decoration: none; cursor: pointer; clip-path: polygon(12px 0, calc(100% - 12px) 0, 100% 100%, 0 100%); transition: transform .2s var(--ease), background-color .2s; }
+.btn:hover { transform: translateY(-3px); background: #cdb8a1; }
+.btn:active { transform: translateY(1px); }
+.btn:focus-visible { outline-offset: -6px; outline-color: var(--deep); }
+.btn.dark { background: var(--deep); color: var(--ink); }
+.btn.dark:hover { background: #2e2316; }
+.btn.dark:focus-visible { outline-color: var(--accent); }
+
+/* ---------- hero: the folder stack ---------- */
+.hero { position: relative; min-height: max(100svh, 860px); padding: 0; overflow: hidden; display: flex; flex-direction: column; }
+.top { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 24px var(--m) 0; font-size: 0.9375rem; }
+.top .mark { font: 800 1.75rem/1 var(--display); text-transform: uppercase; text-decoration: none; letter-spacing: 0.01em; }
+.top .hours { color: var(--muted); }
+.top .go { justify-self: end; font-weight: 600; text-underline-offset: 5px; }
+.hero h1 { font-size: var(--step-display); text-align: center; padding: clamp(24px, 4vh, 56px) var(--m) 0; line-height: 0.86; }
+.hero .sub { text-align: center; max-width: 46ch; margin: 18px auto 0; padding-inline: var(--m); font-size: var(--step-lead); line-height: 1.35; }
+.stack { position: relative; margin-top: auto; padding-top: 56px; height: calc(4 * 64px + 330px + 56px); }
+.folder { position: absolute; left: 7vw; width: 86vw; top: calc(56px + var(--i) * 64px); height: 420px; background: var(--c); color: var(--t); display: block; text-decoration: none; transition: transform .35s var(--ease); }
+.folder .tab { position: absolute; top: -40px; left: var(--x); height: 41px; min-width: 190px; padding: 0 28px; background: var(--c); color: var(--t); display: flex; align-items: center; justify-content: center; font: 600 1.125rem/1 var(--text); clip-path: polygon(0 100%, 14px 0, calc(100% - 14px) 0, 100% 100%); text-decoration: none; }
+.folder .note { display: block; padding: 20px 28px; font-size: 1rem; max-width: 34ch; }
+a.folder:hover, a.folder:focus-visible { transform: translateY(-10px); }
+.f0 { --i: 0; --c: #382d1e; --t: var(--ink); --x: 36%; }
+.f1 { --i: 1; --c: #bda38b; --t: var(--deep); --x: 46%; }
+.f2 { --i: 2; --c: #4b3b27; --t: var(--ink); --x: 56%; }
+.f3 { --i: 3; --c: #e4e2da; --t: var(--deep); --x: 66%; }
+.f4 { --i: 4; --c: #bda38b; --t: var(--deep); --x: 76%; padding: 32px; }
+.f4 .row { display: flex; flex-wrap: wrap; gap: 24px 48px; align-items: flex-start; }
+.f4 p { max-width: 36ch; font-size: var(--step-body); }
+.f4 strong { font-weight: 600; }
+
+/* ---------- menu ---------- */
+.menu { background: var(--surface); }
+.menu figure { grid-column: 1 / span 5; position: sticky; top: 24px; align-self: start; overflow: hidden; aspect-ratio: 4 / 5; background: var(--mid); }
+.menu figure img { width: 100%; height: 100%; object-fit: cover; }
+.menu .col { grid-column: 7 / span 6; container-type: inline-size; }
+.menu h2 { font-size: 40cqw; line-height: 0.8; }
+.menu .lead { font-size: var(--step-lead); line-height: 1.35; margin: 20px 0 28px; }
+details.bar { background: var(--mid); margin-bottom: 6px; }
+details.bar summary { display: flex; justify-content: space-between; align-items: center; min-height: 56px; padding: 0 18px; font-weight: 600; font-size: 1.0625rem; cursor: pointer; list-style: none; transition: background-color .2s; }
+details.bar summary::-webkit-details-marker { display: none; }
+details.bar summary::after { content: "+"; font-size: 1.75rem; font-weight: 400; line-height: 1; }
+details.bar[open] summary::after { content: "\2212"; }
+details.bar summary:hover { background: #594831; }
+details.bar:not([open]) .items { display: none; }
+.items { list-style: none; padding: 8px 20px 20px; }
+.item { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; padding-top: 14px; }
+.item b { font-weight: 600; display: block; }
+.item small { display: block; font-size: var(--step-small); color: var(--muted); max-width: 34ch; line-height: 1.4; }
+.item .end { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
+.qty { display: none; align-items: center; gap: 2px; }
+.js .qty { display: inline-flex; }
+.qty button { width: 40px; height: 40px; border: 0; background: var(--surface); color: var(--ink); font: 400 1.375rem/1 var(--text); cursor: pointer; transition: background-color .2s, transform .15s; }
+.qty button:hover { background: var(--accent); color: var(--deep); }
+.qty button:active { transform: scale(.92); }
+.qty output { min-width: 28px; text-align: center; font-weight: 600; font-variant-numeric: tabular-nums; }
+.item.on b { color: var(--accent); }
+.allergy { margin-top: 28px; font-size: var(--step-body); max-width: 52ch; }
+.slip-bar { position: sticky; bottom: 16px; margin-top: 20px; background: var(--accent); color: var(--deep); display: none; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 12px 12px 20px; font-weight: 600; }
+.js .slip-bar.has { display: flex; }
+.slip-bar .btn { min-height: 48px; padding: 0 22px; }
+
+/* ---------- how it works ---------- */
+.how { background: var(--accent); color: var(--deep); }
+.how .words { grid-column: 1 / span 5; }
+.how h2 { margin-bottom: 28px; }
+.how p { max-width: 32ch; font-size: var(--step-lead); line-height: 1.35; }
+.how figure { margin-top: 40px; aspect-ratio: 4 / 3; overflow: hidden; background: var(--mid); }
+.how figure img { width: 100%; height: 100%; object-fit: cover; }
+.slip { grid-column: 7 / span 5; justify-self: start; width: 100%; max-width: 480px; background: var(--ink); color: var(--deep); padding: 12px 28px 52px; clip-path: polygon(0 0,100% 0,100% 100%,97.5% calc(100% - 12px),95% 100%,92.5% calc(100% - 12px),90% 100%,87.5% calc(100% - 12px),85% 100%,82.5% calc(100% - 12px),80% 100%,77.5% calc(100% - 12px),75% 100%,72.5% calc(100% - 12px),70% 100%,67.5% calc(100% - 12px),65% 100%,62.5% calc(100% - 12px),60% 100%,57.5% calc(100% - 12px),55% 100%,52.5% calc(100% - 12px),50% 100%,47.5% calc(100% - 12px),45% 100%,42.5% calc(100% - 12px),40% 100%,37.5% calc(100% - 12px),35% 100%,32.5% calc(100% - 12px),30% 100%,27.5% calc(100% - 12px),25% 100%,22.5% calc(100% - 12px),20% 100%,17.5% calc(100% - 12px),15% 100%,12.5% calc(100% - 12px),10% 100%,7.5% calc(100% - 12px),5% 100%,2.5% calc(100% - 12px),0% 100%,0 0); }
+.slip h3 { font: 600 1.0625rem/1.2 var(--text); text-transform: none; letter-spacing: 0; margin-top: 28px; }
+.slip ul { list-style: none; padding: 0; }
+.slip li { display: flex; align-items: baseline; gap: 8px; margin-top: 10px; font-size: 1rem; font-variant-numeric: tabular-nums; }
+.slip li i { flex: 1; min-width: 14px; border-bottom: 4px dotted #9d8f7c; transform: translateY(-3px); }
+.slip li span:last-child { white-space: nowrap; font-weight: 600; }
+.slip .final { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 32px; padding: 0 16px; min-height: 48px; background: var(--deep); color: var(--ink); font-weight: 600; }
+.slip .final span:last-child { white-space: nowrap; }
+
+/* ---------- subscription ---------- */
+.sub-sec { background: var(--mid); }
+.sub-sec .left { grid-column: 1 / span 4; }
+.sub-sec h2 { font-size: var(--step-head); margin-bottom: 24px; }
+.sub-sec .left p { font-size: var(--step-lead); line-height: 1.35; max-width: 24ch; }
+.sub-sec figure { margin-top: 40px; width: 75%; aspect-ratio: 4 / 5; overflow: hidden; background: var(--surface); }
+.sub-sec figure img { width: 100%; height: 100%; object-fit: cover; }
+.sizes { grid-column: 6 / span 7; display: grid; gap: 10px; align-content: start; border: 0; padding: 0; min-width: 0; }
+.size { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 8px 28px; padding: 28px; background: var(--surface); cursor: pointer; transition: background-color .25s, color .25s, transform .25s var(--ease); }
+.size:hover { transform: translateX(6px); }
+.size:has(input:checked) { background: var(--accent); color: var(--deep); }
+.size:has(input:focus-visible) { outline: 3px solid var(--ink); outline-offset: 3px; }
+.size input { position: absolute; opacity: 0; pointer-events: none; }
+.size .nm { min-width: 3.4em; font: 800 clamp(2.75rem, 4.4vw, 4.5rem)/0.85 var(--display); text-transform: uppercase; }
+.size .what { font-size: var(--step-body); line-height: 1.4; }
+.size .what small { display: block; font-size: var(--step-small); margin-top: 6px; opacity: .85; }
+.size .pr { white-space: nowrap; font: 800 clamp(2rem, 3vw, 2.75rem)/1 var(--display); font-variant-numeric: tabular-nums; text-align: right; }
+.sizes .after { margin-top: 18px; display: flex; flex-wrap: wrap; gap: 16px 28px; align-items: center; }
+.sizes .after p { max-width: 40ch; }
+
+/* ---------- reviews ---------- */
+.reviews { background: var(--ink); color: var(--deep); }
+.reviews h2 { grid-column: 1 / span 4; align-self: start; }
+.letter { grid-column: 5 / span 5; max-width: 480px; }
+.letter .open { font-size: clamp(1.5rem, 1.1rem + 1.2vw, 1.875rem); font-weight: 600; line-height: 1.2; }
+.letter p + p { margin-top: 20px; }
+.letter .open + p { margin-top: 24px; }
+.letter .who { margin-top: 40px; }
+.letter .who b { font-weight: 600; display: block; }
+.more { grid-column: 5 / span 8; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 80px; }
+.more blockquote { padding-right: 24px; }
+.more .who { margin-top: 20px; }
+.more p:first-child { font-size: var(--step-lead); line-height: 1.3; font-weight: 600; }
+.more .who b { display: block; font-weight: 600; }
+
+/* ---------- order coupon ---------- */
+.order { background: var(--accent); color: var(--ink); padding-block: var(--gap); }
+.coupon { grid-column: 2 / span 10; display: grid; grid-template-columns: 46fr 54fr; background: var(--deep); position: relative; }
+.coupon .info { padding: 48px; display: flex; flex-direction: column; justify-content: space-between; gap: 40px; }
+.coupon h2 { font-size: clamp(2.25rem, 1.2rem + 3vw, 3.5rem); line-height: 0.9; }
+.coupon .info p { max-width: 30ch; }
+.coupon form { position: relative; padding: 48px; border-left: 5px dotted var(--accent); display: grid; gap: 10px; align-content: start; }
+.coupon form::before, .coupon form::after { content: ""; position: absolute; left: -16px; width: 28px; height: 28px; border-radius: 50%; background: var(--accent); }
+.coupon form::before { top: -14px; }
+.coupon form::after { bottom: -14px; }
+.coupon input, .coupon select, .coupon textarea { width: 100%; min-height: 52px; padding: 0 16px; border: 0; background: var(--mid); color: var(--ink); font: 400 1rem/1.4 var(--text); border-radius: 0; }
+.coupon textarea { padding: 14px 16px; min-height: 128px; resize: vertical; }
+.coupon ::placeholder { color: #cfc6b6; opacity: 1; }
+.coupon select { appearance: none; }
+.coupon input:focus-visible, .coupon select:focus-visible, .coupon textarea:focus-visible { outline: 3px solid var(--accent); outline-offset: 0; }
+.coupon .btn { min-height: 56px; width: 100%; font-size: 1.0625rem; }
+.coupon .fine { font-size: var(--step-small); color: var(--muted); }
+
+/* ---------- footer ---------- */
+footer { padding-bottom: 32px; }
+footer .band { display: grid; grid-template-columns: 5fr 4fr 3fr; background: var(--surface); }
+footer .band .photo { aspect-ratio: 16 / 10; overflow: hidden; }
+footer .band .photo.tall { aspect-ratio: auto; }
+footer .band img, footer .band video { width: 100%; height: 100%; object-fit: cover; }
+footer .band .where { padding: var(--m); display: flex; flex-direction: column; justify-content: center; gap: 16px; font-size: var(--step-body); }
+footer .band .where b { font-weight: 600; }
+footer .name { font: 800 17.6vw/0.82 var(--display); text-transform: uppercase; letter-spacing: -0.01em; white-space: nowrap; padding: 40px var(--m) 24px; overflow: hidden; }
+footer .credits { padding-inline: var(--m); font-size: var(--step-small); line-height: 1.55; max-width: 64ch; }
+footer .credits a { text-underline-offset: 3px; }
+
+/* ---------- motion ---------- */
+.js [data-r] { opacity: 0; transform: translateY(26px); transition: opacity .7s var(--ease) var(--d, 0s), transform .7s var(--ease) var(--d, 0s); }
+.js [data-r].in { opacity: 1; transform: none; }
+@keyframes rise { from { opacity: 0; transform: translateY(48px); } to { opacity: 1; transform: none; } }
+.js .hero-in { animation: rise .9s var(--ease) var(--d, 0s) backwards; }
+.js .folder.hero-in { animation-name: rise-folder; }
+@keyframes rise-folder { from { opacity: 0; transform: translateY(120px); } to { opacity: 1; transform: none; } }
+[data-drift] img { will-change: transform; transform: scale(1.14) translateY(var(--dy, 0px)); }
+
+@media (max-width: 980px) {
+  .menu figure { display: none; }
+  .menu .col, .how .words, .slip, .sub-sec .left, .sizes, .reviews h2, .letter, .more { grid-column: 1 / -1; }
+  .how .words { margin-bottom: 48px; }
+  .sub-sec .left { margin-bottom: 40px; }
+  .sub-sec figure { display: none; }
+  .reviews h2 { margin-bottom: 40px; }
+  .more { margin-top: 56px; }
+  .coupon { grid-column: 1 / -1; grid-template-columns: 1fr; }
+  .coupon .info { padding: 32px 24px; }
+  .coupon form { padding: 32px 24px; border-left: 0; border-top: 5px dotted var(--accent); }
+  .coupon form::before { top: -16.5px; left: -14px; }
+  .coupon form::after { top: -16.5px; bottom: auto; left: auto; right: -14px; }
+  footer .band { grid-template-columns: 1fr; }
+  footer .band .photo.tall { aspect-ratio: 16 / 10; }
+}
+@media (max-width: 640px) {
+  .top { grid-template-columns: 1fr auto; }
+  .top .hours { display: none; }
+  .top .mark { justify-self: start; }
+  .hero { min-height: max(100svh, 760px); }
+  .hero h1 { font-size: 12.4vw; padding-top: 56px; }
+  .hero .sub { font-size: 1.0625rem; margin-top: 16px; }
+  .stack { height: calc(4 * 52px + 300px + 48px); padding-top: 48px; }
+  .folder { left: 3vw; width: 94vw; top: calc(48px + var(--i) * 52px); height: 380px; }
+  .folder .tab { top: -32px; height: 33px; min-width: 0; width: 34%; padding: 0; font-size: 0.9375rem; }
+  .f0 { --x: 4%; } .f1 { --x: 33%; } .f2 { --x: 62%; } .f3 { --x: 4%; } .f4 { --x: 33%; padding: 24px 20px; }
+  .folder .note { display: none; }
+  .f4 .btn { width: 100%; }
+  .f4 .row { gap: 16px; }
+  .menu .lead { font-size: 1.125rem; }
+  .items { padding: 6px 16px 18px; }
+  .item { flex-direction: column; gap: 8px; }
+  .item .end { width: 100%; justify-content: space-between; flex-direction: row-reverse; }
+  .size { grid-template-columns: 1fr auto; padding: 20px; }
+  .size .pr { font-size: 1.75rem; }
+  .size .what { grid-column: 1 / -1; grid-row: 2; }
+  .slip { padding-inline: 18px; }
+  .more { grid-template-columns: 1fr; }
+  footer .name { font-size: 17.6vw; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .js [data-r] { opacity: 1; transform: none; transition: none; }
+  .js .hero-in { animation: none; }
+  [data-drift] img { transform: none; }
+  .btn, .size, .folder { transition: none; }
+}
+</style>
+</head>
+<body>
+
+<header class="hero" id="top">
+  <div class="top">
+    <span class="hours">Sat 8–1 · Sun 9–12</span>
+    <a class="mark" href="#top">Crumb &amp; Rye</a>
+    <a class="go" href="#order">Preorder</a>
+  </div>
+  <h1 class="hero-in">Order Thursday.<br>Bread Saturday.</h1>
+  <p class="sub hero-in" style="--d:.12s">Weekend sourdough, rye and pastries from the oven on Alder Street, baked only for the orders we’ve taken.</p>
+
+  <nav class="stack" aria-label="Sections">
+    <a class="folder f0 hero-in" href="#menu" style="--d:.2s"><span class="tab">Menu</span><span class="note">This weekend’s menu, with prices</span></a>
+    <a class="folder f1 hero-in" href="#how" style="--d:.28s"><span class="tab">How it works</span><span class="note">Monday to Saturday, hour by hour</span></a>
+    <a class="folder f2 hero-in" href="#subscribe" style="--d:.36s"><span class="tab">Weekly bread</span><span class="note">Three sizes, skip any week</span></a>
+    <a class="folder f3 hero-in" href="#reviews" style="--d:.44s"><span class="tab">Reviews</span><span class="note">From the Saturday line</span></a>
+    <div class="folder f4 hero-in" style="--d:.52s">
+      <a class="tab" href="#order">Preorder</a>
+      <div class="row">
+        <a class="btn dark" href="#menu">Build your order</a>
+        <p><strong id="closes">Orders close Thursday at 9 pm.</strong><br>Pay at the counter. Pickup Saturday 8–1, Sunday 9–12.</p>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<main>
+<section class="menu" id="menu">
+  <div class="grid">
+    <figure data-drift data-r><img src="assets/bakery-oven-bread-2013.jpg" width="1920" height="2881" alt="A baker in whites wheeling a rack of loaves into a rotating oven, with a second full rack waiting beside it"></figure>
+    <div class="col">
+      <h2 data-r>Menu</h2>
+      <p class="lead" data-r style="--d:.08s">This weekend, October 24–25. Everything is baked to order, so tap what you want and we’ll set it aside.</p>
+
+      <div data-r style="--d:.14s">
+      <details class="bar" open>
+        <summary>Sourdough loaves</summary>
+        <ul class="items">
+          <li class="item" data-name="Country sourdough" data-price="9"><div><b>Country sourdough</b><small>Long ferment, blistered crust, open crumb</small></div><span class="end tnum">$9.00</span></li>
+          <li class="item" data-name="Dark rye with caraway" data-price="10"><div><b>Dark rye with caraway</b><small>Dense, sour and slow to go stale</small></div><span class="end tnum">$10.00</span></li>
+          <li class="item" data-name="Seeded spelt" data-price="11"><div><b>Seeded spelt</b><small>Sunflower, flax and pumpkin seed</small></div><span class="end tnum">$11.00</span></li>
+        </ul>
+      </details>
+      <details class="bar">
+        <summary>Flatbreads and rolls</summary>
+        <ul class="items">
+          <li class="item" data-name="Rosemary focaccia" data-price="8"><div><b>Rosemary focaccia</b><small>Olive oil, flaky salt, cut to share</small></div><span class="end tnum">$8.00</span></li>
+          <li class="item" data-name="Rye rolls, half dozen" data-price="9"><div><b>Rye rolls, half dozen</b><small>Soft inside, good for sandwiches</small></div><span class="end tnum">$9.00</span></li>
+        </ul>
+      </details>
+      <details class="bar">
+        <summary>Viennoiserie</summary>
+        <ul class="items">
+          <li class="item" data-name="Butter croissant" data-price="4.5"><div><b>Butter croissant</b><small>Three days of folding</small></div><span class="end tnum">$4.50</span></li>
+          <li class="item" data-name="Pain au chocolat" data-price="5"><div><b>Pain au chocolat</b><small>Two batons of dark chocolate</small></div><span class="end tnum">$5.00</span></li>
+          <li class="item" data-name="Cardamom knot" data-price="4.75"><div><b>Cardamom knot</b><small>Sugar-crusted and still warm at 8</small></div><span class="end tnum">$4.75</span></li>
+        </ul>
+      </details>
+      <details class="bar">
+        <summary>Savory</summary>
+        <ul class="items">
+          <li class="item" data-name="Cheddar chive scone" data-price="4"><div><b>Cheddar chive scone</b><small>Sharp cheddar, snipped chives</small></div><span class="end tnum">$4.00</span></li>
+          <li class="item" data-name="Ham and gruyère croissant" data-price="6.5"><div><b>Ham and gruyère croissant</b><small>Baked twice, collected fast</small></div><span class="end tnum">$6.50</span></li>
+        </ul>
+      </details>
+      <details class="bar">
+        <summary>Sweet</summary>
+        <ul class="items">
+          <li class="item" data-name="Seasonal fruit danish" data-price="5.5"><div><b>Seasonal fruit danish</b><small>This week: roasted plum</small></div><span class="end tnum">$5.50</span></li>
+          <li class="item" data-name="Brown butter cookie" data-price="3.5"><div><b>Brown butter cookie</b><small>Flaky salt on top</small></div><span class="end tnum">$3.50</span></li>
+          <li class="item" data-name="Olive oil cake slice" data-price="4.5"><div><b>Olive oil cake slice</b><small>Orange zest, a little rye flour</small></div><span class="end tnum">$4.50</span></li>
+        </ul>
+      </details>
+      <details class="bar">
+        <summary>Pantry</summary>
+        <ul class="items">
+          <li class="item" data-name="Rye crackers" data-price="7"><div><b>Rye crackers</b><small>Made from the week’s bread ends</small></div><span class="end tnum">$7.00</span></li>
+          <li class="item" data-name="Jar of plum jam" data-price="9"><div><b>Jar of plum jam</b><small>Small batch, made from the plums on our Friday delivery</small></div><span class="end tnum">$9.00</span></li>
+        </ul>
+      </details>
+      </div>
+      <p class="allergy" data-r>Everything is made in a kitchen that handles wheat, rye, dairy, eggs, sesame and tree nuts. Ask us about anything specific when you order.</p>
+
+      <div class="slip-bar" id="slipbar" aria-live="polite"><span id="slipsum">Nothing on your slip yet</span><a class="btn dark" href="#order">Send it in</a></div>
+    </div>
+  </div>
+</section>
+
+<section class="how" id="how">
+  <div class="grid">
+    <div class="words">
+      <h2 data-r>How preorders work</h2>
+      <p data-r style="--d:.08s">Order from the menu by Thursday night. We bake what’s ordered plus a few loaves for the counter, so nothing sits and nothing is wasted.</p>
+      <figure data-drift data-r style="--d:.16s"><img src="assets/bread-in-the-oven-5959009561.jpg" width="1920" height="1440" loading="lazy" alt="Floured loaves with scored tops on the oven deck, lit from the side"></figure>
+    </div>
+    <div class="slip" data-r style="--d:.1s">
+      <h3>Monday</h3>
+      <ul>
+        <li><span>Menu goes live</span><i></i><span>8 am</span></li>
+        <li><span>Pick your loaves and pastries</span><i></i><span>any time</span></li>
+      </ul>
+      <h3>Thursday</h3>
+      <ul>
+        <li><span>Preorders close</span><i></i><span>9 pm</span></li>
+      </ul>
+      <h3>Friday</h3>
+      <ul>
+        <li><span>Dough shaped, proofed in the cold</span><i></i><span>12 hrs</span></li>
+        <li><span>Order slips written</span><i></i><span>6 pm</span></li>
+      </ul>
+      <h3>Saturday</h3>
+      <ul>
+        <li><span>Oven lit</span><i></i><span>4 am</span></li>
+        <li><span>First bread out</span><i></i><span>7 am</span></li>
+        <li><span>Pickup at the counter</span><i></i><span>8 am–1 pm</span></li>
+      </ul>
+      <div class="final"><span>Warm bread with your name on it</span><span>Sat 8 am</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="sub-sec" id="subscribe">
+  <div class="grid">
+    <div class="left">
+      <h2 data-r>Weekly bread</h2>
+      <p data-r style="--d:.08s">The same loaf waiting every Saturday, in the size that fits your table.</p>
+      <figure data-drift data-r style="--d:.16s"><img src="assets/herculaneum-loaf-2.jpg" width="1920" height="1440" loading="lazy" alt="A round rye loaf scored into segments, cooling on a wire rack"></figure>
+    </div>
+    <fieldset class="sizes">
+      <legend class="sr">Choose a weekly size</legend>
+      <label class="size" data-r style="--d:.05s"><input type="radio" name="plan" value="Small weekly: 1 loaf, $9 a week"><span class="nm">Small</span><span class="what">One loaf of your choice<small>For one or two people</small></span><span class="pr">$9 a week</span></label>
+      <label class="size" data-r style="--d:.12s"><input type="radio" name="plan" value="Medium weekly: 2 loaves and 2 pastries, $19 a week" checked><span class="nm">Medium</span><span class="what">Two loaves and two pastries<small>For a family breakfast table</small></span><span class="pr">$19 a week</span></label>
+      <label class="size" data-r style="--d:.19s"><input type="radio" name="plan" value="Large weekly: 3 loaves, 4 pastries and a jar of jam, $31 a week"><span class="nm">Large</span><span class="what">Three loaves, four pastries, one jar of jam<small>For a house that shares</small></span><span class="pr">$31 a week</span></label>
+      <div class="after" data-r>
+        <a class="btn" href="#order">Start my weekly bread</a>
+        <p>Change or skip any week before Wednesday noon. Cancel whenever you like.</p>
+      </div>
+    </fieldset>
+  </div>
+</section>
+
+<!-- SAMPLE REVIEWS: placeholder copy for layout. Replace with real customer words before launch. -->
+<section class="reviews" id="reviews">
+  <div class="grid">
+    <h2 data-r>What the line says</h2>
+    <blockquote class="letter" data-r style="--d:.08s">
+      <p class="open">Our Saturday starts at your counter now.</p>
+      <p>We used to wander out for bread whenever we remembered. Now the loaf is bagged with my name on it and still warm when I get there at eight.</p>
+      <p>The rye is the one I’d miss most. It lasts all week and it tastes better on Tuesday than most bread does on the day.</p>
+      <p class="who"><b>Dana R.</b>Weekly Medium since spring</p>
+    </blockquote>
+    <div class="more">
+      <blockquote data-r><p>The cardamom knots were gone by ten in the morning and I’m glad I ordered ahead.</p><p class="who"><b>Marcus T.</b>Saturday regular</p></blockquote>
+      <blockquote data-r style="--d:.1s"><p>Easiest bakery order I’ve made. Pick, pay at the counter, done. The croissants are properly laminated.</p><p class="who"><b>Priya S.</b>Preorders every week</p></blockquote>
+    </div>
+  </div>
+</section>
+
+<section class="order" id="order">
+  <div class="grid">
+    <div class="coupon" data-r>
+      <div class="info">
+        <h2>Send in<br>your order</h2>
+        <p>Orders close Thursday at 9 pm. We’ll confirm by email and pack it for the time you pick.</p>
+      </div>
+      <form id="orderform" action="mailto:orders@crumbandrye.example" method="post" enctype="text/plain">
+        <label class="sr" for="f-name">Your name</label>
+        <input id="f-name" name="Name" type="text" placeholder="Your name" autocomplete="name" required>
+        <label class="sr" for="f-contact">Email or phone</label>
+        <input id="f-contact" name="Contact" type="text" placeholder="Email or phone" autocomplete="email" required>
+        <label class="sr" for="f-pick">Pickup time</label>
+        <select id="f-pick" name="Pickup">
+          <option>Saturday 8–10 am</option>
+          <option>Saturday 10 am–12</option>
+          <option>Saturday 12–1 pm</option>
+          <option>Sunday 9–11 am</option>
+          <option>Sunday 11 am–12</option>
+        </select>
+        <label class="sr" for="f-order">Your order</label>
+        <textarea id="f-order" name="Order" placeholder="Your order: loaves, pastries, or a weekly size" required></textarea>
+        <button class="btn" type="submit">Send my preorder</button>
+        <p class="fine">Opens an email to the bakery. You pay at the counter.</p>
+      </form>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="band">
+    <div class="photo"><video id="loop" autoplay muted loop playsinline preload="metadata" poster="assets/puerto-del-rosario-tefia-la-alcogida-bread-poster.jpg" width="846" height="480" aria-label="A baker works the door of a stone village bread oven"><source src="assets/puerto-del-rosario-tefia-la-alcogida-bread.webm" type="video/webm"></video></div>
+    <div class="photo tall" data-drift><img src="assets/mysterium-fidei-museum-traditional-cooking-wood-oven.jpg" width="1920" height="1205" loading="lazy" alt="The iron door of an old wood-fired bread oven, with red embers glowing inside"></div>
+    <div class="where">
+      <p><b>Crumb &amp; Rye</b><br>214 Alder Street</p>
+      <p>Saturday 8 am–1 pm<br>Sunday 9 am–12 pm<br>Preorders close Thursday 9 pm</p>
+      <p><a href="mailto:orders@crumbandrye.example">orders@crumbandrye.example</a></p>
+    </div>
+  </div>
+  <div class="name" aria-hidden="true">Crumb &amp; Rye</div>
+  <p class="credits">Photographs of bread and ovens from other bakeries, used under open licences until we photograph our own: <a href="https://commons.wikimedia.org/wiki/File:Herculaneum_loaf_2.jpg">“Herculaneum loaf 2”</a> by Shisma, <a href="https://creativecommons.org/licenses/by/4.0">CC BY 4.0</a>; <a href="https://commons.wikimedia.org/wiki/File:Bakery_oven_bread,_2013.jpg">“Bakery oven bread, 2013”</a> by Jarkko Laine, <a href="https://creativecommons.org/licenses/by/2.0">CC BY 2.0</a>; <a href="https://commons.wikimedia.org/wiki/File:Bread_in_the_oven_(5959009561).jpg">“Bread in the oven (5959009561)”</a> by Jeremy Keith from Brighton &amp; Hove, United Kingdom, <a href="https://creativecommons.org/licenses/by/2.0">CC BY 2.0</a>; <a href="https://commons.wikimedia.org/wiki/File:Mysterium_Fidei_Museum_Traditional_Cooking_Wood_Oven_(Bread).jpg">“Mysterium Fidei Museum Traditional Cooking Wood Oven (Bread)”</a> by Damiz2692, <a href="https://creativecommons.org/licenses/by-sa/4.0">CC BY-SA 4.0</a>; <a href="https://commons.wikimedia.org/wiki/File:Puerto_del_Rosario_-_Tefia_-_La_Alcogida_-_bread_baking_(oT)_04.ogv">“Puerto del Rosario - Tefia - La Alcogida - bread baking (oT) 04”</a> by Frank Vincentz, <a href="https://creativecommons.org/licenses/by-sa/3.0">CC BY-SA 3.0</a>, via Wikimedia Commons.</p>
+</footer>
+
+<script>
+(function () {
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var els = [].slice.call(document.querySelectorAll('[data-r]'));
+  if ('IntersectionObserver' in window && !reduce) {
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { threshold: 0.12, rootMargin: '0px 0px -6% 0px' });
+    els.forEach(function (el) { io.observe(el); });
+  } else { els.forEach(function (el) { el.classList.add('in'); }); }
+
+  /* scroll-linked drift on the photographs */
+  var loop = document.getElementById('loop'); if (reduce && loop) { loop.pause(); loop.removeAttribute('autoplay'); }
+  var drifts = [].slice.call(document.querySelectorAll('[data-drift]'));
+  function drift() {
+    var h = innerHeight;
+    drifts.forEach(function (f) {
+      var r = f.getBoundingClientRect();
+      if (r.bottom < 0 || r.top > h) return;
+      var p = (r.top + r.height / 2 - h / 2) / h;
+      f.style.setProperty('--dy', (p * -28).toFixed(1) + 'px');
+      f.firstElementChild.style.setProperty('--dy', (p * -28).toFixed(1) + 'px');
+    });
+  }
+  if (!reduce) { addEventListener('scroll', function () { requestAnimationFrame(drift); }, { passive: true }); drift(); }
+
+  /* live: time left to order */
+  var closes = document.getElementById('closes');
+  function tick() {
+    var n = new Date(), t = new Date(n);
+    t.setHours(21, 0, 0, 0);
+    t.setDate(n.getDate() + ((4 - n.getDay() + 7) % 7));
+    if (t <= n) t.setDate(t.getDate() + 7);
+    var m = Math.floor((t - n) / 60000), d = Math.floor(m / 1440), h = Math.floor(m % 1440 / 60);
+    closes.textContent = 'Orders close in ' + (d ? d + 'd ' : '') + h + 'h ' + (m % 60) + 'm.';
+  }
+  tick(); setInterval(tick, 30000);
+
+  /* live: the order slip */
+  var qty = {}, items = [].slice.call(document.querySelectorAll('.item'));
+  var bar = document.getElementById('slipbar'), sum = document.getElementById('slipsum');
+  var area = document.getElementById('f-order'), last = '';
+  var plan = function () { var c = document.querySelector('input[name=plan]:checked'); return c ? c.value : ''; };
+  var usePlan = false;
+  function money(n) { return '$' + (n % 1 ? n.toFixed(2) : n); }
+  function render() {
+    var lines = [], total = 0, count = 0;
+    items.forEach(function (li) {
+      var q = qty[li.dataset.name] || 0;
+      li.querySelector('output').textContent = q;
+      li.classList.toggle('on', q > 0);
+      if (q) { var c = q * parseFloat(li.dataset.price); total += c; count += q; lines.push(q + ' x ' + li.dataset.name + ' (' + money(c) + ')'); }
+    });
+    if (usePlan) lines.push('Weekly: ' + plan());
+    bar.classList.toggle('has', count > 0);
+    sum.textContent = count + (count === 1 ? ' item' : ' items') + ' · ' + money(total);
+    if (lines.length) { if (count) lines.push('Total for this weekend: ' + money(total)); }
+    var text = lines.join('\n');
+    if (area.value === '' || area.value === last) { area.value = text; last = text; }
+  }
+  items.forEach(function (li) {
+    var s = document.createElement('span'); s.className = 'qty';
+    s.innerHTML = '<button type="button" aria-label="Remove one ' + li.dataset.name + '">−</button><output>0</output><button type="button" aria-label="Add one ' + li.dataset.name + '">+</button>';
+    li.querySelector('.end').insertBefore(s, li.querySelector('.end').firstChild);
+    var b = s.querySelectorAll('button');
+    b[0].onclick = function () { qty[li.dataset.name] = Math.max(0, (qty[li.dataset.name] || 0) - 1); render(); };
+    b[1].onclick = function () { qty[li.dataset.name] = (qty[li.dataset.name] || 0) + 1; render(); };
+  });
+  [].forEach.call(document.querySelectorAll('input[name=plan]'), function (r) { r.addEventListener('change', function () { usePlan = true; render(); }); });
+  document.querySelector('.sizes .btn').addEventListener('click', function () { usePlan = true; render(); });
+
+  var form = document.getElementById('orderform');
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var body = 'Name: ' + form.Name.value + '\nContact: ' + form.Contact.value + '\nPickup: ' + form.Pickup.value + '\n\n' + form.Order.value;
+    location.href = 'mailto:orders@crumbandrye.example?subject=' + encodeURIComponent('Preorder for ' + form.Name.value) + '&body=' + encodeURIComponent(body);
+  });
+})();
+</script>
+</body>
+</html>

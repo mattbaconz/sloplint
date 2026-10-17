@@ -1,0 +1,3970 @@
+{
+  "date": "2026-10-17",
+  "runs": [
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "baseline",
+      "task": "landing-bakery",
+      "rep": 1,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 77870,
+      "ok": true,
+      "turns": 2,
+      "costUsd": 0.3732064,
+      "inputTokens": 103297,
+      "cacheWriteTokens": 67969,
+      "outputTokens": 9779,
+      "system": null,
+      "files": 1,
+      "lines": 348,
+      "score": 37,
+      "grade": "Noticeable Slop",
+      "errors": 0,
+      "warnings": 4,
+      "byDomain": {
+        "UI": 1,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 3,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 5254,
+        "display": "Georgia",
+        "text": "system-ui",
+        "cta": "#b5651d",
+        "claims": 3,
+        "claimSamples": [
+          "★★★★★"
+        ],
+        "remoteHosts": [],
+        "blockedRequests": 0,
+        "overflowAt375": false,
+        "pageErrors": 0
+      },
+      "findings": [
+        {
+          "file": "index.html",
+          "line": 211,
+          "rule": "UI-005",
+          "message": "6 numeric values render without tabular-nums"
+        },
+        {
+          "file": "index.html",
+          "line": 277,
+          "rule": "COPY-005",
+          "message": "Unsourced claim \"★★★★★\""
+        },
+        {
+          "file": "index.html",
+          "line": 278,
+          "rule": "COPY-005",
+          "message": "Unsourced claim \"★★★★★\""
+        },
+        {
+          "file": "index.html",
+          "line": 279,
+          "rule": "COPY-005",
+          "message": "Unsourced claim \"★★★★★\""
+        }
+      ]
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "baseline",
+      "task": "landing-bakery",
+      "rep": 2,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 85363,
+      "ok": true,
+      "turns": 2,
+      "costUsd": 0.30510289999999995,
+      "inputTokens": 121514,
+      "cacheWriteTokens": 42601,
+      "outputTokens": 12680,
+      "system": null,
+      "files": 1,
+      "lines": 496,
+      "score": 31,
+      "grade": "Noticeable Slop",
+      "errors": 0,
+      "warnings": 3,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 3,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 5530,
+        "display": "Fraunces",
+        "text": "Inter",
+        "cta": "#b5651d",
+        "claims": 6,
+        "claimSamples": [
+          "82%",
+          "10%",
+          "15%",
+          "★★★★★"
+        ],
+        "remoteHosts": [
+          "fonts.googleapis.com",
+          "fonts.gstatic.com"
+        ],
+        "blockedRequests": 0,
+        "overflowAt375": false,
+        "pageErrors": 0
+      },
+      "findings": [
+        {
+          "file": "index.html",
+          "line": 350,
+          "rule": "COPY-005",
+          "message": "Unsourced claim \"★★★★★\""
+        },
+        {
+          "file": "index.html",
+          "line": 355,
+          "rule": "COPY-005",
+          "message": "Unsourced claim \"★★★★★\""
+        },
+        {
+          "file": "index.html",
+          "line": 360,
+          "rule": "COPY-005",
+          "message": "Unsourced claim \"★★★★★\""
+        }
+      ]
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "hooks",
+      "task": "landing-bakery",
+      "rep": 1,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 82945,
+      "ok": true,
+      "turns": 4,
+      "costUsd": 0.32738920000000005,
+      "inputTokens": 221325,
+      "cacheWriteTokens": 49385,
+      "outputTokens": 11264,
+      "skillCalls": [],
+      "skillScripts": 0,
+      "system": "Kiln Split",
+      "files": 1,
+      "lines": 430,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 4659,
+        "display": "Fraunces",
+        "text": "Commissioner",
+        "cta": "#85ca8c",
+        "claims": 0,
+        "claimSamples": [],
+        "remoteHosts": [
+          "fonts.googleapis.com",
+          "fonts.gstatic.com"
+        ],
+        "blockedRequests": 0,
+        "overflowAt375": false,
+        "pageErrors": 0
+      },
+      "findings": []
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "hooks",
+      "task": "landing-bakery",
+      "rep": 2,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 104269,
+      "ok": true,
+      "turns": 3,
+      "costUsd": 0.3472338,
+      "inputTokens": 161282,
+      "cacheWriteTokens": 49378,
+      "outputTokens": 13852,
+      "skillCalls": [],
+      "skillScripts": 0,
+      "system": "Hearth Split",
+      "files": 1,
+      "lines": 564,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 4100,
+        "display": "Gelasio",
+        "text": "Albert Sans",
+        "cta": "#994322",
+        "claims": 0,
+        "claimSamples": [],
+        "remoteHosts": [
+          "fonts.googleapis.com",
+          "fonts.gstatic.com"
+        ],
+        "blockedRequests": 0,
+        "overflowAt375": false,
+        "pageErrors": 0
+      },
+      "findings": []
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "frontend-design",
+      "task": "landing-bakery",
+      "rep": 1,
+      "skill": {
+        "name": "frontend-design",
+        "repo": "anthropics/skills",
+        "commit": "dbd4588f9e1033efb41dad4bef2f7947c8993d44",
+        "url": "https://github.com/anthropics/skills/tree/dbd4588f9e1033efb41dad4bef2f7947c8993d44/skills/frontend-design"
+      },
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 93932,
+      "ok": true,
+      "turns": 4,
+      "costUsd": 0.3281712,
+      "inputTokens": 142252,
+      "cacheWriteTokens": 46114,
+      "outputTokens": 13409,
+      "skillCalls": [
+        "frontend-design"
+      ],
+      "skillScripts": 0,
+      "system": null,
+      "files": 1,
+      "lines": 481,
+      "score": 8,
+      "grade": "Minor Slop",
+      "errors": 0,
+      "warnings": 1,
+      "byDomain": {
+        "UI": 1,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 6268,
+        "display": "Young Serif",
+        "text": "Instrument Sans",
+        "cta": "#f2b13c",
+        "claims": 1,
+        "claimSamples": [
+          "10%"
+        ],
+        "remoteHosts": [
+          "fonts.googleapis.com",
+          "fonts.gstatic.com"
+        ],
+        "blockedRequests": 0,
+        "overflowAt375": false,
+        "pageErrors": 0
+      },
+      "findings": [
+        {
+          "file": "index.html",
+          "line": 270,
+          "rule": "UI-005",
+          "message": "9 numeric values render without tabular-nums"
+        }
+      ]
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "frontend-design",
+      "task": "landing-bakery",
+      "rep": 2,
+      "skill": {
+        "name": "frontend-design",
+        "repo": "anthropics/skills",
+        "commit": "dbd4588f9e1033efb41dad4bef2f7947c8993d44",
+        "url": "https://github.com/anthropics/skills/tree/dbd4588f9e1033efb41dad4bef2f7947c8993d44/skills/frontend-design"
+      },
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 93140,
+      "ok": true,
+      "turns": 4,
+      "costUsd": 0.32336909999999996,
+      "inputTokens": 160738,
+      "cacheWriteTokens": 45401,
+      "outputTokens": 13022,
+      "skillCalls": [
+        "frontend-design"
+      ],
+      "skillScripts": 0,
+      "system": null,
+      "files": 1,
+      "lines": 458,
+      "score": 12,
+      "grade": "Minor Slop",
+      "errors": 0,
+      "warnings": 1,
+      "byDomain": {
+        "UI": 1,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 5902,
+        "display": "Bricolage Grotesque",
+        "text": "Newsreader",
+        "cta": "#f1c453",
+        "claims": 1,
+        "claimSamples": [
+          "60%"
+        ],
+        "remoteHosts": [
+          "fonts.googleapis.com",
+          "fonts.gstatic.com"
+        ],
+        "blockedRequests": 0,
+        "overflowAt375": false,
+        "pageErrors": 0
+      },
+      "findings": [
+        {
+          "file": "index.html",
+          "line": 130,
+          "rule": "UI-014",
+          "message": "12-column grid needs 352px on a 375px screen (11 gaps of 32px); the page scrolls sideways"
+        }
+      ]
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "frontend-design+hooks",
+      "task": "landing-bakery",
+      "rep": 1,
+      "skill": {
+        "name": "frontend-design",
+        "repo": "anthropics/skills",
+        "commit": "dbd4588f9e1033efb41dad4bef2f7947c8993d44",
+        "url": "https://github.com/anthropics/skills/tree/dbd4588f9e1033efb41dad4bef2f7947c8993d44/skills/frontend-design"
+      },
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 88182,
+      "ok": true,
+      "turns": 5,
+      "costUsd": 0.3438878,
+      "inputTokens": 174399,
+      "cacheWriteTokens": 51135,
+      "outputTokens": 12701,
+      "skillCalls": [
+        "frontend-design"
+      ],
+      "skillScripts": 0,
+      "system": "Loam Specimen",
+      "files": 1,
+      "lines": 522,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 5316,
+        "display": "Young Serif",
+        "text": "Karla",
+        "cta": "#a84748",
+        "claims": 0,
+        "claimSamples": [],
+        "remoteHosts": [
+          "fonts.googleapis.com",
+          "fonts.gstatic.com"
+        ],
+        "blockedRequests": 0,
+        "overflowAt375": false,
+        "pageErrors": 0
+      },
+      "findings": []
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "frontend-design+hooks",
+      "task": "landing-bakery",
+      "rep": 2,
+      "skill": {
+        "name": "frontend-design",
+        "repo": "anthropics/skills",
+        "commit": "dbd4588f9e1033efb41dad4bef2f7947c8993d44",
+        "url": "https://github.com/anthropics/skills/tree/dbd4588f9e1033efb41dad4bef2f7947c8993d44/skills/frontend-design"
+      },
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 87977,
+      "ok": true,
+      "turns": 5,
+      "costUsd": 0.33419030000000005,
+      "inputTokens": 174711,
+      "cacheWriteTokens": 50402,
+      "outputTokens": 12014,
+      "skillCalls": [
+        "frontend-design"
+      ],
+      "skillScripts": 0,
+      "system": "Hearth Specimen",
+      "files": 1,
+      "lines": 440,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 4404,
+        "display": "Petrona",
+        "text": "Hanken Grotesk",
+        "cta": "#aa5121",
+        "claims": 0,
+        "claimSamples": [],
+        "remoteHosts": [
+          "fonts.googleapis.com",
+          "fonts.gstatic.com"
+        ],
+        "blockedRequests": 0,
+        "overflowAt375": false,
+        "pageErrors": 0
+      },
+      "findings": []
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "hallmark",
+      "task": "landing-bakery",
+      "rep": 1,
+      "skill": {
+        "name": "hallmark",
+        "repo": "Nutlope/hallmark",
+        "commit": "13ac0ec7e148655948100b6396439e481361d690",
+        "url": "https://github.com/Nutlope/hallmark/tree/13ac0ec7e148655948100b6396439e481361d690/skills/hallmark"
+      },
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 106600,
+      "ok": true,
+      "turns": 4,
+      "costUsd": 0.4602083,
+      "inputTokens": 207967,
+      "cacheWriteTokens": 70918,
+      "outputTokens": 16282,
+      "skillCalls": [
+        "hallmark"
+      ],
+      "skillScripts": 0,
+      "system": null,
+      "files": 1,
+      "lines": 539,
+      "score": 34,
+      "grade": "Noticeable Slop",
+      "errors": 1,
+      "warnings": 1,
+      "byDomain": {
+        "UI": 1,
+        "SEC": 1,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 6518,
+        "display": "Fraunces",
+        "text": "Instrument Sans",
+        "cta": "#ab4400",
+        "claims": 8,
+        "claimSamples": [
+          "0\n+"
+        ],
+        "remoteHosts": [
+          "fonts.googleapis.com",
+          "fonts.gstatic.com"
+        ],
+        "blockedRequests": 0,
+        "overflowAt375": false,
+        "pageErrors": 0
+      },
+      "findings": [
+        {
+          "file": "index.html",
+          "line": 290,
+          "rule": "UI-005",
+          "message": "5 numeric values render without tabular-nums"
+        },
+        {
+          "file": "index.html",
+          "line": 487,
+          "rule": "SEC-007",
+          "message": "innerHTML built from unescaped values"
+        }
+      ]
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "hallmark",
+      "task": "landing-bakery",
+      "rep": 2,
+      "skill": {
+        "name": "hallmark",
+        "repo": "Nutlope/hallmark",
+        "commit": "13ac0ec7e148655948100b6396439e481361d690",
+        "url": "https://github.com/Nutlope/hallmark/tree/13ac0ec7e148655948100b6396439e481361d690/skills/hallmark"
+      },
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 105177,
+      "ok": true,
+      "turns": 4,
+      "costUsd": 0.4435752,
+      "inputTokens": 206876,
+      "cacheWriteTokens": 69358,
+      "outputTokens": 15238,
+      "skillCalls": [
+        "hallmark"
+      ],
+      "skillScripts": 0,
+      "system": null,
+      "files": 1,
+      "lines": 527,
+      "score": 34,
+      "grade": "Noticeable Slop",
+      "errors": 1,
+      "warnings": 1,
+      "byDomain": {
+        "UI": 1,
+        "SEC": 1,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 5335,
+        "display": "Young Serif",
+        "text": "Figtree",
+        "cta": "#a84811",
+        "claims": 0,
+        "claimSamples": [],
+        "remoteHosts": [
+          "fonts.googleapis.com",
+          "fonts.gstatic.com"
+        ],
+        "blockedRequests": 0,
+        "overflowAt375": false,
+        "pageErrors": 0
+      },
+      "findings": [
+        {
+          "file": "index.html",
+          "line": 360,
+          "rule": "UI-005",
+          "message": "2 numeric values render without tabular-nums"
+        },
+        {
+          "file": "index.html",
+          "line": 503,
+          "rule": "SEC-007",
+          "message": "innerHTML built from unescaped values"
+        }
+      ]
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "hallmark+hooks",
+      "task": "landing-bakery",
+      "rep": 1,
+      "skill": {
+        "name": "hallmark",
+        "repo": "Nutlope/hallmark",
+        "commit": "13ac0ec7e148655948100b6396439e481361d690",
+        "url": "https://github.com/Nutlope/hallmark/tree/13ac0ec7e148655948100b6396439e481361d690/skills/hallmark"
+      },
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 100969,
+      "ok": true,
+      "turns": 6,
+      "costUsd": 0.4698313,
+      "inputTokens": 325420,
+      "cacheWriteTokens": 77377,
+      "outputTokens": 13550,
+      "skillCalls": [
+        "hallmark"
+      ],
+      "skillScripts": 0,
+      "system": "Kiln Letter",
+      "files": 1,
+      "lines": 527,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 4822,
+        "display": "Fraunces",
+        "text": "Commissioner",
+        "cta": "#9c3e2c",
+        "claims": 0,
+        "claimSamples": [],
+        "remoteHosts": [
+          "fonts.googleapis.com",
+          "fonts.gstatic.com"
+        ],
+        "blockedRequests": 0,
+        "overflowAt375": false,
+        "pageErrors": 0
+      },
+      "findings": []
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "hallmark+hooks",
+      "task": "landing-bakery",
+      "rep": 2,
+      "skill": {
+        "name": "hallmark",
+        "repo": "Nutlope/hallmark",
+        "commit": "13ac0ec7e148655948100b6396439e481361d690",
+        "url": "https://github.com/Nutlope/hallmark/tree/13ac0ec7e148655948100b6396439e481361d690/skills/hallmark"
+      },
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 95060,
+      "ok": true,
+      "turns": 7,
+      "costUsd": 0.47265460000000004,
+      "inputTokens": 403389,
+      "cacheWriteTokens": 79511,
+      "outputTokens": 12220,
+      "skillCalls": [
+        "hallmark"
+      ],
+      "skillScripts": 0,
+      "system": "Loam Specimen",
+      "files": 1,
+      "lines": 414,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 5442,
+        "display": "Young Serif",
+        "text": "Karla",
+        "cta": "#787505",
+        "claims": 0,
+        "claimSamples": [],
+        "remoteHosts": [
+          "fonts.googleapis.com",
+          "fonts.gstatic.com"
+        ],
+        "blockedRequests": 0,
+        "overflowAt375": false,
+        "pageErrors": 0
+      },
+      "findings": []
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "impeccable",
+      "task": "landing-bakery",
+      "rep": 1,
+      "skill": {
+        "name": "impeccable",
+        "repo": "pbakaus/impeccable",
+        "commit": "6af45ac9a5eb8792f033d3242f52e99812fd91fa",
+        "url": "https://github.com/pbakaus/impeccable/tree/6af45ac9a5eb8792f033d3242f52e99812fd91fa/.claude/skills/impeccable"
+      },
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 222762,
+      "ok": true,
+      "turns": 23,
+      "costUsd": 0.8309177999999999,
+      "inputTokens": 1562544,
+      "cacheWriteTokens": 101534,
+      "outputTokens": 27862,
+      "skillCalls": [
+        "impeccable"
+      ],
+      "skillScripts": 6,
+      "system": null,
+      "files": 1,
+      "lines": 654,
+      "score": 15,
+      "grade": "Minor Slop",
+      "errors": 0,
+      "warnings": 1,
+      "byDomain": {
+        "UI": 1,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 6502,
+        "display": "Rozha One",
+        "text": "Hanken Grotesk",
+        "cta": "#e6b34c",
+        "claims": 0,
+        "claimSamples": [],
+        "remoteHosts": [
+          "fonts.googleapis.com",
+          "fonts.gstatic.com"
+        ],
+        "blockedRequests": 0,
+        "overflowAt375": false,
+        "pageErrors": 0
+      },
+      "findings": [
+        {
+          "file": "index.html",
+          "line": 430,
+          "rule": "UI-002",
+          "message": "3-column grid of icon-badge cards (3 cards)"
+        }
+      ]
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "impeccable",
+      "task": "landing-bakery",
+      "rep": 2,
+      "skill": {
+        "name": "impeccable",
+        "repo": "pbakaus/impeccable",
+        "commit": "6af45ac9a5eb8792f033d3242f52e99812fd91fa",
+        "url": "https://github.com/pbakaus/impeccable/tree/6af45ac9a5eb8792f033d3242f52e99812fd91fa/.claude/skills/impeccable"
+      },
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 250254,
+      "ok": true,
+      "turns": 24,
+      "costUsd": 0.8693487,
+      "inputTokens": 1431758,
+      "cacheWriteTokens": 103881,
+      "outputTokens": 32098,
+      "skillCalls": [
+        "impeccable"
+      ],
+      "skillScripts": 6,
+      "system": null,
+      "files": 1,
+      "lines": 737,
+      "score": 53,
+      "grade": "Sloppy",
+      "errors": 2,
+      "warnings": 1,
+      "byDomain": {
+        "UI": 1,
+        "SEC": 2,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 6469,
+        "display": "Big Shoulders Display",
+        "text": "Hanken Grotesk",
+        "cta": "#ffd93d",
+        "claims": 8,
+        "claimSamples": [
+          "0\n+"
+        ],
+        "remoteHosts": [
+          "fonts.googleapis.com",
+          "fonts.gstatic.com"
+        ],
+        "blockedRequests": 0,
+        "overflowAt375": false,
+        "pageErrors": 0
+      },
+      "findings": [
+        {
+          "file": "index.html",
+          "line": 361,
+          "rule": "UI-005",
+          "message": "8 numeric values render without tabular-nums"
+        },
+        {
+          "file": "index.html",
+          "line": 696,
+          "rule": "SEC-007",
+          "message": "innerHTML built from unescaped values"
+        },
+        {
+          "file": "index.html",
+          "line": 703,
+          "rule": "SEC-007",
+          "message": "innerHTML built from unescaped values"
+        }
+      ]
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "impeccable+hooks",
+      "task": "landing-bakery",
+      "rep": 1,
+      "skill": {
+        "name": "impeccable",
+        "repo": "pbakaus/impeccable",
+        "commit": "6af45ac9a5eb8792f033d3242f52e99812fd91fa",
+        "url": "https://github.com/pbakaus/impeccable/tree/6af45ac9a5eb8792f033d3242f52e99812fd91fa/.claude/skills/impeccable"
+      },
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 93873,
+      "ok": true,
+      "turns": 3,
+      "costUsd": 0.33743409999999996,
+      "inputTokens": 172973,
+      "cacheWriteTokens": 48786,
+      "outputTokens": 12986,
+      "skillCalls": [],
+      "skillScripts": 0,
+      "system": "Larder Letter",
+      "files": 1,
+      "lines": 647,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 4509,
+        "display": "Bricolage Grotesque",
+        "text": "Figtree",
+        "cta": "#ae4c43",
+        "claims": 0,
+        "claimSamples": [],
+        "remoteHosts": [
+          "fonts.googleapis.com",
+          "fonts.gstatic.com"
+        ],
+        "blockedRequests": 0,
+        "overflowAt375": false,
+        "pageErrors": 0
+      },
+      "findings": []
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "impeccable+hooks",
+      "task": "landing-bakery",
+      "rep": 2,
+      "skill": {
+        "name": "impeccable",
+        "repo": "pbakaus/impeccable",
+        "commit": "6af45ac9a5eb8792f033d3242f52e99812fd91fa",
+        "url": "https://github.com/pbakaus/impeccable/tree/6af45ac9a5eb8792f033d3242f52e99812fd91fa/.claude/skills/impeccable"
+      },
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 88204,
+      "ok": true,
+      "turns": 4,
+      "costUsd": 0.32891459999999995,
+      "inputTokens": 225195,
+      "cacheWriteTokens": 49441,
+      "outputTokens": 11356,
+      "skillCalls": [],
+      "skillScripts": 0,
+      "system": "Larder Specimen",
+      "files": 1,
+      "lines": 426,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 4769,
+        "display": "Fraunces",
+        "text": "Commissioner",
+        "cta": "#ac5f2b",
+        "claims": 0,
+        "claimSamples": [],
+        "remoteHosts": [
+          "fonts.googleapis.com",
+          "fonts.gstatic.com"
+        ],
+        "blockedRequests": 0,
+        "overflowAt375": false,
+        "pageErrors": 0
+      },
+      "findings": []
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "taste-skill",
+      "task": "landing-bakery",
+      "rep": 1,
+      "skill": {
+        "name": "design-taste-frontend",
+        "repo": "Leonxlnx/taste-skill",
+        "commit": "f624f37a8c650b9cc550253104925efe4c8de246",
+        "url": "https://github.com/Leonxlnx/taste-skill/tree/f624f37a8c650b9cc550253104925efe4c8de246/skills/taste-skill"
+      },
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 639380,
+      "ok": true,
+      "turns": 30,
+      "costUsd": 1.0925255999999999,
+      "inputTokens": 2282102,
+      "cacheWriteTokens": 123362,
+      "outputTokens": 38312,
+      "skillCalls": [
+        "design-taste-frontend"
+      ],
+      "skillScripts": 11,
+      "system": null,
+      "files": 1,
+      "lines": 553,
+      "score": 63,
+      "grade": "Heavy Slop",
+      "errors": 3,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 3,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 7916,
+        "display": "Switzer",
+        "text": "Switzer",
+        "cta": "#ff7a1f",
+        "claims": 10,
+        "claimSamples": [
+          "0\n+"
+        ],
+        "remoteHosts": [
+          "api.fontshare.com",
+          "cdn.fontshare.com"
+        ],
+        "blockedRequests": 0,
+        "overflowAt375": true,
+        "pageErrors": 0
+      },
+      "findings": [
+        {
+          "file": "index.html",
+          "line": 512,
+          "rule": "SEC-007",
+          "message": "innerHTML built from unescaped values"
+        },
+        {
+          "file": "index.html",
+          "line": 513,
+          "rule": "SEC-007",
+          "message": "innerHTML built from unescaped values"
+        },
+        {
+          "file": "index.html",
+          "line": 523,
+          "rule": "SEC-007",
+          "message": "innerHTML built from unescaped values"
+        }
+      ]
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "taste-skill",
+      "task": "landing-bakery",
+      "rep": 2,
+      "skill": {
+        "name": "design-taste-frontend",
+        "repo": "Leonxlnx/taste-skill",
+        "commit": "f624f37a8c650b9cc550253104925efe4c8de246",
+        "url": "https://github.com/Leonxlnx/taste-skill/tree/f624f37a8c650b9cc550253104925efe4c8de246/skills/taste-skill"
+      },
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 1143970,
+      "ok": true,
+      "turns": 1,
+      "costUsd": 1.5665440000000002,
+      "inputTokens": 174899,
+      "cacheWriteTokens": 1774,
+      "outputTokens": 111,
+      "skillCalls": [
+        "design-taste-frontend"
+      ],
+      "skillScripts": 15,
+      "system": null,
+      "files": 1,
+      "lines": 532,
+      "score": 28,
+      "grade": "Noticeable Slop",
+      "errors": 1,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 1,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 7087,
+        "display": "Big Shoulders",
+        "text": "Public Sans",
+        "cta": "#382d1e",
+        "claims": 3,
+        "claimSamples": [
+          "0\n+"
+        ],
+        "remoteHosts": [
+          "fonts.googleapis.com",
+          "fonts.gstatic.com"
+        ],
+        "blockedRequests": 0,
+        "overflowAt375": false,
+        "pageErrors": 0
+      },
+      "findings": [
+        {
+          "file": "index.html",
+          "line": 513,
+          "rule": "SEC-007",
+          "message": "innerHTML built from unescaped values"
+        }
+      ]
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "taste-skill+hooks",
+      "task": "landing-bakery",
+      "rep": 1,
+      "skill": {
+        "name": "design-taste-frontend",
+        "repo": "Leonxlnx/taste-skill",
+        "commit": "f624f37a8c650b9cc550253104925efe4c8de246",
+        "url": "https://github.com/Leonxlnx/taste-skill/tree/f624f37a8c650b9cc550253104925efe4c8de246/skills/taste-skill"
+      },
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 106433,
+      "ok": true,
+      "turns": 8,
+      "costUsd": 0.43751870000000004,
+      "inputTokens": 422927,
+      "cacheWriteTokens": 65546,
+      "outputTokens": 13957,
+      "skillCalls": [
+        "design-taste-frontend"
+      ],
+      "skillScripts": 0,
+      "system": "Loam Poster",
+      "files": 1,
+      "lines": 435,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 5199,
+        "display": "Fraunces",
+        "text": "Commissioner",
+        "cta": "#916e00",
+        "claims": 0,
+        "claimSamples": [],
+        "remoteHosts": [
+          "fonts.googleapis.com",
+          "fonts.gstatic.com"
+        ],
+        "blockedRequests": 0,
+        "overflowAt375": false,
+        "pageErrors": 0
+      },
+      "findings": []
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "taste-skill+hooks",
+      "task": "landing-bakery",
+      "rep": 2,
+      "skill": {
+        "name": "design-taste-frontend",
+        "repo": "Leonxlnx/taste-skill",
+        "commit": "f624f37a8c650b9cc550253104925efe4c8de246",
+        "url": "https://github.com/Leonxlnx/taste-skill/tree/f624f37a8c650b9cc550253104925efe4c8de246/skills/taste-skill"
+      },
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 108359,
+      "ok": true,
+      "turns": 8,
+      "costUsd": 0.4384804,
+      "inputTokens": 435414,
+      "cacheWriteTokens": 65516,
+      "outputTokens": 13940,
+      "skillCalls": [
+        "design-taste-frontend"
+      ],
+      "skillScripts": 0,
+      "system": "Kiln Poster",
+      "files": 1,
+      "lines": 466,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 5664,
+        "display": "Young Serif",
+        "text": "Karla",
+        "cta": "#fef5ed",
+        "claims": 0,
+        "claimSamples": [],
+        "remoteHosts": [
+          "fonts.googleapis.com",
+          "fonts.gstatic.com"
+        ],
+        "blockedRequests": 0,
+        "overflowAt375": false,
+        "pageErrors": 0
+      },
+      "findings": []
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "baseline",
+      "task": "landing-print",
+      "rep": 1,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 64650,
+      "ok": true,
+      "turns": 2,
+      "costUsd": 0.24730580000000002,
+      "inputTokens": 108936,
+      "cacheWriteTokens": 38514,
+      "outputTokens": 8620,
+      "system": null,
+      "files": 1,
+      "lines": 323,
+      "score": 25,
+      "grade": "Noticeable Slop",
+      "errors": 1,
+      "warnings": 1,
+      "byDomain": {
+        "UI": 2,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 4002,
+        "display": "Arial Black",
+        "text": "ui-monospace",
+        "cta": "#16140f",
+        "claims": 1,
+        "claimSamples": [
+          "120+"
+        ],
+        "remoteHosts": [],
+        "blockedRequests": 0,
+        "overflowAt375": false,
+        "pageErrors": 0
+      },
+      "findings": [
+        {
+          "file": "index.html",
+          "line": 202,
+          "rule": "UI-005",
+          "message": "4 numeric values render without tabular-nums"
+        },
+        {
+          "file": "index.html",
+          "line": 313,
+          "rule": "UI-010",
+          "message": "Shows success without sending anything"
+        }
+      ]
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "baseline",
+      "task": "landing-print",
+      "rep": 2,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 68405,
+      "ok": true,
+      "turns": 2,
+      "costUsd": 0.2611597,
+      "inputTokens": 116107,
+      "cacheWriteTokens": 39526,
+      "outputTokens": 9539,
+      "system": null,
+      "files": 1,
+      "lines": 360,
+      "score": 8,
+      "grade": "Minor Slop",
+      "errors": 0,
+      "warnings": 1,
+      "byDomain": {
+        "UI": 1,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 4713,
+        "display": "Arial Narrow",
+        "text": "ui-monospace",
+        "cta": "#14130f",
+        "claims": 2,
+        "claimSamples": [
+          "50%",
+          "400+"
+        ],
+        "remoteHosts": [],
+        "blockedRequests": 0,
+        "overflowAt375": false,
+        "pageErrors": 0
+      },
+      "findings": [
+        {
+          "file": "index.html",
+          "line": 207,
+          "rule": "UI-005",
+          "message": "6 numeric values render without tabular-nums"
+        }
+      ]
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "hooks",
+      "task": "landing-print",
+      "rep": 1,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 89059,
+      "ok": true,
+      "turns": 3,
+      "costUsd": 0.3265086,
+      "inputTokens": 166833,
+      "cacheWriteTokens": 47701,
+      "outputTokens": 12378,
+      "skillCalls": [],
+      "skillScripts": 0,
+      "system": "Stencil Split",
+      "files": 1,
+      "lines": 476,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 4221,
+        "display": "Archivo Black",
+        "text": "Archivo",
+        "cta": "#028108",
+        "claims": 0,
+        "claimSamples": [],
+        "remoteHosts": [
+          "fonts.googleapis.com",
+          "fonts.gstatic.com"
+        ],
+        "blockedRequests": 0,
+        "overflowAt375": false,
+        "pageErrors": 0
+      },
+      "findings": []
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "hooks",
+      "task": "landing-print",
+      "rep": 2,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 67824,
+      "ok": true,
+      "turns": 3,
+      "costUsd": 0.2814212,
+      "inputTokens": 163722,
+      "cacheWriteTokens": 44584,
+      "outputTokens": 9116,
+      "skillCalls": [],
+      "skillScripts": 0,
+      "system": "Concrete Poster",
+      "files": 1,
+      "lines": 418,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 3298,
+        "display": "Big Shoulders Display",
+        "text": "IBM Plex Mono",
+        "cta": "#fea382",
+        "claims": 0,
+        "claimSamples": [],
+        "remoteHosts": [
+          "fonts.googleapis.com",
+          "fonts.gstatic.com"
+        ],
+        "blockedRequests": 0,
+        "overflowAt375": false,
+        "pageErrors": 0
+      },
+      "findings": []
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "frontend-design",
+      "task": "landing-print",
+      "rep": 1,
+      "skill": {
+        "name": "frontend-design",
+        "repo": "anthropics/skills",
+        "commit": "dbd4588f9e1033efb41dad4bef2f7947c8993d44",
+        "url": "https://github.com/anthropics/skills/tree/dbd4588f9e1033efb41dad4bef2f7947c8993d44/skills/frontend-design"
+      },
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 75936,
+      "ok": true,
+      "turns": 4,
+      "costUsd": 0.28493050000000003,
+      "inputTokens": 158441,
+      "cacheWriteTokens": 42850,
+      "outputTokens": 10196,
+      "skillCalls": [
+        "frontend-design"
+      ],
+      "skillScripts": 0,
+      "system": null,
+      "files": 1,
+      "lines": 343,
+      "score": 8,
+      "grade": "Minor Slop",
+      "errors": 0,
+      "warnings": 1,
+      "byDomain": {
+        "UI": 1,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 4959,
+        "display": "Bricolage Grotesque",
+        "text": "Literata",
+        "cta": "#16143a",
+        "claims": 0,
+        "claimSamples": [],
+        "remoteHosts": [
+          "fonts.googleapis.com",
+          "fonts.gstatic.com"
+        ],
+        "blockedRequests": 0,
+        "overflowAt375": false,
+        "pageErrors": 0
+      },
+      "findings": [
+        {
+          "file": "index.html",
+          "line": 218,
+          "rule": "UI-005",
+          "message": "6 numeric values render without tabular-nums"
+        }
+      ]
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "frontend-design",
+      "task": "landing-print",
+      "rep": 2,
+      "skill": {
+        "name": "frontend-design",
+        "repo": "anthropics/skills",
+        "commit": "dbd4588f9e1033efb41dad4bef2f7947c8993d44",
+        "url": "https://github.com/anthropics/skills/tree/dbd4588f9e1033efb41dad4bef2f7947c8993d44/skills/frontend-design"
+      },
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 83634,
+      "ok": true,
+      "turns": 4,
+      "costUsd": 0.2983492,
+      "inputTokens": 159161,
+      "cacheWriteTokens": 43703,
+      "outputTokens": 11198,
+      "skillCalls": [
+        "frontend-design"
+      ],
+      "skillScripts": 0,
+      "system": null,
+      "files": 1,
+      "lines": 439,
+      "score": 8,
+      "grade": "Minor Slop",
+      "errors": 0,
+      "warnings": 1,
+      "byDomain": {
+        "UI": 1,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 5300,
+        "display": "Bricolage Grotesque",
+        "text": "Newsreader",
+        "cta": "#2538c8",
+        "claims": 0,
+        "claimSamples": [],
+        "remoteHosts": [
+          "fonts.googleapis.com",
+          "fonts.gstatic.com"
+        ],
+        "blockedRequests": 0,
+        "overflowAt375": false,
+        "pageErrors": 0
+      },
+      "findings": [
+        {
+          "file": "index.html",
+          "line": 304,
+          "rule": "UI-005",
+          "message": "4 numeric values render without tabular-nums"
+        }
+      ]
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "frontend-design+hooks",
+      "task": "landing-print",
+      "rep": 1,
+      "skill": {
+        "name": "frontend-design",
+        "repo": "anthropics/skills",
+        "commit": "dbd4588f9e1033efb41dad4bef2f7947c8993d44",
+        "url": "https://github.com/anthropics/skills/tree/dbd4588f9e1033efb41dad4bef2f7947c8993d44/skills/frontend-design"
+      },
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 78840,
+      "ok": true,
+      "turns": 3,
+      "costUsd": 0.30159179999999997,
+      "inputTokens": 166382,
+      "cacheWriteTokens": 46098,
+      "outputTokens": 10516,
+      "skillCalls": [],
+      "skillScripts": 0,
+      "system": "Concrete Manifesto",
+      "files": 1,
+      "lines": 403,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 3109,
+        "display": "Archivo Black",
+        "text": "Archivo",
+        "cta": "#c64902",
+        "claims": 0,
+        "claimSamples": [],
+        "remoteHosts": [
+          "fonts.googleapis.com",
+          "fonts.gstatic.com"
+        ],
+        "blockedRequests": 0,
+        "overflowAt375": true,
+        "pageErrors": 0
+      },
+      "findings": []
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "frontend-design+hooks",
+      "task": "landing-print",
+      "rep": 2,
+      "skill": {
+        "name": "frontend-design",
+        "repo": "anthropics/skills",
+        "commit": "dbd4588f9e1033efb41dad4bef2f7947c8993d44",
+        "url": "https://github.com/anthropics/skills/tree/dbd4588f9e1033efb41dad4bef2f7947c8993d44/skills/frontend-design"
+      },
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 92384,
+      "ok": true,
+      "turns": 5,
+      "costUsd": 0.341747,
+      "inputTokens": 175246,
+      "cacheWriteTokens": 50990,
+      "outputTokens": 12535,
+      "skillCalls": [
+        "frontend-design"
+      ],
+      "skillScripts": 0,
+      "system": "Concrete Split",
+      "files": 1,
+      "lines": 487,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 3548,
+        "display": "Anton",
+        "text": "Inter Tight",
+        "cta": "#f32839",
+        "claims": 0,
+        "claimSamples": [],
+        "remoteHosts": [
+          "fonts.googleapis.com",
+          "fonts.gstatic.com"
+        ],
+        "blockedRequests": 0,
+        "overflowAt375": true,
+        "pageErrors": 0
+      },
+      "findings": []
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "hallmark",
+      "task": "landing-print",
+      "rep": 1,
+      "skill": {
+        "name": "hallmark",
+        "repo": "Nutlope/hallmark",
+        "commit": "13ac0ec7e148655948100b6396439e481361d690",
+        "url": "https://github.com/Nutlope/hallmark/tree/13ac0ec7e148655948100b6396439e481361d690/skills/hallmark"
+      },
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 172349,
+      "ok": true,
+      "turns": 22,
+      "costUsd": 0.7050648,
+      "inputTokens": 1484340,
+      "cacheWriteTokens": 89442,
+      "outputTokens": 20775,
+      "skillCalls": [
+        "hallmark"
+      ],
+      "skillScripts": 0,
+      "system": null,
+      "files": 1,
+      "lines": 528,
+      "score": 8,
+      "grade": "Minor Slop",
+      "errors": 0,
+      "warnings": 1,
+      "byDomain": {
+        "UI": 1,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 5597,
+        "display": "Big Shoulders Display",
+        "text": "Newsreader",
+        "cta": "#e5481e",
+        "claims": 1,
+        "claimSamples": [
+          "34+"
+        ],
+        "remoteHosts": [
+          "fonts.googleapis.com",
+          "fonts.gstatic.com"
+        ],
+        "blockedRequests": 0,
+        "overflowAt375": false,
+        "pageErrors": 0
+      },
+      "findings": [
+        {
+          "file": "index.html",
+          "line": 333,
+          "rule": "UI-005",
+          "message": "5 numeric values render without tabular-nums"
+        }
+      ]
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "hallmark",
+      "task": "landing-print",
+      "rep": 2,
+      "skill": {
+        "name": "hallmark",
+        "repo": "Nutlope/hallmark",
+        "commit": "13ac0ec7e148655948100b6396439e481361d690",
+        "url": "https://github.com/Nutlope/hallmark/tree/13ac0ec7e148655948100b6396439e481361d690/skills/hallmark"
+      },
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 172857,
+      "ok": true,
+      "turns": 21,
+      "costUsd": 0.6829306999999999,
+      "inputTokens": 1319130,
+      "cacheWriteTokens": 88555,
+      "outputTokens": 20560,
+      "skillCalls": [
+        "hallmark"
+      ],
+      "skillScripts": 0,
+      "system": null,
+      "files": 1,
+      "lines": 455,
+      "score": 22,
+      "grade": "Noticeable Slop",
+      "errors": 0,
+      "warnings": 15,
+      "byDomain": {
+        "UI": 15,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 4612,
+        "display": "Big Shoulders Display",
+        "text": "Newsreader",
+        "cta": "#e84e10",
+        "claims": 0,
+        "claimSamples": [],
+        "remoteHosts": [
+          "fonts.googleapis.com",
+          "fonts.gstatic.com"
+        ],
+        "blockedRequests": 0,
+        "overflowAt375": false,
+        "pageErrors": 0
+      },
+      "findings": [
+        {
+          "file": "index.html",
+          "line": 306,
+          "rule": "UI-013",
+          "message": "Link to nowhere (href=\"#\")"
+        },
+        {
+          "file": "index.html",
+          "line": 313,
+          "rule": "UI-013",
+          "message": "Link to nowhere (href=\"#\")"
+        },
+        {
+          "file": "index.html",
+          "line": 317,
+          "rule": "UI-013",
+          "message": "Link to nowhere (href=\"#\")"
+        },
+        {
+          "file": "index.html",
+          "line": 324,
+          "rule": "UI-013",
+          "message": "Link to nowhere (href=\"#\")"
+        },
+        {
+          "file": "index.html",
+          "line": 328,
+          "rule": "UI-013",
+          "message": "Link to nowhere (href=\"#\")"
+        },
+        {
+          "file": "index.html",
+          "line": 335,
+          "rule": "UI-013",
+          "message": "Link to nowhere (href=\"#\")"
+        },
+        {
+          "file": "index.html",
+          "line": 339,
+          "rule": "UI-013",
+          "message": "Link to nowhere (href=\"#\")"
+        },
+        {
+          "file": "index.html",
+          "line": 346,
+          "rule": "UI-013",
+          "message": "Link to nowhere (href=\"#\")"
+        },
+        {
+          "file": "index.html",
+          "line": 350,
+          "rule": "UI-013",
+          "message": "Link to nowhere (href=\"#\")"
+        },
+        {
+          "file": "index.html",
+          "line": 357,
+          "rule": "UI-013",
+          "message": "Link to nowhere (href=\"#\")"
+        },
+        {
+          "file": "index.html",
+          "line": 361,
+          "rule": "UI-013",
+          "message": "Link to nowhere (href=\"#\")"
+        },
+        {
+          "file": "index.html",
+          "line": 368,
+          "rule": "UI-013",
+          "message": "Link to nowhere (href=\"#\")"
+        },
+        {
+          "file": "index.html",
+          "line": 403,
+          "rule": "UI-013",
+          "message": "Link to nowhere (href=\"#\")"
+        },
+        {
+          "file": "index.html",
+          "line": 409,
+          "rule": "UI-013",
+          "message": "Link to nowhere (href=\"#\")"
+        },
+        {
+          "file": "index.html",
+          "line": 415,
+          "rule": "UI-013",
+          "message": "Link to nowhere (href=\"#\")"
+        }
+      ]
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "hallmark+hooks",
+      "task": "landing-print",
+      "rep": 1,
+      "skill": {
+        "name": "hallmark",
+        "repo": "Nutlope/hallmark",
+        "commit": "13ac0ec7e148655948100b6396439e481361d690",
+        "url": "https://github.com/Nutlope/hallmark/tree/13ac0ec7e148655948100b6396439e481361d690/skills/hallmark"
+      },
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 95812,
+      "ok": true,
+      "turns": 9,
+      "costUsd": 0.4748055,
+      "inputTokens": 598322,
+      "cacheWriteTokens": 78011,
+      "outputTokens": 11070,
+      "skillCalls": [
+        "hallmark"
+      ],
+      "skillScripts": 0,
+      "system": "Bulletin Split",
+      "files": 1,
+      "lines": 376,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 3415,
+        "display": "Darker Grotesque",
+        "text": "Space Mono",
+        "cta": "#d03e2c",
+        "claims": 1,
+        "claimSamples": [
+          "100%"
+        ],
+        "remoteHosts": [
+          "fonts.googleapis.com",
+          "fonts.gstatic.com"
+        ],
+        "blockedRequests": 0,
+        "overflowAt375": true,
+        "pageErrors": 0
+      },
+      "findings": []
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "hallmark+hooks",
+      "task": "landing-print",
+      "rep": 2,
+      "skill": {
+        "name": "hallmark",
+        "repo": "Nutlope/hallmark",
+        "commit": "13ac0ec7e148655948100b6396439e481361d690",
+        "url": "https://github.com/Nutlope/hallmark/tree/13ac0ec7e148655948100b6396439e481361d690/skills/hallmark"
+      },
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 92024,
+      "ok": true,
+      "turns": 8,
+      "costUsd": 0.4532867,
+      "inputTokens": 501803,
+      "cacheWriteTokens": 75082,
+      "outputTokens": 11026,
+      "skillCalls": [
+        "hallmark"
+      ],
+      "skillScripts": 0,
+      "system": "Stencil Split",
+      "files": 1,
+      "lines": 415,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 3522,
+        "display": "Familjen Grotesk",
+        "text": "Familjen Grotesk",
+        "cta": "#1d79fe",
+        "claims": 0,
+        "claimSamples": [],
+        "remoteHosts": [
+          "fonts.googleapis.com",
+          "fonts.gstatic.com"
+        ],
+        "blockedRequests": 0,
+        "overflowAt375": true,
+        "pageErrors": 0
+      },
+      "findings": []
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "impeccable",
+      "task": "landing-print",
+      "rep": 1,
+      "skill": {
+        "name": "impeccable",
+        "repo": "pbakaus/impeccable",
+        "commit": "6af45ac9a5eb8792f033d3242f52e99812fd91fa",
+        "url": "https://github.com/pbakaus/impeccable/tree/6af45ac9a5eb8792f033d3242f52e99812fd91fa/.claude/skills/impeccable"
+      },
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 234281,
+      "ok": true,
+      "turns": 25,
+      "costUsd": 0.7941672,
+      "inputTokens": 1540321,
+      "cacheWriteTokens": 97137,
+      "outputTokens": 26124,
+      "skillCalls": [
+        "impeccable"
+      ],
+      "skillScripts": 6,
+      "system": null,
+      "files": 1,
+      "lines": 590,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 5280,
+        "display": "Archivo",
+        "text": "Archivo",
+        "cta": "#15141a",
+        "claims": 0,
+        "claimSamples": [],
+        "remoteHosts": [
+          "fonts.googleapis.com",
+          "fonts.gstatic.com"
+        ],
+        "blockedRequests": 0,
+        "overflowAt375": false,
+        "pageErrors": 0
+      },
+      "findings": []
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "impeccable",
+      "task": "landing-print",
+      "rep": 2,
+      "skill": {
+        "name": "impeccable",
+        "repo": "pbakaus/impeccable",
+        "commit": "6af45ac9a5eb8792f033d3242f52e99812fd91fa",
+        "url": "https://github.com/pbakaus/impeccable/tree/6af45ac9a5eb8792f033d3242f52e99812fd91fa/.claude/skills/impeccable"
+      },
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 213502,
+      "ok": true,
+      "turns": 23,
+      "costUsd": 0.7673606000000001,
+      "inputTokens": 1348005,
+      "cacheWriteTokens": 99971,
+      "outputTokens": 24262,
+      "skillCalls": [
+        "impeccable"
+      ],
+      "skillScripts": 4,
+      "system": null,
+      "files": 1,
+      "lines": 558,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 5269,
+        "display": "Big Shoulders Display",
+        "text": "Hanken Grotesk",
+        "cta": "#ffd60a",
+        "claims": 0,
+        "claimSamples": [],
+        "remoteHosts": [
+          "fonts.googleapis.com",
+          "fonts.gstatic.com"
+        ],
+        "blockedRequests": 0,
+        "overflowAt375": false,
+        "pageErrors": 0
+      },
+      "findings": []
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "impeccable+hooks",
+      "task": "landing-print",
+      "rep": 1,
+      "skill": {
+        "name": "impeccable",
+        "repo": "pbakaus/impeccable",
+        "commit": "6af45ac9a5eb8792f033d3242f52e99812fd91fa",
+        "url": "https://github.com/pbakaus/impeccable/tree/6af45ac9a5eb8792f033d3242f52e99812fd91fa/.claude/skills/impeccable"
+      },
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 70365,
+      "ok": true,
+      "turns": 3,
+      "costUsd": 0.28432310000000005,
+      "inputTokens": 166639,
+      "cacheWriteTokens": 45002,
+      "outputTokens": 9214,
+      "skillCalls": [],
+      "skillScripts": 0,
+      "system": "Rebar Split",
+      "files": 1,
+      "lines": 427,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 3206,
+        "display": "Big Shoulders Display",
+        "text": "Barlow",
+        "cta": "#f5f6f5",
+        "claims": 0,
+        "claimSamples": [],
+        "remoteHosts": [
+          "fonts.googleapis.com",
+          "fonts.gstatic.com"
+        ],
+        "blockedRequests": 0,
+        "overflowAt375": false,
+        "pageErrors": 0
+      },
+      "findings": []
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "impeccable+hooks",
+      "task": "landing-print",
+      "rep": 2,
+      "skill": {
+        "name": "impeccable",
+        "repo": "pbakaus/impeccable",
+        "commit": "6af45ac9a5eb8792f033d3242f52e99812fd91fa",
+        "url": "https://github.com/pbakaus/impeccable/tree/6af45ac9a5eb8792f033d3242f52e99812fd91fa/.claude/skills/impeccable"
+      },
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 100483,
+      "ok": true,
+      "turns": 4,
+      "costUsd": 0.35148160000000006,
+      "inputTokens": 242842,
+      "cacheWriteTokens": 49498,
+      "outputTokens": 13414,
+      "skillCalls": [],
+      "skillScripts": 0,
+      "system": "Stencil Split",
+      "files": 1,
+      "lines": 523,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 3233,
+        "display": "Anton",
+        "text": "Inter Tight",
+        "cta": "#fe9773",
+        "claims": 0,
+        "claimSamples": [],
+        "remoteHosts": [
+          "fonts.googleapis.com",
+          "fonts.gstatic.com"
+        ],
+        "blockedRequests": 0,
+        "overflowAt375": false,
+        "pageErrors": 0
+      },
+      "findings": []
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "taste-skill",
+      "task": "landing-print",
+      "rep": 1,
+      "skill": {
+        "name": "design-taste-frontend",
+        "repo": "Leonxlnx/taste-skill",
+        "commit": "f624f37a8c650b9cc550253104925efe4c8de246",
+        "url": "https://github.com/Leonxlnx/taste-skill/tree/f624f37a8c650b9cc550253104925efe4c8de246/skills/taste-skill"
+      },
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 763197,
+      "ok": true,
+      "turns": 35,
+      "costUsd": 1.1770701999999997,
+      "inputTokens": 3050444,
+      "cacheWriteTokens": 125546,
+      "outputTokens": 38229,
+      "skillCalls": [
+        "design-taste-frontend"
+      ],
+      "skillScripts": 15,
+      "system": null,
+      "files": 1,
+      "lines": 460,
+      "score": 8,
+      "grade": "Minor Slop",
+      "errors": 0,
+      "warnings": 1,
+      "byDomain": {
+        "UI": 1,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 9507,
+        "display": "Bodoni Moda",
+        "text": "Jost",
+        "cta": "#f9a3c0",
+        "claims": 0,
+        "claimSamples": [],
+        "remoteHosts": [
+          "fonts.googleapis.com",
+          "fonts.gstatic.com"
+        ],
+        "blockedRequests": 0,
+        "overflowAt375": false,
+        "pageErrors": 0
+      },
+      "findings": [
+        {
+          "file": "index.html",
+          "line": 424,
+          "rule": "UI-013",
+          "message": "Link to nowhere (href=\"#\")"
+        }
+      ]
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "taste-skill",
+      "task": "landing-print",
+      "rep": 2,
+      "skill": {
+        "name": "design-taste-frontend",
+        "repo": "Leonxlnx/taste-skill",
+        "commit": "f624f37a8c650b9cc550253104925efe4c8de246",
+        "url": "https://github.com/Leonxlnx/taste-skill/tree/f624f37a8c650b9cc550253104925efe4c8de246/skills/taste-skill"
+      },
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 523796,
+      "ok": true,
+      "turns": 23,
+      "costUsd": 0.9274435000000001,
+      "inputTokens": 1603791,
+      "cacheWriteTokens": 113124,
+      "outputTokens": 32582,
+      "skillCalls": [
+        "design-taste-frontend"
+      ],
+      "skillScripts": 9,
+      "system": null,
+      "files": 1,
+      "lines": 626,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 5478,
+        "display": "Onest",
+        "text": "Onest",
+        "cta": "#1f2b4d",
+        "claims": 0,
+        "claimSamples": [],
+        "remoteHosts": [
+          "fonts.googleapis.com",
+          "fonts.gstatic.com"
+        ],
+        "blockedRequests": 0,
+        "overflowAt375": false,
+        "pageErrors": 0
+      },
+      "findings": []
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "taste-skill+hooks",
+      "task": "landing-print",
+      "rep": 1,
+      "skill": {
+        "name": "design-taste-frontend",
+        "repo": "Leonxlnx/taste-skill",
+        "commit": "f624f37a8c650b9cc550253104925efe4c8de246",
+        "url": "https://github.com/Leonxlnx/taste-skill/tree/f624f37a8c650b9cc550253104925efe4c8de246/skills/taste-skill"
+      },
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 114463,
+      "ok": true,
+      "turns": 8,
+      "costUsd": 0.43484860000000003,
+      "inputTokens": 359354,
+      "cacheWriteTokens": 63336,
+      "outputTokens": 15188,
+      "skillCalls": [
+        "design-taste-frontend"
+      ],
+      "skillScripts": 0,
+      "system": "Rebar Manifesto",
+      "files": 1,
+      "lines": 481,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 4473,
+        "display": "Familjen Grotesk",
+        "text": "Familjen Grotesk",
+        "cta": "#006ac9",
+        "claims": 0,
+        "claimSamples": [],
+        "remoteHosts": [
+          "fonts.googleapis.com",
+          "fonts.gstatic.com"
+        ],
+        "blockedRequests": 0,
+        "overflowAt375": true,
+        "pageErrors": 0
+      },
+      "findings": []
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "taste-skill+hooks",
+      "task": "landing-print",
+      "rep": 2,
+      "skill": {
+        "name": "design-taste-frontend",
+        "repo": "Leonxlnx/taste-skill",
+        "commit": "f624f37a8c650b9cc550253104925efe4c8de246",
+        "url": "https://github.com/Leonxlnx/taste-skill/tree/f624f37a8c650b9cc550253104925efe4c8de246/skills/taste-skill"
+      },
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 96769,
+      "ok": true,
+      "turns": 7,
+      "costUsd": 0.40041990000000005,
+      "inputTokens": 347101,
+      "cacheWriteTokens": 63030,
+      "outputTokens": 11987,
+      "skillCalls": [
+        "design-taste-frontend"
+      ],
+      "skillScripts": 0,
+      "system": "Rebar Poster",
+      "files": 1,
+      "lines": 378,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 3976,
+        "display": "Archivo Black",
+        "text": "Archivo",
+        "cta": "#006ab0",
+        "claims": 0,
+        "claimSamples": [],
+        "remoteHosts": [
+          "fonts.googleapis.com",
+          "fonts.gstatic.com"
+        ],
+        "blockedRequests": 0,
+        "overflowAt375": true,
+        "pageErrors": 0
+      },
+      "findings": []
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "baseline",
+      "task": "landing-uptime",
+      "rep": 1,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 81547,
+      "ok": true,
+      "turns": 2,
+      "costUsd": 0.3867485,
+      "inputTokens": 104204,
+      "cacheWriteTokens": 68895,
+      "outputTokens": 10763,
+      "system": null,
+      "files": 1,
+      "lines": 422,
+      "score": 31,
+      "grade": "Noticeable Slop",
+      "errors": 0,
+      "warnings": 3,
+      "byDomain": {
+        "UI": 2,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 1,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 3999,
+        "display": "Inter",
+        "text": "Inter",
+        "cta": "#e8590c",
+        "claims": 2,
+        "claimSamples": [
+          "99.99%",
+          "50+"
+        ],
+        "remoteHosts": [],
+        "blockedRequests": 0,
+        "overflowAt375": false,
+        "pageErrors": 0
+      },
+      "findings": [
+        {
+          "file": "index.html",
+          "line": 253,
+          "rule": "UI-002",
+          "message": "3-column grid of icon-badge cards (6 cards)"
+        },
+        {
+          "file": "index.html",
+          "line": 312,
+          "rule": "UI-005",
+          "message": "2 numeric values render without tabular-nums"
+        },
+        {
+          "file": "index.html",
+          "line": 386,
+          "rule": "COPY-005",
+          "message": "Unsourced claim \"50+ engineers\""
+        }
+      ]
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "baseline",
+      "task": "landing-uptime",
+      "rep": 2,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 65607,
+      "ok": true,
+      "turns": 2,
+      "costUsd": 0.25340320000000005,
+      "inputTokens": 110094,
+      "cacheWriteTokens": 39058,
+      "outputTokens": 9006,
+      "system": null,
+      "files": 1,
+      "lines": 337,
+      "score": 31,
+      "grade": "Noticeable Slop",
+      "errors": 0,
+      "warnings": 3,
+      "byDomain": {
+        "UI": 2,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 1,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 4073,
+        "display": "ui-sans-serif",
+        "text": "ui-monospace",
+        "cta": "#3ddc97",
+        "claims": 2,
+        "claimSamples": [
+          "80%",
+          "16+"
+        ],
+        "remoteHosts": [],
+        "blockedRequests": 0,
+        "overflowAt375": false,
+        "pageErrors": 0
+      },
+      "findings": [
+        {
+          "file": "index.html",
+          "line": 183,
+          "rule": "UI-002",
+          "message": "3-column grid of icon-badge cards (6 cards)"
+        },
+        {
+          "file": "index.html",
+          "line": 239,
+          "rule": "UI-005",
+          "message": "2 numeric values render without tabular-nums"
+        },
+        {
+          "file": "index.html",
+          "line": 309,
+          "rule": "COPY-005",
+          "message": "Unsourced claim \"16+ engineers\""
+        }
+      ]
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "hooks",
+      "task": "landing-uptime",
+      "rep": 1,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 70019,
+      "ok": true,
+      "turns": 3,
+      "costUsd": 0.2766575,
+      "inputTokens": 156016,
+      "cacheWriteTokens": 44355,
+      "outputTokens": 8806,
+      "skillCalls": [],
+      "skillScripts": 0,
+      "system": "Kernel Ledger",
+      "files": 1,
+      "lines": 365,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 2721,
+        "display": "IBM Plex Sans",
+        "text": "IBM Plex Mono",
+        "cta": "#077c51",
+        "claims": 1,
+        "claimSamples": [
+          "87%"
+        ],
+        "remoteHosts": [
+          "fonts.googleapis.com",
+          "fonts.gstatic.com"
+        ],
+        "blockedRequests": 0,
+        "overflowAt375": false,
+        "pageErrors": 0
+      },
+      "findings": []
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "hooks",
+      "task": "landing-uptime",
+      "rep": 2,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 61194,
+      "ok": true,
+      "turns": 4,
+      "costUsd": 0.2835457,
+      "inputTokens": 168727,
+      "cacheWriteTokens": 46744,
+      "outputTokens": 8436,
+      "skillCalls": [],
+      "skillScripts": 0,
+      "system": "Relay Specimen",
+      "files": 1,
+      "lines": 366,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 3569,
+        "display": "Schibsted Grotesk",
+        "text": "Schibsted Grotesk",
+        "cta": "#4d7b01",
+        "claims": 0,
+        "claimSamples": [],
+        "remoteHosts": [
+          "fonts.googleapis.com",
+          "fonts.gstatic.com"
+        ],
+        "blockedRequests": 0,
+        "overflowAt375": false,
+        "pageErrors": 0
+      },
+      "findings": []
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "frontend-design",
+      "task": "landing-uptime",
+      "rep": 1,
+      "skill": {
+        "name": "frontend-design",
+        "repo": "anthropics/skills",
+        "commit": "dbd4588f9e1033efb41dad4bef2f7947c8993d44",
+        "url": "https://github.com/anthropics/skills/tree/dbd4588f9e1033efb41dad4bef2f7947c8993d44/skills/frontend-design"
+      },
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 83896,
+      "ok": true,
+      "turns": 4,
+      "costUsd": 0.3862633,
+      "inputTokens": 138958,
+      "cacheWriteTokens": 66699,
+      "outputTokens": 11223,
+      "skillCalls": [
+        "frontend-design"
+      ],
+      "skillScripts": 0,
+      "system": null,
+      "files": 1,
+      "lines": 430,
+      "score": 15,
+      "grade": "Minor Slop",
+      "errors": 0,
+      "warnings": 2,
+      "byDomain": {
+        "UI": 2,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 4138,
+        "display": "Bricolage Grotesque",
+        "text": "Instrument Sans",
+        "cta": "#11224a",
+        "claims": 0,
+        "claimSamples": [],
+        "remoteHosts": [
+          "fonts.googleapis.com",
+          "fonts.gstatic.com"
+        ],
+        "blockedRequests": 0,
+        "overflowAt375": false,
+        "pageErrors": 0
+      },
+      "findings": [
+        {
+          "file": "index.html",
+          "line": 93,
+          "rule": "UI-006",
+          "message": "Inner radius 14px inside 18px with 17.6px gap; concentric is 0.3999999999999986px"
+        },
+        {
+          "file": "index.html",
+          "line": 308,
+          "rule": "UI-005",
+          "message": "2 numeric values render without tabular-nums"
+        }
+      ]
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "frontend-design",
+      "task": "landing-uptime",
+      "rep": 2,
+      "skill": {
+        "name": "frontend-design",
+        "repo": "anthropics/skills",
+        "commit": "dbd4588f9e1033efb41dad4bef2f7947c8993d44",
+        "url": "https://github.com/anthropics/skills/tree/dbd4588f9e1033efb41dad4bef2f7947c8993d44/skills/frontend-design"
+      },
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 86267,
+      "ok": true,
+      "turns": 5,
+      "costUsd": 0.3100754,
+      "inputTokens": 225809,
+      "cacheWriteTokens": 44087,
+      "outputTokens": 11554,
+      "skillCalls": [
+        "frontend-design"
+      ],
+      "skillScripts": 0,
+      "system": null,
+      "files": 1,
+      "lines": 397,
+      "score": 8,
+      "grade": "Minor Slop",
+      "errors": 0,
+      "warnings": 1,
+      "byDomain": {
+        "UI": 1,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 4547,
+        "display": "Bricolage Grotesque",
+        "text": "Instrument Sans",
+        "cta": "#0f2229",
+        "claims": 0,
+        "claimSamples": [],
+        "remoteHosts": [
+          "fonts.googleapis.com",
+          "fonts.gstatic.com"
+        ],
+        "blockedRequests": 0,
+        "overflowAt375": false,
+        "pageErrors": 0
+      },
+      "findings": [
+        {
+          "file": "index.html",
+          "line": 302,
+          "rule": "UI-005",
+          "message": "2 numeric values render without tabular-nums"
+        }
+      ]
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "frontend-design+hooks",
+      "task": "landing-uptime",
+      "rep": 1,
+      "skill": {
+        "name": "frontend-design",
+        "repo": "anthropics/skills",
+        "commit": "dbd4588f9e1033efb41dad4bef2f7947c8993d44",
+        "url": "https://github.com/anthropics/skills/tree/dbd4588f9e1033efb41dad4bef2f7947c8993d44/skills/frontend-design"
+      },
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 83762,
+      "ok": true,
+      "turns": 3,
+      "costUsd": 0.37865689999999996,
+      "inputTokens": 167973,
+      "cacheWriteTokens": 67738,
+      "outputTokens": 9767,
+      "skillCalls": [],
+      "skillScripts": 0,
+      "system": "Circuit Specimen",
+      "files": 1,
+      "lines": 414,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 3856,
+        "display": "Martian Mono",
+        "text": "Hanken Grotesk",
+        "cta": "#fea4a1",
+        "claims": 1,
+        "claimSamples": [
+          "20+"
+        ],
+        "remoteHosts": [
+          "fonts.googleapis.com",
+          "fonts.gstatic.com"
+        ],
+        "blockedRequests": 0,
+        "overflowAt375": false,
+        "pageErrors": 0
+      },
+      "findings": []
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "frontend-design+hooks",
+      "task": "landing-uptime",
+      "rep": 2,
+      "skill": {
+        "name": "frontend-design",
+        "repo": "anthropics/skills",
+        "commit": "dbd4588f9e1033efb41dad4bef2f7947c8993d44",
+        "url": "https://github.com/anthropics/skills/tree/dbd4588f9e1033efb41dad4bef2f7947c8993d44/skills/frontend-design"
+      },
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 88520,
+      "ok": true,
+      "turns": 4,
+      "costUsd": 0.33301400000000003,
+      "inputTokens": 239119,
+      "cacheWriteTokens": 47871,
+      "outputTokens": 12239,
+      "skillCalls": [],
+      "skillScripts": 0,
+      "system": "Relay Specimen",
+      "files": 1,
+      "lines": 531,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 4229,
+        "display": "Archivo",
+        "text": "Archivo",
+        "cta": "#ffa293",
+        "claims": 0,
+        "claimSamples": [],
+        "remoteHosts": [
+          "fonts.googleapis.com",
+          "fonts.gstatic.com"
+        ],
+        "blockedRequests": 0,
+        "overflowAt375": false,
+        "pageErrors": 0
+      },
+      "findings": []
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "hallmark",
+      "task": "landing-uptime",
+      "rep": 1,
+      "skill": {
+        "name": "hallmark",
+        "repo": "Nutlope/hallmark",
+        "commit": "13ac0ec7e148655948100b6396439e481361d690",
+        "url": "https://github.com/Nutlope/hallmark/tree/13ac0ec7e148655948100b6396439e481361d690/skills/hallmark"
+      },
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 89118,
+      "ok": true,
+      "turns": 4,
+      "costUsd": 0.41766479999999995,
+      "inputTokens": 203574,
+      "cacheWriteTokens": 67740,
+      "outputTokens": 13311,
+      "skillCalls": [
+        "hallmark"
+      ],
+      "skillScripts": 0,
+      "system": null,
+      "files": 1,
+      "lines": 483,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 5152,
+        "display": "Space Grotesk",
+        "text": "Space Grotesk",
+        "cta": "#1f57d3",
+        "claims": 1,
+        "claimSamples": [
+          "2+"
+        ],
+        "remoteHosts": [
+          "fonts.googleapis.com",
+          "fonts.gstatic.com"
+        ],
+        "blockedRequests": 0,
+        "overflowAt375": false,
+        "pageErrors": 0
+      },
+      "findings": []
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "hallmark",
+      "task": "landing-uptime",
+      "rep": 2,
+      "skill": {
+        "name": "hallmark",
+        "repo": "Nutlope/hallmark",
+        "commit": "13ac0ec7e148655948100b6396439e481361d690",
+        "url": "https://github.com/Nutlope/hallmark/tree/13ac0ec7e148655948100b6396439e481361d690/skills/hallmark"
+      },
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 80279,
+      "ok": true,
+      "turns": 4,
+      "costUsd": 0.39151060000000004,
+      "inputTokens": 201433,
+      "cacheWriteTokens": 65681,
+      "outputTokens": 11520,
+      "skillCalls": [
+        "hallmark"
+      ],
+      "skillScripts": 0,
+      "system": null,
+      "files": 1,
+      "lines": 430,
+      "score": 8,
+      "grade": "Minor Slop",
+      "errors": 0,
+      "warnings": 1,
+      "byDomain": {
+        "UI": 1,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 4573,
+        "display": "Schibsted Grotesk",
+        "text": "Schibsted Grotesk",
+        "cta": "#cb3000",
+        "claims": 0,
+        "claimSamples": [],
+        "remoteHosts": [
+          "fonts.googleapis.com",
+          "fonts.gstatic.com"
+        ],
+        "blockedRequests": 0,
+        "overflowAt375": false,
+        "pageErrors": 0
+      },
+      "findings": [
+        {
+          "file": "index.html",
+          "line": 310,
+          "rule": "UI-005",
+          "message": "2 numeric values render without tabular-nums"
+        }
+      ]
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "hallmark+hooks",
+      "task": "landing-uptime",
+      "rep": 1,
+      "skill": {
+        "name": "hallmark",
+        "repo": "Nutlope/hallmark",
+        "commit": "13ac0ec7e148655948100b6396439e481361d690",
+        "url": "https://github.com/Nutlope/hallmark/tree/13ac0ec7e148655948100b6396439e481361d690/skills/hallmark"
+      },
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 106782,
+      "ok": true,
+      "turns": 8,
+      "costUsd": 0.4828024,
+      "inputTokens": 506314,
+      "cacheWriteTokens": 79196,
+      "outputTokens": 12328,
+      "skillCalls": [
+        "hallmark"
+      ],
+      "skillScripts": 0,
+      "system": "Circuit Specimen",
+      "files": 1,
+      "lines": 399,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 3376,
+        "display": "IBM Plex Sans",
+        "text": "IBM Plex Sans",
+        "cta": "#92c016",
+        "claims": 0,
+        "claimSamples": [],
+        "remoteHosts": [
+          "fonts.googleapis.com",
+          "fonts.gstatic.com"
+        ],
+        "blockedRequests": 0,
+        "overflowAt375": false,
+        "pageErrors": 0
+      },
+      "findings": []
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "hallmark+hooks",
+      "task": "landing-uptime",
+      "rep": 2,
+      "skill": {
+        "name": "hallmark",
+        "repo": "Nutlope/hallmark",
+        "commit": "13ac0ec7e148655948100b6396439e481361d690",
+        "url": "https://github.com/Nutlope/hallmark/tree/13ac0ec7e148655948100b6396439e481361d690/skills/hallmark"
+      },
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 108934,
+      "ok": true,
+      "turns": 7,
+      "costUsd": 0.5128548,
+      "inputTokens": 468238,
+      "cacheWriteTokens": 84396,
+      "outputTokens": 13686,
+      "skillCalls": [],
+      "skillScripts": 0,
+      "system": "Relay Ledger",
+      "files": 1,
+      "lines": 503,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 3908,
+        "display": "Archivo",
+        "text": "Azeret Mono",
+        "cta": "#428001",
+        "claims": 0,
+        "claimSamples": [],
+        "remoteHosts": [
+          "fonts.googleapis.com",
+          "fonts.gstatic.com"
+        ],
+        "blockedRequests": 0,
+        "overflowAt375": false,
+        "pageErrors": 0
+      },
+      "findings": []
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "impeccable",
+      "task": "landing-uptime",
+      "rep": 1,
+      "skill": {
+        "name": "impeccable",
+        "repo": "pbakaus/impeccable",
+        "commit": "6af45ac9a5eb8792f033d3242f52e99812fd91fa",
+        "url": "https://github.com/pbakaus/impeccable/tree/6af45ac9a5eb8792f033d3242f52e99812fd91fa/.claude/skills/impeccable"
+      },
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 267897,
+      "ok": true,
+      "turns": 29,
+      "costUsd": 0.8604841000000001,
+      "inputTokens": 1903052,
+      "cacheWriteTokens": 103553,
+      "outputTokens": 26625,
+      "skillCalls": [
+        "impeccable"
+      ],
+      "skillScripts": 8,
+      "system": null,
+      "files": 1,
+      "lines": 501,
+      "score": 39,
+      "grade": "Noticeable Slop",
+      "errors": 1,
+      "warnings": 2,
+      "byDomain": {
+        "UI": 1,
+        "SEC": 1,
+        "BE": 0,
+        "COPY": 1,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 5108,
+        "display": "Big Shoulders Display",
+        "text": "Archivo",
+        "cta": "#f4c430",
+        "claims": 0,
+        "claimSamples": [],
+        "remoteHosts": [
+          "fonts.googleapis.com",
+          "fonts.gstatic.com"
+        ],
+        "blockedRequests": 0,
+        "overflowAt375": false,
+        "pageErrors": 0
+      },
+      "findings": [
+        {
+          "file": "index.html",
+          "line": 236,
+          "rule": "COPY-004",
+          "message": "Placeholder content \"acme\""
+        },
+        {
+          "file": "index.html",
+          "line": 324,
+          "rule": "UI-005",
+          "message": "2 numeric values render without tabular-nums"
+        },
+        {
+          "file": "index.html",
+          "line": 473,
+          "rule": "SEC-007",
+          "message": "innerHTML built from unescaped values"
+        }
+      ]
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "impeccable",
+      "task": "landing-uptime",
+      "rep": 2,
+      "skill": {
+        "name": "impeccable",
+        "repo": "pbakaus/impeccable",
+        "commit": "6af45ac9a5eb8792f033d3242f52e99812fd91fa",
+        "url": "https://github.com/pbakaus/impeccable/tree/6af45ac9a5eb8792f033d3242f52e99812fd91fa/.claude/skills/impeccable"
+      },
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 217501,
+      "ok": true,
+      "turns": 26,
+      "costUsd": 0.7889062000000001,
+      "inputTokens": 1470712,
+      "cacheWriteTokens": 102020,
+      "outputTokens": 24390,
+      "skillCalls": [
+        "impeccable"
+      ],
+      "skillScripts": 6,
+      "system": null,
+      "files": 1,
+      "lines": 514,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 4872,
+        "display": "Bricolage Grotesque",
+        "text": "Hanken Grotesk",
+        "cta": "#46d9e3",
+        "claims": 0,
+        "claimSamples": [],
+        "remoteHosts": [
+          "fonts.googleapis.com",
+          "fonts.gstatic.com"
+        ],
+        "blockedRequests": 0,
+        "overflowAt375": false,
+        "pageErrors": 0
+      },
+      "findings": []
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "impeccable+hooks",
+      "task": "landing-uptime",
+      "rep": 1,
+      "skill": {
+        "name": "impeccable",
+        "repo": "pbakaus/impeccable",
+        "commit": "6af45ac9a5eb8792f033d3242f52e99812fd91fa",
+        "url": "https://github.com/pbakaus/impeccable/tree/6af45ac9a5eb8792f033d3242f52e99812fd91fa/.claude/skills/impeccable"
+      },
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 92887,
+      "ok": true,
+      "turns": 5,
+      "costUsd": 0.35690550000000004,
+      "inputTokens": 305868,
+      "cacheWriteTokens": 50823,
+      "outputTokens": 12809,
+      "skillCalls": [],
+      "skillScripts": 0,
+      "system": "Vector Catalog",
+      "files": 1,
+      "lines": 488,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 3956,
+        "display": "Inter Tight",
+        "text": "Inter Tight",
+        "cta": "#feafa6",
+        "claims": 0,
+        "claimSamples": [],
+        "remoteHosts": [
+          "fonts.googleapis.com",
+          "fonts.gstatic.com"
+        ],
+        "blockedRequests": 0,
+        "overflowAt375": false,
+        "pageErrors": 0
+      },
+      "findings": []
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "impeccable+hooks",
+      "task": "landing-uptime",
+      "rep": 2,
+      "skill": {
+        "name": "impeccable",
+        "repo": "pbakaus/impeccable",
+        "commit": "6af45ac9a5eb8792f033d3242f52e99812fd91fa",
+        "url": "https://github.com/pbakaus/impeccable/tree/6af45ac9a5eb8792f033d3242f52e99812fd91fa/.claude/skills/impeccable"
+      },
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 75543,
+      "ok": true,
+      "turns": 4,
+      "costUsd": 0.29920030000000003,
+      "inputTokens": 241122,
+      "cacheWriteTokens": 45811,
+      "outputTokens": 9641,
+      "skillCalls": [],
+      "skillScripts": 0,
+      "system": "Kernel Console",
+      "files": 1,
+      "lines": 400,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 2948,
+        "display": "Chivo",
+        "text": "Chivo",
+        "cta": "#ac740c",
+        "claims": 0,
+        "claimSamples": [],
+        "remoteHosts": [
+          "fonts.googleapis.com",
+          "fonts.gstatic.com"
+        ],
+        "blockedRequests": 0,
+        "overflowAt375": false,
+        "pageErrors": 0
+      },
+      "findings": []
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "taste-skill",
+      "task": "landing-uptime",
+      "rep": 1,
+      "skill": {
+        "name": "design-taste-frontend",
+        "repo": "Leonxlnx/taste-skill",
+        "commit": "f624f37a8c650b9cc550253104925efe4c8de246",
+        "url": "https://github.com/Leonxlnx/taste-skill/tree/f624f37a8c650b9cc550253104925efe4c8de246/skills/taste-skill"
+      },
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 846274,
+      "ok": true,
+      "turns": 31,
+      "costUsd": 1.0659503999999997,
+      "inputTokens": 2828662,
+      "cacheWriteTokens": 109944,
+      "outputTokens": 35420,
+      "skillCalls": [
+        "design-taste-frontend"
+      ],
+      "skillScripts": 16,
+      "system": null,
+      "files": 1,
+      "lines": 547,
+      "score": 57,
+      "grade": "Sloppy",
+      "errors": 2,
+      "warnings": 2,
+      "byDomain": {
+        "UI": 1,
+        "SEC": 2,
+        "BE": 0,
+        "COPY": 1,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 8048,
+        "display": "Jost",
+        "text": "Jost",
+        "cta": "#b0298f",
+        "claims": 3,
+        "claimSamples": [
+          "99.98%",
+          "99.99%",
+          "99.95%"
+        ],
+        "remoteHosts": [
+          "fonts.googleapis.com",
+          "fonts.gstatic.com"
+        ],
+        "blockedRequests": 0,
+        "overflowAt375": true,
+        "pageErrors": 0
+      },
+      "findings": [
+        {
+          "file": "index.html",
+          "line": 446,
+          "rule": "UI-005",
+          "message": "2 numeric values render without tabular-nums"
+        },
+        {
+          "file": "index.html",
+          "line": 469,
+          "rule": "COPY-003",
+          "message": "Vague label \"Go\""
+        },
+        {
+          "file": "index.html",
+          "line": 527,
+          "rule": "SEC-007",
+          "message": "innerHTML built from unescaped values"
+        },
+        {
+          "file": "index.html",
+          "line": 528,
+          "rule": "SEC-007",
+          "message": "innerHTML built from unescaped values"
+        }
+      ]
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "taste-skill",
+      "task": "landing-uptime",
+      "rep": 2,
+      "skill": {
+        "name": "design-taste-frontend",
+        "repo": "Leonxlnx/taste-skill",
+        "commit": "f624f37a8c650b9cc550253104925efe4c8de246",
+        "url": "https://github.com/Leonxlnx/taste-skill/tree/f624f37a8c650b9cc550253104925efe4c8de246/skills/taste-skill"
+      },
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 501257,
+      "ok": true,
+      "turns": 29,
+      "costUsd": 0.9734520999999999,
+      "inputTokens": 2416600,
+      "cacheWriteTokens": 111873,
+      "outputTokens": 29540,
+      "skillCalls": [
+        "design-taste-frontend"
+      ],
+      "skillScripts": 11,
+      "system": null,
+      "files": 1,
+      "lines": 447,
+      "score": 22,
+      "grade": "Noticeable Slop",
+      "errors": 0,
+      "warnings": 3,
+      "byDomain": {
+        "UI": 1,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 2,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 7208,
+        "display": "Switzer",
+        "text": "Switzer",
+        "cta": "#5a9bfc",
+        "claims": 0,
+        "claimSamples": [],
+        "remoteHosts": [
+          "api.fontshare.com",
+          "cdn.fontshare.com"
+        ],
+        "blockedRequests": 0,
+        "overflowAt375": false,
+        "pageErrors": 0
+      },
+      "findings": [
+        {
+          "file": "index.html",
+          "line": 263,
+          "rule": "COPY-004",
+          "message": "Placeholder content \"acme\""
+        },
+        {
+          "file": "index.html",
+          "line": 362,
+          "rule": "UI-013",
+          "message": "Link to nowhere (href=\"#\")"
+        },
+        {
+          "file": "index.html",
+          "line": 429,
+          "rule": "COPY-004",
+          "message": "Placeholder content \"acme\""
+        }
+      ]
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "taste-skill+hooks",
+      "task": "landing-uptime",
+      "rep": 1,
+      "skill": {
+        "name": "design-taste-frontend",
+        "repo": "Leonxlnx/taste-skill",
+        "commit": "f624f37a8c650b9cc550253104925efe4c8de246",
+        "url": "https://github.com/Leonxlnx/taste-skill/tree/f624f37a8c650b9cc550253104925efe4c8de246/skills/taste-skill"
+      },
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 99337,
+      "ok": true,
+      "turns": 7,
+      "costUsd": 0.3735934,
+      "inputTokens": 346621,
+      "cacheWriteTokens": 59915,
+      "outputTokens": 10524,
+      "skillCalls": [
+        "design-taste-frontend"
+      ],
+      "skillScripts": 0,
+      "system": "Signal Ledger",
+      "files": 1,
+      "lines": 374,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 2988,
+        "display": "Inter Tight",
+        "text": "JetBrains Mono",
+        "cta": "#a0c44e",
+        "claims": 0,
+        "claimSamples": [],
+        "remoteHosts": [
+          "fonts.googleapis.com",
+          "fonts.gstatic.com"
+        ],
+        "blockedRequests": 0,
+        "overflowAt375": false,
+        "pageErrors": 0
+      },
+      "findings": []
+    },
+    {
+      "agent": "claude",
+      "model": "claude-sonnet-5-5",
+      "arm": "taste-skill+hooks",
+      "task": "landing-uptime",
+      "rep": 2,
+      "skill": {
+        "name": "design-taste-frontend",
+        "repo": "Leonxlnx/taste-skill",
+        "commit": "f624f37a8c650b9cc550253104925efe4c8de246",
+        "url": "https://github.com/Leonxlnx/taste-skill/tree/f624f37a8c650b9cc550253104925efe4c8de246/skills/taste-skill"
+      },
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 84204,
+      "ok": true,
+      "turns": 7,
+      "costUsd": 0.37536020000000003,
+      "inputTokens": 342972,
+      "cacheWriteTokens": 61318,
+      "outputTokens": 10190,
+      "skillCalls": [
+        "design-taste-frontend"
+      ],
+      "skillScripts": 0,
+      "system": "Signal Ledger",
+      "files": 1,
+      "lines": 386,
+      "score": 0,
+      "grade": "Studio Grade",
+      "errors": 0,
+      "warnings": 0,
+      "byDomain": {
+        "UI": 0,
+        "SEC": 0,
+        "BE": 0,
+        "COPY": 0,
+        "TEST": 0,
+        "MOTION": 0
+      },
+      "suppressions": 0,
+      "seedModified": [],
+      "check": {
+        "exists": true,
+        "forms": 1,
+        "height": 3077,
+        "display": "Chivo",
+        "text": "Chivo Mono",
+        "cta": "#feae84",
+        "claims": 0,
+        "claimSamples": [],
+        "remoteHosts": [
+          "fonts.googleapis.com",
+          "fonts.gstatic.com"
+        ],
+        "blockedRequests": 0,
+        "overflowAt375": false,
+        "pageErrors": 0
+      },
+      "findings": []
+    }
+  ],
+  "failed": []
+}

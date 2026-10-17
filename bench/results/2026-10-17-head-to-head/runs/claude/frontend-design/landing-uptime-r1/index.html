@@ -1,0 +1,429 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pingwell – Get paged when your API gets slow</title>
+<meta name="description" content="Pingwell watches your API's latency and pages the on-call engineer the moment it crosses your threshold. Built for small dev teams.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --fog: #edf1f5;
+    --paper: #ffffff;
+    --ink: #11224a;
+    --ink-soft: #4a5878;
+    --rule: #cfd8e3;
+    --tide: #2b59d9;
+    --tide-deep: #1e43ae;
+    --alarm: #e8412a;
+    --ok: #1f8a5b;
+    --display: "Bricolage Grotesque", "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif;
+    --body: "Instrument Sans", "Segoe UI", system-ui, sans-serif;
+    --wrap: 1120px;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--fog);
+    color: var(--ink);
+    font: 400 1.0625rem/1.6 var(--body);
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3 { font-family: var(--display); margin: 0; letter-spacing: -0.02em; line-height: 1.05; }
+  p { margin: 0; }
+  a { color: inherit; }
+  :focus-visible { outline: 3px solid var(--tide); outline-offset: 3px; border-radius: 4px; }
+
+  .wrap { max-width: var(--wrap); margin: 0 auto; padding: 0 1.5rem; }
+  .band { padding: 6rem 0; }
+  .band--paper { background: var(--paper); }
+
+  /* Buttons */
+  .btn {
+    display: inline-block; font: 600 1rem/1 var(--body);
+    padding: 0.95rem 1.4rem; border-radius: 10px; text-decoration: none;
+    border: 2px solid var(--ink); cursor: pointer;
+    transition: transform .15s ease, background-color .15s ease;
+  }
+  .btn--solid { background: var(--ink); color: #fff; }
+  .btn--solid:hover { background: var(--tide-deep); border-color: var(--tide-deep); }
+  .btn--line { background: transparent; color: var(--ink); }
+  .btn--line:hover { background: var(--ink); color: #fff; }
+  .btn:active { transform: translateY(1px); }
+
+  /* Nav */
+  .nav { display: flex; align-items: center; justify-content: space-between; padding: 1.4rem 0; }
+  .logo { font: 800 1.45rem/1 var(--display); text-decoration: none; letter-spacing: -0.03em; display: flex; align-items: center; gap: .55rem; }
+  .logo svg { width: 26px; height: 26px; }
+  .nav ul { display: flex; gap: 2rem; list-style: none; margin: 0; padding: 0; align-items: center; }
+  .nav a:not(.btn) { text-decoration: none; font-weight: 500; color: var(--ink-soft); }
+  .nav a:not(.btn):hover { color: var(--ink); }
+  .nav .btn { padding: .65rem 1rem; font-size: .95rem; }
+
+  /* Hero */
+  .hero { padding: 3.5rem 0 6rem; }
+  .hero__grid { display: grid; grid-template-columns: 1fr 1.15fr; gap: 3.5rem; align-items: center; }
+  .hero h1 { font-size: clamp(2.7rem, 5.6vw, 4.6rem); font-weight: 800; }
+  .hero__lede { margin-top: 1.5rem; font-size: 1.2rem; color: var(--ink-soft); max-width: 30rem; }
+  .hero__cta { margin-top: 2.2rem; display: flex; gap: .9rem; flex-wrap: wrap; }
+  .hero__note { margin-top: 1.1rem; font-size: .95rem; color: var(--ink-soft); }
+
+  .trace {
+    background: var(--paper); border: 2px solid var(--ink); border-radius: 18px;
+    padding: 1.1rem 1.1rem 1.3rem; position: relative;
+    box-shadow: 8px 8px 0 var(--ink);
+  }
+  .trace__head { display: flex; justify-content: space-between; gap: 1rem; font-size: .9rem; color: var(--ink-soft); padding: 0 .4rem .6rem; }
+  .trace__head strong { color: var(--ink); font-weight: 600; }
+  .trace svg { width: 100%; height: auto; display: block; overflow: visible; }
+  .trace .grid line { stroke: var(--rule); stroke-width: 1; }
+  .trace text { font: 500 12px var(--body); fill: var(--ink-soft); }
+  .trace .thr { stroke: var(--alarm); stroke-width: 2; stroke-dasharray: 6 5; }
+  .trace .thr-label { fill: var(--alarm); font-weight: 600; }
+  .trace .line { fill: none; stroke: var(--tide); stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }
+  .trace .over { fill: none; stroke: var(--alarm); stroke-width: 3.5; stroke-linejoin: round; stroke-linecap: round; }
+  .trace .dot { fill: var(--alarm); }
+  .trace .halo { fill: var(--alarm); opacity: .22; }
+
+  .page-card {
+    position: absolute; right: -14px; bottom: -34px; width: min(300px, 78%);
+    background: var(--ink); color: #fff; border-radius: 14px; padding: .95rem 1.1rem;
+    font-size: .92rem; line-height: 1.4;
+    box-shadow: 0 14px 30px rgba(17,34,74,.28);
+  }
+  .page-card b { display: block; font-family: var(--display); font-size: 1.02rem; margin-bottom: .2rem; }
+  .page-card span { color: #b9c5e2; }
+  .page-card i { font-style: normal; color: #ff9a8a; font-weight: 600; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .trace .line, .trace .over { stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw 2.4s .3s cubic-bezier(.4,.1,.3,1) forwards; }
+    .trace .over { animation-delay: 2.1s; animation-duration: .7s; }
+    .trace .dot, .trace .halo { opacity: 0; animation: pop .3s 2.7s forwards; }
+    .trace .halo { animation: pulse 1.8s 2.7s ease-out infinite; }
+    .page-card { opacity: 0; transform: translateY(14px); animation: rise .5s 3s cubic-bezier(.2,.8,.2,1) forwards; }
+    @keyframes draw { to { stroke-dashoffset: 0; } }
+    @keyframes pop { to { opacity: 1; } }
+    @keyframes pulse { 0% { opacity: .35; transform: scale(.4); } 100% { opacity: 0; transform: scale(1.5); } }
+    @keyframes rise { to { opacity: 1; transform: none; } }
+    .trace .halo { transform-box: fill-box; transform-origin: center; }
+  }
+
+  /* Section heads */
+  .head { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: end; margin-bottom: 3.5rem; }
+  .head h2 { font-size: clamp(2rem, 4vw, 3.1rem); font-weight: 700; max-width: 16ch; }
+  .head p { color: var(--ink-soft); max-width: 34rem; }
+
+  /* Features: ruled rows */
+  .features { border-top: 2px solid var(--ink); }
+  .feature { display: grid; grid-template-columns: 1fr 1.4fr; gap: 3rem; padding: 2rem 0; border-bottom: 1px solid var(--rule); }
+  .feature h3 { font-size: 1.55rem; font-weight: 700; }
+  .feature p { color: var(--ink-soft); max-width: 36rem; }
+  .feature code { font: 500 .92em ui-monospace, "Cascadia Code", Consolas, monospace; background: var(--fog); padding: .1em .4em; border-radius: 5px; color: var(--ink); }
+
+  /* Pricing */
+  .plans { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; align-items: stretch; }
+  .plan { background: var(--paper); border: 2px solid var(--rule); border-radius: 18px; padding: 2rem; display: flex; flex-direction: column; }
+  .plan--pick { background: var(--ink); color: #fff; border-color: var(--ink); transform: translateY(-14px); padding-bottom: 2.4rem; }
+  .plan h3 { font-size: 1.4rem; font-weight: 700; }
+  .plan__for { margin-top: .4rem; color: var(--ink-soft); font-size: .98rem; min-height: 3.2em; }
+  .plan--pick .plan__for { color: #b9c5e2; }
+  .price { margin: 1.4rem 0 1.6rem; font: 800 3.2rem/1 var(--display); letter-spacing: -0.04em; }
+  .price small { font: 500 1rem var(--body); letter-spacing: 0; color: var(--ink-soft); }
+  .plan--pick .price small { color: #b9c5e2; }
+  .plan ul { list-style: none; padding: 0; margin: 0 0 2rem; display: grid; gap: .65rem; flex: 1; }
+  .plan li { padding-left: 1.7rem; position: relative; }
+  .plan li::before { content: ""; position: absolute; left: 0; top: .5em; width: .9rem; height: .5rem; border-left: 2.5px solid var(--ok); border-bottom: 2.5px solid var(--ok); transform: rotate(-45deg) scale(.9); }
+  .plan--pick li::before { border-color: #7fe0b0; }
+  .plan .btn { text-align: center; }
+  .plan--pick .btn { background: #fff; color: var(--ink); border-color: #fff; }
+  .plan--pick .btn:hover { background: var(--fog); }
+  .plans__foot { margin-top: 2.5rem; color: var(--ink-soft); font-size: .98rem; }
+
+  /* Testimonials */
+  .quotes { display: grid; grid-template-columns: 1.5fr 1fr; gap: 3rem; }
+  .quote blockquote { margin: 0; }
+  .quote--big blockquote { font: 600 clamp(1.5rem, 2.8vw, 2.2rem)/1.25 var(--display); letter-spacing: -0.015em; }
+  .quote--small blockquote { font-size: 1.1rem; color: var(--ink); }
+  .quote figcaption { margin-top: 1.2rem; font-size: .95rem; color: var(--ink-soft); }
+  .quote figcaption b { color: var(--ink); font-weight: 600; }
+  .quote { margin: 0; }
+  .quote--small + .quote--small { margin-top: 2.2rem; padding-top: 2.2rem; border-top: 1px solid var(--rule); }
+  .quote--big { border-left: 5px solid var(--tide); padding-left: 2rem; }
+
+  /* Signup */
+  .signup { background: var(--ink); color: #fff; }
+  .signup__grid { display: grid; grid-template-columns: 1fr 1.1fr; gap: 4rem; align-items: start; }
+  .signup h2 { font-size: clamp(2.2rem, 4.4vw, 3.4rem); font-weight: 800; }
+  .signup__copy p { margin-top: 1.3rem; color: #b9c5e2; max-width: 28rem; }
+  form { background: var(--paper); color: var(--ink); border-radius: 18px; padding: 2rem; display: grid; gap: 1.2rem; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  label { display: grid; gap: .4rem; font-weight: 600; font-size: .95rem; }
+  label small { font-weight: 400; color: var(--ink-soft); }
+  input, select {
+    font: 400 1rem var(--body); color: var(--ink); background: var(--fog);
+    border: 2px solid transparent; border-radius: 10px; padding: .8rem .9rem; width: 100%;
+  }
+  input:hover, select:hover { border-color: var(--rule); }
+  input:focus-visible, select:focus-visible { outline: none; border-color: var(--tide); background: #fff; box-shadow: 0 0 0 3px rgba(43,89,217,.2); }
+  form .btn { width: 100%; padding: 1.05rem; }
+  .form__fine { font-size: .9rem; color: var(--ink-soft); }
+  .form__done { display: none; }
+  form.is-sent > :not(.form__done) { display: none; }
+  form.is-sent .form__done { display: block; }
+  .form__done h3 { font-size: 1.8rem; margin-bottom: .6rem; }
+  .form__done p { color: var(--ink-soft); }
+
+  footer { padding: 2.5rem 0; font-size: .95rem; color: var(--ink-soft); }
+  footer .wrap { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+  footer a { text-decoration: none; margin-left: 1.4rem; }
+  footer a:hover { color: var(--ink); }
+
+  @media (max-width: 900px) {
+    .hero__grid, .head, .feature, .quotes, .signup__grid { grid-template-columns: 1fr; gap: 1.6rem; }
+    .head { margin-bottom: 2.5rem; }
+    .plans { grid-template-columns: 1fr; }
+    .plan--pick { transform: none; }
+    .band { padding: 4.5rem 0; }
+    .trace { margin-bottom: 2.6rem; }
+    .nav ul li:not(:last-child) { display: none; }
+    .row { grid-template-columns: 1fr; }
+    .quote--big { padding-left: 1.2rem; }
+    footer a { margin: 0 1.2rem 0 0; }
+  }
+</style>
+</head>
+<body>
+
+<header class="wrap">
+  <nav class="nav" aria-label="Main">
+    <a class="logo" href="#top" id="top">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="4" fill="#e8412a"/><circle cx="16" cy="16" r="9.5" fill="none" stroke="#11224a" stroke-width="2.5"/><circle cx="16" cy="16" r="14.5" fill="none" stroke="#11224a" stroke-width="2.5" opacity=".35"/></svg>
+      Pingwell
+    </a>
+    <ul>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#pricing">Pricing</a></li>
+      <li><a href="#teams">Customers</a></li>
+      <li><a class="btn btn--solid" href="#signup">Start free</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main>
+<section class="hero">
+  <div class="wrap hero__grid">
+    <div>
+      <h1>Know your API is slow before your users do.</h1>
+      <p class="hero__lede">Pingwell checks your endpoints every 15 seconds. When latency crosses the line you set, it calls whoever is on call. No dashboards to stare at.</p>
+      <div class="hero__cta">
+        <a class="btn btn--solid" href="#signup">Start monitoring free</a>
+        <a class="btn btn--line" href="#features">See how paging works</a>
+      </div>
+      <p class="hero__note">Free for 5 monitors. Set up in about two minutes.</p>
+    </div>
+
+    <div class="trace" role="img" aria-label="Chart of API latency staying under a 500 millisecond threshold, then spiking over it, which triggers a page to the on-call engineer.">
+      <div class="trace__head"><strong>POST /v1/checkout</strong><span>p95 latency, last 10 minutes</span></div>
+      <svg viewBox="0 0 600 270" aria-hidden="true">
+        <g class="grid">
+          <line x1="40" y1="30" x2="590" y2="30"/>
+          <line x1="40" y1="110" x2="590" y2="110"/>
+          <line x1="40" y1="190" x2="590" y2="190"/>
+          <line x1="40" y1="250" x2="590" y2="250"/>
+        </g>
+        <text x="0" y="34">1000</text>
+        <text x="0" y="194">200</text>
+        <text x="0" y="254">0 ms</text>
+        <line class="thr" x1="40" y1="110" x2="590" y2="110"/>
+        <text class="thr-label" x="44" y="100">500 ms threshold</text>
+        <path class="line" pathLength="1" d="M40 192 L75 186 L110 195 L145 183 L180 190 L215 180 L250 188 L285 176 L320 184 L355 168 L385 150 L410 122"/>
+        <path class="over" pathLength="1" d="M410 122 L430 84 L452 46 L470 38"/>
+        <circle class="halo" cx="470" cy="38" r="22"/>
+        <circle class="dot" cx="470" cy="38" r="6"/>
+      </svg>
+      <div class="page-card" role="status">
+        <b>Paging Dana Okafor</b>
+        <span>p95 hit <i>812 ms</i> on /v1/checkout. Threshold is 500 ms. Calling now.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="band band--paper" id="features">
+  <div class="wrap">
+    <div class="head">
+      <h2>Built for the one person holding the pager</h2>
+      <p>Small teams don't need a monitoring suite. They need the right person woken up for the right reason, and nobody else.</p>
+    </div>
+    <div class="features">
+      <article class="feature">
+        <h3>Page on latency, not just downtime</h3>
+        <p>An API that answers in six seconds is down to your customers. Set a threshold per endpoint, like <code>p95 &gt; 500ms for 2 checks</code>, and Pingwell pages when it holds.</p>
+      </article>
+      <article class="feature">
+        <h3>Checks every 15 seconds, from five regions</h3>
+        <p>A slow route in one region isn't an incident. Pingwell confirms from a second region before it pages, so a bad network hop doesn't wake anyone up.</p>
+      </article>
+      <article class="feature">
+        <h3>On-call rotations that match how you work</h3>
+        <p>Build a weekly rotation in a minute. If the on-call engineer doesn't acknowledge in five minutes, the page moves to the next person.</p>
+      </article>
+      <article class="feature">
+        <h3>Phone, SMS, and Slack, in the order you pick</h3>
+        <p>Start with a push notification, escalate to a phone call. Every page shows the endpoint, the numbers, and a link to the last 60 minutes of checks.</p>
+      </article>
+      <article class="feature">
+        <h3>Quiet when things recover</h3>
+        <p>Pingwell closes the incident on its own when latency stays under the line for five minutes, and posts a summary of how long it lasted.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="pricing">
+  <div class="wrap">
+    <div class="head">
+      <h2>Pricing that stays flat as you grow</h2>
+      <p>Pay per team, not per teammate. Every plan includes latency thresholds and on-call paging.</p>
+    </div>
+    <div class="plans">
+      <article class="plan">
+        <h3>Side project</h3>
+        <p class="plan__for">For one developer with an API worth protecting.</p>
+        <p class="price">$0<small> / month</small></p>
+        <ul>
+          <li>5 monitors</li>
+          <li>1-minute checks</li>
+          <li>Email and SMS pages</li>
+          <li>1 on-call person</li>
+        </ul>
+        <a class="btn btn--line" href="#signup" data-plan="free">Start free</a>
+      </article>
+      <article class="plan plan--pick">
+        <h3>Team</h3>
+        <p class="plan__for">For teams of 2 to 15 who share an on-call rotation.</p>
+        <p class="price">$29<small> / month</small></p>
+        <ul>
+          <li>50 monitors</li>
+          <li>15-second checks from 5 regions</li>
+          <li>Phone calls, SMS, and Slack</li>
+          <li>Rotations and escalation</li>
+          <li>90 days of check history</li>
+        </ul>
+        <a class="btn" href="#signup" data-plan="team">Start 14-day trial</a>
+      </article>
+      <article class="plan">
+        <h3>Scale</h3>
+        <p class="plan__for">For teams running many services across environments.</p>
+        <p class="price">$99<small> / month</small></p>
+        <ul>
+          <li>250 monitors</li>
+          <li>10-second checks</li>
+          <li>Multiple rotations</li>
+          <li>Private status page</li>
+          <li>1 year of check history</li>
+        </ul>
+        <a class="btn btn--line" href="#signup" data-plan="scale">Start 14-day trial</a>
+      </article>
+    </div>
+    <p class="plans__foot">Billed monthly. Cancel any time. Prices in US dollars.</p>
+  </div>
+</section>
+
+<section class="band band--paper" id="teams">
+  <div class="wrap">
+    <div class="head">
+      <h2>What on-call engineers say</h2>
+      <p>Teams of three to twelve developers, mostly shipping APIs for other developers.</p>
+    </div>
+    <div class="quotes">
+      <figure class="quote quote--big">
+        <blockquote>“We used to find out about slow checkouts from support tickets. Now Dana's phone rings four minutes after p95 drifts, and we've fixed two bad deploys before a single customer wrote in.”</blockquote>
+        <figcaption><b>Marcus Hale</b>, CTO at Tallyfold</figcaption>
+      </figure>
+      <div>
+        <figure class="quote quote--small">
+          <blockquote>“The two-region confirmation is the feature. I haven't been paged for a false alarm in months.”</blockquote>
+          <figcaption><b>Priya Raman</b>, backend engineer at Lumenpost</figcaption>
+        </figure>
+        <figure class="quote quote--small">
+          <blockquote>“Set up took one coffee. We moved off our old tool the same afternoon.”</blockquote>
+          <figcaption><b>Tomás Ferreira</b>, founder at Gridwork</figcaption>
+        </figure>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="band signup" id="signup">
+  <div class="wrap signup__grid">
+    <div class="signup__copy">
+      <h2>Add your first endpoint in two minutes</h2>
+      <p>Tell us what to watch and when to worry. We'll send a link to finish setting up your on-call rotation. No credit card needed.</p>
+    </div>
+    <form id="signup-form" novalidate>
+      <div class="row">
+        <label>Your name
+          <input name="name" type="text" autocomplete="name" required>
+        </label>
+        <label>Work email
+          <input name="email" type="email" autocomplete="email" required>
+        </label>
+      </div>
+      <label>API endpoint to monitor
+        <input name="url" type="url" placeholder="https://api.example.com/health" required>
+      </label>
+      <div class="row">
+        <label>Page me when latency passes
+          <select name="threshold">
+            <option value="200">200 ms</option>
+            <option value="500" selected>500 ms</option>
+            <option value="1000">1 second</option>
+            <option value="2000">2 seconds</option>
+          </select>
+        </label>
+        <label>Plan
+          <select name="plan" id="plan">
+            <option value="free">Side project, $0</option>
+            <option value="team" selected>Team, $29 / month</option>
+            <option value="scale">Scale, $99 / month</option>
+          </select>
+        </label>
+      </div>
+      <button class="btn btn--solid" type="submit">Create my account</button>
+      <p class="form__fine">By signing up you agree to the terms and privacy policy.</p>
+      <div class="form__done" role="status" tabindex="-1">
+        <h3>You're on the list</h3>
+        <p>Check your inbox for a link to add your on-call rotation. Your first check runs as soon as you confirm.</p>
+      </div>
+    </form>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 Pingwell. Made for people who carry the pager.</span>
+    <nav aria-label="Footer"><a href="#features">Features</a><a href="#pricing">Pricing</a><a href="#signup">Sign up</a></nav>
+  </div>
+</footer>
+
+<script>
+  // Pre-select the plan chosen in the pricing section
+  document.querySelectorAll('[data-plan]').forEach(function (a) {
+    a.addEventListener('click', function () { document.getElementById('plan').value = a.dataset.plan; });
+  });
+  // Demo submit: validate, then confirm in place (no backend yet)
+  var form = document.getElementById('signup-form');
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (!form.reportValidity()) return;
+    form.classList.add('is-sent');
+    form.querySelector('.form__done').focus();
+  });
+</script>
+</body>
+</html>

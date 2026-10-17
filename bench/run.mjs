@@ -7,13 +7,14 @@
 // "baseline" gets the task seed only. "sloplint" also gets `sloplint init --brief <the prompt's
 // first sentence>` (a generated DESIGN.md plus the rule block in CLAUDE.md, GEMINI.md and AGENTS.md)
 // and a local install so `npx @sloplint/cli` works. "hooks" is "sloplint" plus `--hooks` (Claude Code
-// only). Prompts are identical in every arm. Successful runs are skipped and failed ones redone, so a
-// rerun resumes.
+// only). "<skill>" installs one of the third-party design skills below as a project skill, pinned to a
+// commit, and "<skill>+hooks" adds sloplint's hooks to it (both Claude Code only). Prompts are identical
+// in every arm. Successful runs are skipped and failed ones redone, so a rerun resumes.
 
 import { spawn, execFileSync } from 'node:child_process';
 import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { join, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 import { init } from '../src/init.mjs';
@@ -24,19 +25,51 @@ const TASKS = join(ROOT, 'bench', 'tasks');
 // User-level memory would add the runner's personal instructions to every Claude run.
 const userMemory = [join(homedir(), '.claude', 'CLAUDE.md'), join(homedir(), '.codex', 'AGENTS.md')].map((p) => p.replace(/\\/g, '/'));
 
+// The design skills of the head-to-head, each pinned to a commit and installed the way their READMEs
+// describe a copy install: the skill folder at .claude/skills/<name>/. They are untrusted prompts.
+export const SKILLS = {
+  'frontend-design': { repo: 'anthropics/skills', commit: 'dbd4588f9e1033efb41dad4bef2f7947c8993d44', path: 'skills/frontend-design', name: 'frontend-design' },
+  impeccable: { repo: 'pbakaus/impeccable', commit: '6af45ac9a5eb8792f033d3242f52e99812fd91fa', path: '.claude/skills/impeccable', name: 'impeccable' },
+  'taste-skill': { repo: 'Leonxlnx/taste-skill', commit: 'f624f37a8c650b9cc550253104925efe4c8de246', path: 'skills/taste-skill', name: 'design-taste-frontend' },
+  hallmark: { repo: 'Nutlope/hallmark', commit: '13ac0ec7e148655948100b6396439e481361d690', path: 'skills/hallmark', name: 'hallmark' },
+};
+
+// "baseline", "sloplint", "hooks", "<skill>" or "<skill>+hooks".
+export function armSpec(arm) {
+  const [head, tail] = arm.split('+');
+  const skill = SKILLS[head] ? head : null;
+  const sloplint = skill ? (tail ?? null) : head === 'baseline' ? null : head;
+  if (![null, 'sloplint', 'hooks'].includes(sloplint) || (!skill && tail)) throw new Error(`Unknown arm ${arm}`);
+  return { skill, sloplint };
+}
+
+// Skills must stay on for a skill arm, so it turns off Claude Code's bundled skills instead, leaving the
+// installed skill as the only one. Other arms disable skills and slash commands altogether.
+const ONLY_PROJECT_SKILLS = { disableBundledSkills: true, skillOverrides: { design: 'off', doctor: 'off', 'plugin-authoring': 'off' } };
+
+// Agents run with permissions bypassed, some on third-party prompts: keep the runner's secrets out of
+// reach. When the runner is itself a Claude Code session, its CLAUDE* variables (bare mode, session ids,
+// messaging socket) would leak into every agent and turn off its own login, so they go too.
+const AGENT_ENV = Object.fromEntries(
+  Object.entries(process.env).filter(([k]) => !/token|secret|api_?key|password|credential|oauth/i.test(k) && !(/^CLAUDE/.test(k) && k !== 'CLAUDE_CONFIG_DIR')),
+);
+
 export const AGENTS = {
   claude: {
     model: 'claude-sonnet-5-5',
     concurrency: 3,
-    args: (prompt, model) => [
+    args: (prompt, model, { skill } = {}) => [
       '-p', prompt, '--model', model, '--effort', 'medium', '--output-format', 'stream-json', '--verbose', '--no-session-persistence',
-      '--dangerously-skip-permissions', '--setting-sources', 'project,local', '--settings', JSON.stringify({ claudeMdExcludes: userMemory }),
-      '--disable-slash-commands',
+      '--dangerously-skip-permissions', '--setting-sources', 'project,local',
+      '--settings', JSON.stringify({ claudeMdExcludes: userMemory, ...(skill && ONLY_PROJECT_SKILLS) }),
+      ...(skill ? [] : ['--disable-slash-commands']),
     ],
     // stream-json keeps the whole transcript (tool calls, hook feedback) in stdout.txt; the last event is the result.
     parse(stdout) {
-      const j = stdout.trim().split('\n').map((l) => { try { return JSON.parse(l); } catch { return null; } }).findLast((e) => e?.type === 'result');
+      const events = stdout.trim().split('\n').map((l) => { try { return JSON.parse(l); } catch { return null; } });
+      const j = events.findLast((e) => e?.type === 'result');
       if (!j) throw new Error('no result event');
+      const tools = events.filter((e) => e?.type === 'assistant').flatMap((e) => e.message?.content ?? []).filter((c) => c.type === 'tool_use');
       const u = j.usage ?? {};
       return {
         ok: !j.is_error,
@@ -45,6 +78,9 @@ export const AGENTS = {
         inputTokens: (u.input_tokens ?? 0) + (u.cache_creation_input_tokens ?? 0) + (u.cache_read_input_tokens ?? 0),
         cacheWriteTokens: u.cache_creation_input_tokens,
         outputTokens: u.output_tokens,
+        // Whether a skill arm's agent loaded its skill, and how often it ran the skill's own scripts.
+        skillCalls: tools.filter((t) => t.name === 'Skill').map((t) => t.input?.skill),
+        skillScripts: tools.filter((t) => t.name === 'Bash' && /\.claude[\\/]skills[\\/]/.test(t.input?.command) && /scripts[\\/]/.test(t.input?.command)).length,
         final: j.result,
       };
     },
@@ -60,9 +96,9 @@ export const AGENTS = {
   },
 };
 
-function exec(command, args, { cwd, timeoutMs }) {
+function exec(command, args, { cwd, timeoutMs, env }) {
   return new Promise((done) => {
-    const child = spawn(command, args, { cwd, env: { ...process.env, NO_COLOR: '1' }, windowsHide: true });
+    const child = spawn(command, args, { cwd, env: { ...AGENT_ENV, ...env, NO_COLOR: '1' }, windowsHide: true });
     let stdout = '';
     let stderr = '';
     let timedOut = false;
@@ -95,6 +131,21 @@ function sloplintModules(out) {
   return modules;
 }
 
+// One checkout of a skill at its pinned commit, shared by every run. git checks the commit hash.
+function skillSource(out, name) {
+  const s = SKILLS[name];
+  const dir = join(out, '_skills', `${name}-${s.commit.slice(0, 7)}`);
+  if (!existsSync(join(dir, s.path, 'SKILL.md'))) {
+    rmSync(dir, { recursive: true, force: true });
+    mkdirSync(dir, { recursive: true });
+    const git = (...a) => execFileSync('git', ['-C', dir, ...a], { stdio: 'ignore' });
+    git('init', '-q');
+    git('fetch', '-q', '--depth', '1', `https://github.com/${s.repo}.git`, s.commit);
+    git('checkout', '-q', s.commit);
+  }
+  return join(dir, s.path);
+}
+
 async function runOne(job, { out, modules, timeoutMs }) {
   const { agent, arm, task, rep } = job;
   const def = AGENTS[agent];
@@ -109,12 +160,21 @@ async function runOne(job, { out, modules, timeoutMs }) {
   const seed = join(TASKS, task, 'seed');
   if (existsSync(seed)) cpSync(seed, work, { recursive: true });
   const prompt = readFileSync(join(TASKS, task, 'prompt.md'), 'utf8').trim();
-  if (arm !== 'baseline') {
-    init(work, { brief: /^.*?[.!?](?=\s|$)/.exec(prompt)?.[0], hooks: arm === 'hooks' });
+  const { skill, sloplint } = armSpec(arm);
+  if (sloplint) {
+    init(work, { brief: /^.*?[.!?](?=\s|$)/.exec(prompt)?.[0], hooks: sloplint === 'hooks' });
     cpSync(modules, join(work, 'node_modules'), { recursive: true });
   }
+  const s = skill && SKILLS[skill];
+  if (s) cpSync(skillSource(out, skill), join(work, '.claude', 'skills', s.name), { recursive: true });
   const started = Date.now();
-  const r = await exec(agent, def.args(prompt, def.model), { cwd: work, timeoutMs });
+  // Skill state stays with the benchmark, not the runner's home: impeccable's engine download is shared,
+  // and taste-skill's history of dealt directions is per run, so no run steers another. Forward slashes:
+  // impeccable's launcher verifies its download with shasum, which escapes a path with backslashes and
+  // prefixes the digest with "\", so the check fails.
+  const posix = (p) => p.split(sep).join('/');
+  const env = { IMPECCABLE_HOME: posix(join(out, '_impeccable')), TASTE_SKILL_HISTORY: posix(join(dir, 'taste-skill-history.json')) };
+  const r = await exec(agent, def.args(prompt, def.model, { skill }), { cwd: work, timeoutMs, env });
   writeFileSync(join(dir, 'stdout.txt'), r.stdout);
   writeFileSync(join(dir, 'stderr.txt'), r.stderr);
   let parsed;
@@ -125,7 +185,8 @@ async function runOne(job, { out, modules, timeoutMs }) {
   }
   const { final, ...stats } = parsed;
   if (final) writeFileSync(join(dir, 'final.md'), final);
-  const meta = { agent, model: def.model, arm, task, rep, exitCode: r.code, timedOut: r.timedOut, durationMs: Date.now() - started, ...stats };
+  const source = s && { name: s.name, repo: s.repo, commit: s.commit, url: `https://github.com/${s.repo}/tree/${s.commit}/${s.path}` };
+  const meta = { agent, model: def.model, arm, task, rep, ...(source && { skill: source }), exitCode: r.code, timedOut: r.timedOut, durationMs: Date.now() - started, ...stats };
   writeFileSync(join(dir, 'meta.json'), `${JSON.stringify(meta, null, 2)}\n`);
   return `${meta.ok ? 'ok' : 'FAILED'} in ${Math.round(meta.durationMs / 1000)}s`;
 }
@@ -153,11 +214,14 @@ async function main() {
   const out = resolve(values.out);
   const agents = values.agents.split(',');
   for (const a of agents) if (!AGENTS[a]) throw new Error(`Unknown agent ${a}`);
+  const arms = values.arms.split(',');
+  const claudeOnly = arms.filter((arm) => armSpec(arm).skill || armSpec(arm).sloplint === 'hooks');
+  if (claudeOnly.length && agents.some((a) => a !== 'claude')) throw new Error(`${claudeOnly.join(', ')} run on Claude Code only; pass --agents claude`);
   const jobs = [];
   for (let rep = 1; rep <= Number(values.reps); rep++) {
-    for (const task of values.tasks.split(',')) for (const arm of values.arms.split(',')) for (const agent of agents) jobs.push({ agent, arm, task, rep });
+    for (const task of values.tasks.split(',')) for (const arm of arms) for (const agent of agents) jobs.push({ agent, arm, task, rep });
   }
-  const modules = values.arms.split(',').some((arm) => arm !== 'baseline') ? sloplintModules(out) : null;
+  const modules = arms.some((arm) => armSpec(arm).sloplint) ? sloplintModules(out) : null;
   const options = { out, modules, timeoutMs: Number(values['timeout-min']) * 60_000 };
   console.log(`${jobs.length} runs -> ${out}`);
   await Promise.all(agents.map((agent) => pool(jobs.filter((j) => j.agent === agent), AGENTS[agent].concurrency, async (job) => {

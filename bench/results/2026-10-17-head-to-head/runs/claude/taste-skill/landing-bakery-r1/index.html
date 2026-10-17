@@ -1,0 +1,552 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Crumb &amp; Rye · Weekend sourdough and pastries, preordered</title>
+<meta name="description" content="Crumb & Rye is a neighbourhood bakery. Preorder weekend sourdough, rye and pastries by Thursday and collect them warm on Saturday.">
+<link rel="preconnect" href="https://api.fontshare.com">
+<link rel="preconnect" href="https://cdn.fontshare.com" crossorigin>
+<link href="https://api.fontshare.com/v2/css?f[]=switzer@400,500,600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#ff7a1f; --surface:#ff8633; --tint:#ffb27d;
+  --ink:#050f16; --ink-2:#14232d; --paper:#ffffff;
+  --m:clamp(12px,1.6vw,24px);
+  --step-small:clamp(.875rem,.85rem + .1vw,.9375rem);
+  --step-body:clamp(1.0625rem,1rem + .25vw,1.1875rem);
+  --step-lead:clamp(1.375rem,1.1rem + .9vw,1.875rem);
+  --step-head:clamp(2.25rem,1.3rem + 3.6vw,4.5rem);
+  --step-display:clamp(2.5rem,1.2rem + 4.4vw,5.5rem);
+  --gap:clamp(88px,12vw,200px);
+  --ease:cubic-bezier(.2,.7,.2,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{font-family:"Switzer",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:var(--step-body);line-height:1.5;letter-spacing:-.005em;background:var(--bg);color:var(--ink);overflow-x:hidden}
+img{display:block;max-width:100%;height:auto}
+a{color:inherit}
+h1,h2,h3{font-weight:600;letter-spacing:-.04em;line-height:.98;text-wrap:balance}
+p{max-width:62ch}
+:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+.on-ink :focus-visible{outline-color:var(--paper)}
+::selection{background:var(--ink);color:var(--bg)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.tab{font-variant-numeric:tabular-nums}
+
+/* buttons: one shape, square, flat */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5em;min-height:56px;padding:0 28px;background:var(--ink);color:var(--bg);font:inherit;font-weight:500;text-decoration:none;border:0;border-radius:0;cursor:pointer;transition:transform .25s var(--ease),background-color .25s}
+.btn:hover{background:var(--ink-2);transform:translateY(-3px)}
+.btn:active{transform:translateY(1px)}
+.btn.light{background:var(--paper);color:var(--ink)}
+.btn.light:hover{background:var(--tint)}
+.btn.orange{background:var(--bg);color:var(--ink)}
+.btn.orange:hover{background:var(--surface)}
+
+/* stripe: the awning, in filled bars */
+.stripe{display:flex;overflow:hidden;height:56px;min-width:0;width:100%}
+.stripe i{flex:0 0 28px;background:var(--ink)}
+.stripe i:nth-child(even){background:var(--paper)}
+.stripe.slim{height:8px}
+.stripe.slim i{flex-basis:28px}
+
+/* nav */
+.nav{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:14px var(--m);background:var(--bg)}
+.mark{font-weight:600;letter-spacing:-.04em;font-size:1.5rem;text-decoration:none;white-space:nowrap}
+.nav ul{display:flex;gap:28px;list-style:none;margin-left:auto}
+.nav ul a{text-decoration:none;display:inline-block;padding:6px 0;transition:transform .25s var(--ease)}
+.nav ul a:hover{transform:translateY(-2px);text-decoration:underline;text-underline-offset:5px}
+.nav .btn{min-height:46px;padding:0 20px}
+.count{display:inline-block;min-width:1.4em;padding:0 .35em;background:var(--bg);color:var(--ink);text-align:center;font-size:var(--step-small)}
+.count[hidden]{display:none}
+
+/* hero */
+.hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;padding:0 12px 12px;min-height:calc(100svh - 74px)}
+.card{background:var(--paper);display:flex;flex-direction:column;text-align:center;min-height:0}
+.card .stripe{flex:none}
+.card-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;padding:48px 40px 28px}
+.card h1{font-size:var(--step-head);max-width:none}
+.card .lead{font-size:var(--step-body);line-height:1.45;max-width:36ch}
+.card .status{font-size:var(--step-small)}
+.card nav{display:flex;gap:28px;justify-content:center;flex-wrap:wrap;padding:0 20px 28px}
+.card nav a{display:inline-block;padding:6px 0;transition:transform .25s var(--ease)}
+.card nav a:hover{transform:translateY(-2px)}
+.room{position:sticky;top:12px;height:calc(100svh - 98px);min-height:420px;overflow:hidden;background:var(--ink)}
+.room img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.6s ease-in-out;transform:scale(1.04)}
+.room img.is-on{opacity:1;animation:drift 14s ease-out forwards}
+@keyframes drift{from{transform:scale(1.04)}to{transform:scale(1.12)}}
+.room .note{position:absolute;left:0;bottom:0;margin:0;padding:12px 16px;background:var(--bg);font-size:var(--step-small)}
+
+/* sections */
+section{padding:var(--gap) var(--m)}
+.white{background:var(--paper)}
+.on-ink{background:var(--ink);color:var(--paper)}
+.sec-head{font-size:var(--step-head);margin-bottom:clamp(32px,5vw,72px);max-width:16ch}
+
+/* menu */
+.menu{display:grid;grid-template-columns:repeat(12,1fr);gap:0 var(--m)}
+.menu aside{grid-column:1/4}
+.menu>h2{grid-column:1/13;font-size:var(--step-head);margin-bottom:clamp(32px,5vw,72px);max-width:none}
+.menu aside p{margin-bottom:28px}
+.menu aside .pic{background:var(--bg)}
+.menu aside img{width:100%;aspect-ratio:4/5;object-fit:cover;mix-blend-mode:multiply}
+.groups{grid-column:5/13;display:grid;grid-template-columns:1fr 1fr;gap:0 64px;align-content:start}
+.group h3{font-size:var(--step-lead);font-weight:600;letter-spacing:-.03em;margin:48px 0 8px}
+.group:first-child h3,.groups>.group:nth-child(2) h3{margin-top:0}
+.item{display:grid;grid-template-columns:1fr auto;column-gap:16px;margin-top:22px}
+.item b{font-weight:500}
+.item .price{font-variant-numeric:tabular-nums;font-weight:500;text-align:right}
+.pgrid{display:grid;grid-template-columns:1fr 1fr;gap:0 64px}
+.item p{grid-column:1;font-size:var(--step-small);max-width:36ch;margin-top:2px;color:#33414a}
+.item .qty{grid-column:2;grid-row:2;display:flex;align-items:center;justify-content:flex-end;gap:2px;margin-top:6px}
+.qty button{width:44px;height:44px;background:var(--bg);color:var(--ink);border:0;border-radius:0;font:inherit;font-size:1.4rem;font-weight:500;cursor:pointer;transition:transform .2s var(--ease),background-color .2s}
+.qty button:hover{background:var(--ink);color:var(--bg)}
+.qty button:active{transform:scale(.92)}
+.qty output{min-width:2ch;text-align:center;font-variant-numeric:tabular-nums;font-weight:600}
+.item.has output{background:var(--ink);color:var(--bg);padding:0 .4em;min-width:2.2ch;line-height:44px}
+
+/* how it works */
+.how{display:grid;grid-template-columns:repeat(12,1fr);gap:0 var(--m);align-items:start}
+.how .txt{grid-column:1/6}
+.how h2{font-size:var(--step-head);margin-bottom:28px;max-width:none}
+.how .txt p{font-size:var(--step-lead);line-height:1.25;max-width:24ch;letter-spacing:-.02em}
+.slip{grid-column:7/12;background:var(--paper);padding:36px 32px 52px;clip-path:polygon(0 0,100% 0,100% calc(100% - 10px),95% 100%,90% calc(100% - 10px),85% 100%,80% calc(100% - 10px),75% 100%,70% calc(100% - 10px),65% 100%,60% calc(100% - 10px),55% 100%,50% calc(100% - 10px),45% 100%,40% calc(100% - 10px),35% 100%,30% calc(100% - 10px),25% 100%,20% calc(100% - 10px),15% 100%,10% calc(100% - 10px),5% 100%,0 calc(100% - 10px));max-width:480px;width:100%}
+.slip h3{font-size:var(--step-body);font-weight:600;letter-spacing:-.01em;margin-top:28px;line-height:1.3}
+.slip h3:first-child{margin-top:0}
+.row{display:flex;align-items:baseline;gap:10px;margin-top:10px;font-size:var(--step-body)}
+.row .dots{flex:1;border-bottom:4px dotted var(--ink);transform:translateY(-4px);min-width:16px;opacity:.5}
+.row .t{font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+.row.final{margin:28px -32px 0;padding:0 32px;min-height:56px;background:var(--ink);color:var(--paper);align-items:center;justify-content:space-between}
+.row.final .dots{display:none}
+
+/* subscription sheets */
+.subhead{padding-bottom:0}
+.subhead .sec-head{margin-bottom:48px;max-width:20ch}
+.sheets{padding:0;background:var(--paper)}
+.sheet{position:sticky;top:calc(var(--n) * 72px);min-height:86svh;display:grid;grid-template-columns:repeat(12,1fr);grid-template-rows:72px 1fr;background:var(--bg);color:var(--ink);border-radius:28px 28px 0 0}
+.sheet.s1{--n:0;background:var(--ink);color:var(--paper)}
+.sheet.s2{--n:1;background:var(--bg)}
+.sheet.s3{--n:2;background:var(--tint)}
+.sheet h3{grid-column:1/13;grid-row:1;align-self:center;padding:0 var(--m);font-size:var(--step-lead);display:flex;justify-content:space-between;align-items:baseline;gap:16px}
+.sheet h3 span{font-weight:500;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.sheet .body{grid-column:1/7;grid-row:2;display:flex;flex-direction:column;justify-content:flex-end;gap:20px;padding:var(--m);padding-bottom:48px}
+.sheet .body p{max-width:40ch}
+.sheet ul{list-style:none;display:grid;gap:8px;font-size:var(--step-body)}
+.sheet li{padding-left:22px;position:relative}
+.sheet li::before{content:"";position:absolute;left:0;top:.62em;width:9px;height:9px;background:currentColor}
+.sheet .pic{grid-column:7/13;grid-row:2;min-height:0}
+.sheet .pic img{width:100%;height:100%;object-fit:cover}
+.sheet.s3 .pic{background:var(--tint)}
+.sheet.s3 .pic img{mix-blend-mode:multiply}
+.sheet .btn{align-self:flex-start}
+.sheet.s1 .btn{background:var(--bg);color:var(--ink)}
+.sheet.s1 .btn:hover{background:var(--tint)}
+
+/* reviews */
+.reviews h2{font-size:var(--step-head);margin-bottom:56px;max-width:12ch}
+.fan{display:flex;justify-content:center;align-items:flex-start;padding-bottom:0;margin-bottom:calc(var(--gap) * -1 + 12px);overflow:hidden;padding-top:24px}
+.tear{background:var(--paper);color:var(--ink);width:320px;flex:none;padding:34px 52px 44px 26px;clip-path:polygon(0 10px,5% 0,10% 10px,15% 0,20% 10px,25% 0,30% 10px,35% 0,40% 10px,45% 0,50% 10px,55% 0,60% 10px,65% 0,70% 10px,75% 0,80% 10px,85% 0,90% 10px,95% 0,100% 10px,100% calc(100% - 10px),95% 100%,90% calc(100% - 10px),85% 100%,80% calc(100% - 10px),75% 100%,70% calc(100% - 10px),65% 100%,60% calc(100% - 10px),55% 100%,50% calc(100% - 10px),45% 100%,40% calc(100% - 10px),35% 100%,30% calc(100% - 10px),25% 100%,20% calc(100% - 10px),15% 100%,10% calc(100% - 10px),5% 100%,0 calc(100% - 10px));transition:transform .4s var(--ease)}
+.tear:hover{transform:rotate(0) translateY(-8px)!important}
+.tear:nth-child(1){transform:rotate(-4deg);min-height:440px}
+.tear:nth-child(2){transform:rotate(2deg);min-height:520px;margin-left:-40px;margin-top:20px;z-index:1}
+.tear:nth-child(3){z-index:2;padding-right:26px;padding-left:52px}
+.tear:nth-child(3){transform:rotate(5deg);min-height:700px;margin-left:-40px;margin-top:8px}
+.tear figcaption{margin-top:22px}
+.tear b{display:block;text-align:center;font-size:var(--step-body)}
+.tear small{display:block;text-align:center;font-size:var(--step-small);color:#33414a}
+.tear p{font-size:var(--step-body);margin-bottom:14px}
+.tear .big{font-size:var(--step-lead);line-height:1.15;letter-spacing:-.02em;font-weight:500;margin-bottom:18px}
+
+/* coupon form */
+.coupon{position:relative;background:var(--ink);color:var(--paper);max-width:1180px;margin:0 auto;border-radius:14px;display:grid;grid-template-columns:46fr 54fr}
+.notch{position:absolute;left:46%;width:28px;height:28px;background:var(--bg);border-radius:50%;transform:translateX(-50%)}
+.notch.t{top:-14px}.notch.b{bottom:-14px}
+.coupon .l{padding:48px;border-right:5px dotted var(--bg);display:flex;flex-direction:column;gap:24px}
+.coupon h2{font-size:var(--step-lead);text-transform:uppercase;letter-spacing:-.03em;line-height:1;max-width:12ch}
+.coupon .l p{font-size:var(--step-body)}
+.slipsum{list-style:none;font-size:var(--step-body);display:grid;gap:6px;font-variant-numeric:tabular-nums}
+.slipsum li{display:flex;justify-content:space-between;gap:16px}
+.slipsum li.total{font-weight:600;font-size:var(--step-body);margin-top:6px;padding-top:6px;background:var(--bg);color:var(--ink);padding:10px 12px}
+.slipsum li.empty{opacity:.75}
+.coupon form{padding:48px;display:grid;gap:10px;align-content:center}
+.field{display:block}
+.field input,.field select,.field textarea{width:100%;min-height:52px;padding:0 16px;background:var(--ink-2);color:var(--paper);font:inherit;font-size:var(--step-body);border:0;border-radius:0}
+.field textarea{padding:14px 16px;min-height:96px;resize:vertical}
+.field input::placeholder,.field textarea::placeholder{color:#c3ccd2}
+.field select{appearance:none;-webkit-appearance:none}
+.coupon .submit{min-height:56px;width:100%;background:var(--bg);color:var(--ink)}
+.coupon .submit:hover{background:var(--tint)}
+.fine{font-size:var(--step-small);color:#c3ccd2}
+.fine.ok{color:var(--paper)}
+
+/* footer */
+footer{background:var(--bg);padding:0 0 12px}
+.wordmark{font-weight:600;letter-spacing:-.06em;font-size:17.6vw;line-height:.82;padding:56px var(--m) 0;white-space:nowrap;margin-bottom:24px}
+.foot{display:grid;grid-template-columns:repeat(12,1fr);gap:24px var(--m);padding:32px var(--m) 24px;font-size:var(--step-body)}
+.foot>div:nth-child(1){grid-column:1/5}.foot>div:nth-child(2){grid-column:5/9}.foot>div:nth-child(3){grid-column:9/13}
+.foot h3{font-size:var(--step-body);letter-spacing:-.01em;margin-bottom:6px}
+.foot p{max-width:34ch}
+.credits{padding:0 var(--m) 16px;font-size:var(--step-small);max-width:80ch;line-height:1.5}
+footer .stripe{margin-top:8px}
+
+/* motion */
+.js [data-r]{opacity:0;transform:translateY(26px);transition:opacity .8s var(--ease),transform .8s var(--ease);transition-delay:calc(var(--d,0) * 80ms)}
+.js [data-r].in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .js [data-r]{opacity:1;transform:none;transition:none}
+  .room img{transition:none;animation:none!important;transform:none}
+  .btn,.nav ul a,.card nav a,.tear{transition:none}
+}
+
+/* tablet */
+@media (max-width:1000px){
+  .nav ul{display:none}
+  .nav .btn{margin-left:auto}
+  .hero{grid-template-columns:minmax(0,1fr)}
+  .room{position:relative;top:0;order:-1;height:48svh;min-height:300px}
+  .card{margin-top:-24px;position:relative;z-index:1;margin-left:0}
+  .menu aside{grid-column:1/13;margin-bottom:48px;display:grid;grid-template-columns:1fr 1fr;gap:24px}
+  .menu aside .pic{grid-row:1/4;grid-column:2}
+  .menu aside img{aspect-ratio:4/3}
+  .menu aside h2{max-width:none}
+  .groups{grid-column:1/13}
+  .how .txt{grid-column:1/13;margin-bottom:40px}
+  .slip{grid-column:1/13;max-width:520px}
+  .sheet .body{grid-column:1/13;grid-row:3}
+  .sheet .pic{grid-column:1/13;grid-row:2;aspect-ratio:4/3;height:auto}
+  .sheet{grid-template-rows:72px auto 1fr;min-height:70svh}
+  .coupon{grid-template-columns:1fr}
+  .coupon .l{border-right:0;border-bottom:5px dotted var(--bg);padding:36px 24px}
+  .coupon form{padding:24px}
+  .coupon .notch.t,.coupon .notch.b{bottom:auto;top:calc(var(--perf,200px) - 14px)}
+  .coupon .notch.t{left:0}
+  .coupon .notch.b{left:100%}
+  .foot>div:nth-child(n){grid-column:1/13}
+}
+@media (max-width:640px){
+  :root{--gap:88px}
+  .nav{padding:10px 12px}
+  .mark{font-size:1.25rem}
+  .nav .btn{min-height:44px;padding:0 16px}
+  .stripe{height:40px}
+  .card-body{padding:32px 16px 20px;gap:20px}
+  .card h1{font-size:10vw}
+  .card nav{gap:20px}
+  .groups,.pgrid{grid-template-columns:1fr!important}
+  .groups>.group:nth-child(2) h3{margin-top:48px}
+  .menu aside{display:block}
+  .menu aside img{aspect-ratio:3/2}
+  .sheet{grid-template-rows:52px auto 1fr;top:calc(var(--n) * 52px);border-radius:20px 20px 0 0}
+  .sheet h3{font-size:1.25rem}
+  .fan{flex-direction:column;align-items:flex-start;padding-left:0;margin-bottom:calc(var(--gap) * -1 + 12px)}
+  .tear{width:78%;min-height:0!important;margin-left:0!important;margin-top:-32px!important;padding-bottom:52px}
+  .tear:nth-child(1){margin-top:0!important}
+  .tear:nth-child(2){margin-left:auto!important;transform:rotate(-2.5deg)}
+  .tear:nth-child(3){transform:rotate(2.5deg)}
+  .coupon{margin:0 -0px}
+  .coupon .l{padding:32px 20px}
+  .row.final{margin-left:-32px;margin-right:-32px}
+  .slip{padding-left:20px;padding-right:20px}
+  .row.final{margin-left:-20px;margin-right:-20px;padding:0 20px}
+}
+</style>
+</head>
+<body>
+<script>document.documentElement.classList.add('js')</script>
+
+<header class="nav">
+  <a class="mark" href="#top">Crumb &amp; Rye</a>
+  <ul>
+    <li><a href="#menu">Menu</a></li>
+    <li><a href="#how">How it works</a></li>
+    <li><a href="#subscribe">Subscription</a></li>
+    <li><a href="#reviews">Reviews</a></li>
+  </ul>
+  <a class="btn" href="#preorder">Preorder <span class="count tab" id="navcount" hidden>0</span></a>
+</header>
+
+<main id="top">
+<div class="hero">
+  <div class="card">
+    <div class="stripe" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="card-body">
+      <h1 data-r style="--d:0">Saturday bread, saved for you.</h1>
+      <p class="lead" data-r style="--d:1">Naturally leavened loaves and laminated pastries, baked once a week. Order by Thursday, collect them warm.</p>
+      <div data-r style="--d:2"><a class="btn" href="#menu">Build your order</a></div>
+      <p class="status" data-r style="--d:3" id="status">Orders for Saturday close <b>Thursday at 6pm</b>.</p>
+    </div>
+    <nav aria-label="Quick links" data-r style="--d:4">
+      <a href="#how">How it works</a><a href="#subscribe">Weekly bread</a><a href="#reviews">Reviews</a>
+    </nav>
+  </div>
+  <div class="room" aria-label="Bread and pastry">
+    <img class="is-on" src="assets/carl-griffith-bread-side-2.jpg" width="1920" height="1280" alt="A round sourdough loaf scattered with black seeds on a wooden board">
+    <img src="assets/dark-rye-bread.jpg" width="1920" height="1127" alt="A sliced loaf of dark rye bread on a checked cloth">
+    <img src="assets/croissant-whole.jpg" width="1920" height="1440" alt="A golden croissant">
+    <p class="note">Pictures of the kind of bread we bake. Not yet our own photographs.</p>
+  </div>
+</div>
+
+<section class="white" id="menu">
+  <div class="menu">
+    <h2 data-r>This weekend's menu</h2>
+    <aside>
+      <p data-r style="--d:1">Baked Friday night, collected Saturday. Add what you want with the plus buttons and your slip fills in at the bottom of the page.</p>
+      <div class="pic" data-r style="--d:2"><img src="assets/croissant-cross-section.jpg" width="1920" height="1440" loading="lazy" alt="A croissant cut open to show its layers"></div>
+    </aside>
+    <div class="groups">
+      <div class="group">
+        <h3 data-r>Sourdough</h3>
+        <div class="item" data-id="country" data-name="Country loaf" data-price="9" data-r>
+          <b>Country loaf</b><span class="price">$9.00</span>
+          <p>Wheat and a little rye, 36-hour ferment, blistered crust.</p>
+          <div class="qty"><button type="button" aria-label="Remove one Country loaf">−</button><output>0</output><button type="button" aria-label="Add one Country loaf">+</button></div>
+        </div>
+        <div class="item" data-id="seeded" data-name="Black sesame loaf" data-price="10" data-r>
+          <b>Black sesame loaf</b><span class="price">$10.00</span>
+          <p>Toasted black sesame crust, soft honeyed crumb.</p>
+          <div class="qty"><button type="button" aria-label="Remove one Black sesame loaf">−</button><output>0</output><button type="button" aria-label="Add one Black sesame loaf">+</button></div>
+        </div>
+        <div class="item" data-id="olive" data-name="Olive and rosemary" data-price="11" data-r>
+          <b>Olive and rosemary</b><span class="price">$11.00</span>
+          <p>Green olives, garden rosemary, olive oil in the dough.</p>
+          <div class="qty"><button type="button" aria-label="Remove one Olive and rosemary">−</button><output>0</output><button type="button" aria-label="Add one Olive and rosemary">+</button></div>
+        </div>
+      </div>
+      <div class="group">
+        <h3 data-r>Rye</h3>
+        <div class="item" data-id="darkrye" data-name="Dark rye" data-price="10" data-r>
+          <b>Dark rye</b><span class="price">$10.00</span>
+          <p>Dense, malty, sliced thin. Keeps all week.</p>
+          <div class="qty"><button type="button" aria-label="Remove one Dark rye">−</button><output>0</output><button type="button" aria-label="Add one Dark rye">+</button></div>
+        </div>
+        <div class="item" data-id="caraway" data-name="Caraway rye" data-price="10.5" data-r>
+          <b>Caraway rye</b><span class="price">$10.50</span>
+          <p>Rye sour, caraway, a little molasses.</p>
+          <div class="qty"><button type="button" aria-label="Remove one Caraway rye">−</button><output>0</output><button type="button" aria-label="Add one Caraway rye">+</button></div>
+        </div>
+        </div>
+      <div class="group" style="grid-column:1/-1">
+        <h3 data-r>Pastries and extras</h3>
+        <div class="pgrid">
+          <div class="item" data-id="croissant" data-name="Butter croissant" data-price="4.5" data-r>
+            <b>Butter croissant</b><span class="price">$4.50</span>
+            <p>Three-day laminated dough, shattering crust.</p>
+            <div class="qty"><button type="button" aria-label="Remove one Butter croissant">−</button><output>0</output><button type="button" aria-label="Add one Butter croissant">+</button></div>
+          </div>
+          <div class="item" data-id="pain" data-name="Pain au chocolat" data-price="5" data-r>
+            <b>Pain au chocolat</b><span class="price">$5.00</span>
+            <p>Two bars of dark chocolate, folded in.</p>
+            <div class="qty"><button type="button" aria-label="Remove one Pain au chocolat">−</button><output>0</output><button type="button" aria-label="Add one Pain au chocolat">+</button></div>
+          </div>
+          <div class="item" data-id="cardamom" data-name="Cardamom knot" data-price="4.75" data-r>
+            <b>Cardamom knot</b><span class="price">$4.75</span>
+            <p>Enriched dough, cardamom sugar, pearl sugar top.</p>
+            <div class="qty"><button type="button" aria-label="Remove one Cardamom knot">−</button><output>0</output><button type="button" aria-label="Add one Cardamom knot">+</button></div>
+          </div>
+          <div class="item" data-id="danish" data-name="Plum danish" data-price="5.5" data-r>
+            <b>Plum danish</b><span class="price">$5.50</span>
+            <p>Roasted plums on almond cream. Changes with the season.</p>
+            <div class="qty"><button type="button" aria-label="Remove one Plum danish">−</button><output>0</output><button type="button" aria-label="Add one Plum danish">+</button></div>
+            <div class="item" data-id="butter" data-name="Cultured butter" data-price="7" data-r>
+            <b>Cultured butter, 200g</b><span class="price">$7.00</span>
+            <p>Churned in small batches, lightly salted.</p>
+            <div class="qty"><button type="button" aria-label="Remove one Cultured butter">−</button><output>0</output><button type="button" aria-label="Add one Cultured butter">+</button></div>
+          </div>
+        </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="how">
+    <div class="txt">
+      <h2 data-r>How preorders work</h2>
+      <p data-r style="--d:1">We bake what you order, so nothing sells out before you arrive.</p>
+    </div>
+    <div class="slip" data-r style="--d:2">
+      <h3>Monday</h3>
+      <div class="row"><span>Menu goes live</span><span class="dots"></span><span class="t">8:00 am</span></div>
+      <div class="row"><span>Pick your loaves and pastries</span><span class="dots"></span><span class="t">2 min</span></div>
+      <h3>Thursday</h3>
+      <div class="row"><span>Orders close</span><span class="dots"></span><span class="t">6:00 pm</span></div>
+      <div class="row"><span>Confirmation by email</span><span class="dots"></span><span class="t">same night</span></div>
+      <h3>Friday</h3>
+      <div class="row"><span>Dough shaped, left to rise cold</span><span class="dots"></span><span class="t">overnight</span></div>
+      <div class="row"><span>Oven lit</span><span class="dots"></span><span class="t">4:00 am</span></div>
+      <h3>Saturday</h3>
+      <div class="row"><span>Collect your bag, name on the slip</span><span class="dots"></span><span class="t">7 am – 1 pm</span></div>
+      <div class="row final"><b>Warm bread in your hands</b><span class="t">Ready by 7:00 am</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="subhead white" id="subscribe">
+  <h2 class="sec-head" data-r>Bread by the week, three sizes</h2>
+  <p data-r style="--d:1">Skip the ordering. Pick a size and a loaf is set aside for you every Saturday. Pause or cancel any time before Thursday.</p>
+</section>
+<div class="sheets">
+  <article class="sheet s1">
+    <h3>One loaf <span>$9 a week</span></h3>
+    <div class="body">
+      <p>For one or two people who like toast. Your pick of any sourdough or rye, changed whenever you like.</p>
+      <ul><li>1 loaf, your choice each week</li><li>Free slicing</li><li>Skip a week with one tap</li></ul>
+      <button class="btn pick" type="button" data-plan="One loaf, $9 a week">Choose one loaf</button>
+    </div>
+    <div class="pic"><img src="assets/carl-griffith-bread-side-2.jpg" width="1920" height="1280" loading="lazy" alt="A round seeded sourdough loaf on a board"></div>
+  </article>
+  <article class="sheet s2">
+    <h3>The pair <span>$24 a week</span></h3>
+    <div class="body">
+      <p>For a household that eats bread daily. Two loaves and a little something for Sunday morning.</p>
+      <ul><li>2 loaves, any mix</li><li>2 pastries of the week</li><li>Priority collection from 7 am</li></ul>
+      <button class="btn pick" type="button" data-plan="The pair, $24 a week">Choose the pair</button>
+    </div>
+    <div class="pic"><img src="assets/dark-rye-bread.jpg" width="1920" height="1127" loading="lazy" alt="Sliced dark rye on a checked cloth"></div>
+  </article>
+  <article class="sheet s3">
+    <h3>The full table <span>$42 a week</span></h3>
+    <div class="body">
+      <p>For big families and shared flats. Enough bread for the week and a box of pastries for the weekend.</p>
+      <ul><li>3 loaves, any mix</li><li>6 pastries of the week</li><li>A tub of cultured butter, monthly</li></ul>
+      <button class="btn pick" type="button" data-plan="The full table, $42 a week">Choose the full table</button>
+    </div>
+    <div class="pic"><img src="assets/croissant-cross-section.jpg" width="1920" height="1440" loading="lazy" alt="A croissant cut open to show its layers"></div>
+  </article>
+</div>
+
+<section class="on-ink reviews" id="reviews">
+  <h2 data-r>What the neighbours say</h2>
+  <!-- Sample reviews: replace with real customer quotes before launch. -->
+  <div class="fan">
+    <figure class="tear" data-r style="--d:1">
+            <p class="big">“I set an alarm for Monday now.”</p>
+      <p>The country loaf is the first thing I have never had to toast to make it good. Still warm when I collect it, and my name is on the bag.</p>
+      <figcaption><b>Maya T.</b><small>Collects on Saturdays</small></figcaption>
+    </figure>
+    <figure class="tear" data-r style="--d:2">
+            <p class="big">“The rye keeps all week. The croissants don't.”</p>
+      <p>I used to drive across town for a loaf like this. Ordering by Thursday takes two minutes and the pickup is quick.</p>
+      <figcaption><b>Daniel R.</b><small>Weekly subscriber, the pair</small></figcaption>
+    </figure>
+    <figure class="tear" data-r style="--d:3">
+            <p class="big">“Our Saturday ritual.”</p>
+      <p>We walk down, grab the bag, and have the cardamom knots on the step before we get home. The kids ask for them by name.</p>
+      <p>When we had friends over we ordered four loaves and a box of pastries, and the whole table went quiet. In a good way.</p>
+      <figcaption><b>Priya &amp; Tom</b><small>Neighbours on Alder Street</small></figcaption>
+    </figure>
+  </div>
+</section>
+
+<section id="preorder">
+  <div class="coupon">
+    <span class="notch t" aria-hidden="true"></span><span class="notch b" aria-hidden="true"></span>
+    <div class="l">
+      <h2 data-r>Reserve your loaf</h2>
+      <p data-r style="--d:1">Pick up on <b id="pickday">Saturday</b>. Pay at the counter. Your slip:</p>
+      <ul class="slipsum" id="slipsum" aria-live="polite"><li class="empty">Nothing yet. Add items from the menu, or tell us in the note.</li></ul>
+      <p><a href="#menu" style="text-underline-offset:4px">Back to the menu</a></p>
+    </div>
+    <form id="form" action="mailto:orders@crumbandrye.example" method="post" enctype="text/plain">
+      <label class="field"><span class="sr">Your name</span><input name="Name" placeholder="Your name" autocomplete="name" required></label>
+      <label class="field"><span class="sr">Email or phone</span><input name="Contact" placeholder="Email or phone" autocomplete="email" required></label>
+      <label class="field"><span class="sr">Collection time</span>
+        <select name="Collection" required>
+          <option>Saturday, 7 – 9 am</option><option>Saturday, 9 – 11 am</option><option>Saturday, 11 am – 1 pm</option><option>Sunday, 8 – 10 am</option>
+        </select></label>
+      <label class="field"><span class="sr">Weekly subscription</span>
+        <select name="Subscription" id="plan">
+          <option value="">No subscription, one-off order</option>
+          <option>One loaf, $9 a week</option><option>The pair, $24 a week</option><option>The full table, $42 a week</option>
+        </select></label>
+      <label class="field"><span class="sr">Note</span><textarea name="Note" placeholder="Anything we should know? Allergies, a birthday, a loaf cut thin."></textarea></label>
+      <input type="hidden" name="Order" id="orderfield">
+      <button class="btn submit" type="submit">Send my preorder</button>
+      <p class="fine" id="msg">We reply with a confirmation before Thursday 6pm.</p>
+    </form>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="stripe slim" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  <div class="wordmark" aria-hidden="true">Crumb &amp; Rye</div>
+  <div class="foot">
+    <div><h3>Collect from</h3><p>14 Alder Street<br>Saturday 7 am – 1 pm<br>Sunday 8 – 10 am</p></div>
+    <div><h3>Questions</h3><p><a href="mailto:orders@crumbandrye.example">orders@crumbandrye.example</a><br>Allergens: all breads contain gluten. Pastries contain butter, eggs and nuts.</p></div>
+    <div><h3>Weekly rhythm</h3><p>Menu opens Monday, orders close Thursday 6 pm, bread baked Friday night.</p></div>
+  </div>
+  <p class="credits">Pictures: <a href="https://commons.wikimedia.org/w/index.php?curid=112293200">“Carl Griffith bread side 2”</a> by Anon423, <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>, via Wikimedia Commons; <a href="https://commons.wikimedia.org/w/index.php?curid=4686074">“Dark rye bread”</a> by Glane23, <a href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a>, via Wikimedia Commons; <a href="https://commons.wikimedia.org/w/index.php?curid=33252089">“Croissant, cross section”</a> by SKopp, <a href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a>, via Wikimedia Commons; <a href="https://commons.wikimedia.org/w/index.php?curid=33252104">“Croissant, whole”</a> by SKopp, <a href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a>, via Wikimedia Commons.</p>
+</footer>
+
+<script>
+(function(){
+  var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  /* reveal */
+  var els=[].slice.call(document.querySelectorAll('[data-r]'));
+  if('IntersectionObserver' in window&&!reduce){
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.12,rootMargin:'0px 0px -6% 0px'});
+    els.forEach(function(e){io.observe(e)});
+    setTimeout(function(){els.forEach(function(e){if(e.getBoundingClientRect().top<innerHeight)e.classList.add('in')})},60);
+  }else els.forEach(function(e){e.classList.add('in')});
+
+  /* hero crossfade */
+  var imgs=[].slice.call(document.querySelectorAll('.room img')),i=0,t;
+  function next(){imgs[i].classList.remove('is-on');i=(i+1)%imgs.length;imgs[i].classList.add('is-on')}
+  function start(){if(!reduce&&!t)t=setInterval(next,6500)}
+  function stop(){clearInterval(t);t=null}
+  document.addEventListener('visibilitychange',function(){document.hidden?stop():start()});
+  start();
+
+  /* next Saturday and the Thursday close */
+  var now=new Date(),sat=new Date(now);
+  sat.setHours(0,0,0,0);
+  var add=(6-sat.getDay()+7)%7;sat.setDate(sat.getDate()+add);
+  var thu=new Date(sat);thu.setDate(sat.getDate()-2);thu.setHours(18,0,0,0);
+  var fmt=function(d,o){return d.toLocaleDateString('en-US',o)};
+  document.getElementById('pickday').textContent=fmt(sat,{weekday:'long',month:'long',day:'numeric'});
+  var ms=thu-now,c=document.getElementById('status');
+  if(ms>0){var h=Math.floor(ms/36e5),d=Math.floor(h/24);c.innerHTML='Orders for Saturday close in <b>'+(d>=1?d+' day'+(d>1?'s ':' ')+(h%24)+' h':h+' h')+'</b>.'}
+  else{var s2=new Date(sat);s2.setDate(s2.getDate()+7);c.innerHTML='This week&rsquo;s orders are closed. Preorder now for <b>'+fmt(s2,{month:'long',day:'numeric'})+'</b>.';document.getElementById('pickday').textContent=fmt(s2,{weekday:'long',month:'long',day:'numeric'})}
+
+  /* the slip */
+  var items=[].slice.call(document.querySelectorAll('.item')),state={};
+  var list=document.getElementById('slipsum'),field=document.getElementById('orderfield'),navc=document.getElementById('navcount');
+  function money(n){return '$'+n.toFixed(2)}
+  function render(){
+    var rows=[],total=0,n=0,txt=[];
+    items.forEach(function(it){var q=state[it.dataset.id]||0;it.classList.toggle('has',q>0);it.querySelector('output').textContent=q;
+      if(q){var p=parseFloat(it.dataset.price)*q;total+=p;n+=q;rows.push('<li><span>'+q+' × '+it.dataset.name+'</span><span>'+money(p)+'</span></li>');txt.push(q+' x '+it.dataset.name+' ('+money(p)+')')}});
+    list.innerHTML=n?rows.join('')+'<li class="total"><span>Pay at the counter</span><span>'+money(total)+'</span></li>':'<li class="empty">Nothing yet. Add items from the menu, or tell us in the note.</li>';
+    field.value=n?txt.join('; ')+'; total '+money(total):'';
+    navc.hidden=!n;navc.textContent=n;
+  }
+  items.forEach(function(it){var b=it.querySelectorAll('button');
+    b[0].addEventListener('click',function(){var k=it.dataset.id;state[k]=Math.max(0,(state[k]||0)-1);render()});
+    b[1].addEventListener('click',function(){var k=it.dataset.id;state[k]=Math.min(12,(state[k]||0)+1);render()});});
+  render();
+
+  /* subscription picks */
+  document.querySelectorAll('.pick').forEach(function(b){b.addEventListener('click',function(){
+    var s=document.getElementById('plan');for(var k=0;k<s.options.length;k++)if(s.options[k].text===b.dataset.plan)s.selectedIndex=k;
+    location.hash='#preorder'})});
+
+  /* send: compose an email, no server needed */
+  document.getElementById('form').addEventListener('submit',function(e){
+    e.preventDefault();var f=e.target,v=function(n){return f.elements[n].value};
+    var body='Name: '+v('Name')+'\nContact: '+v('Contact')+'\nCollection: '+v('Collection')+' ('+document.getElementById('pickday').textContent+')\nSubscription: '+(v('Subscription')||'none')+'\nOrder: '+(v('Order')||'(see note)')+'\nNote: '+v('Note');
+    var m=document.getElementById('msg');m.textContent='Opening your email app with the order filled in. Press send there to finish.';m.className='fine ok';
+    location.href='mailto:orders@crumbandrye.example?subject='+encodeURIComponent('Preorder for '+v('Name'))+'&body='+encodeURIComponent(body);
+  });
+
+  /* phone: place the coupon notches on the perforation */
+  var cp=document.querySelector('.coupon'),lft=cp.querySelector('.l');
+  function perf(){cp.style.setProperty('--perf',lft.offsetHeight+'px')}
+  perf();addEventListener('resize',perf);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,500 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pingwell: slow is down. Latency paging for on-call teams</title>
+<meta name="description" content="Pingwell watches your API's latency and pages whoever is on call the moment it crosses the threshold you set.">
+<meta name="theme-color" content="#17140D">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;700&family=Big+Shoulders+Display:wght@700;800;900&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --canary:#F4C430;
+  --canary-deep:#E8B418;
+  --slip:#FBE27A;
+  --ink:#17140D;
+  --ink-soft:#4A3F12;
+  --stamp:#B01F0C;
+  --on-ink:#F4C430;
+  --on-ink-soft:#D4B34A;
+  --display:"Big Shoulders Display","Arial Narrow",sans-serif;
+  --type:"Courier Prime","Courier New",monospace;
+  --text:"Archivo","Segoe UI",system-ui,sans-serif;
+  --ease:cubic-bezier(.16,1,.3,1);
+  --pad:clamp(1.25rem,4vw,3.5rem);
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;scrollbar-color:var(--ink) var(--canary)}
+body{margin:0;overflow-x:clip;background:var(--canary);color:var(--ink);font-family:var(--text);font-size:1.0625rem;line-height:1.6;-webkit-font-smoothing:antialiased}
+::selection{background:var(--ink);color:var(--canary)}
+:focus-visible{outline:3px solid var(--stamp);outline-offset:3px}
+.on-ink :focus-visible{outline-color:var(--on-ink)}
+input,select,button{caret-color:var(--stamp)}
+a{color:inherit;text-underline-offset:.2em}
+img,svg{display:block;max-width:100%}
+h1,h2,h3{font-family:var(--display);font-weight:800;line-height:.95;margin:0;text-transform:uppercase;text-wrap:balance}
+p{margin:0;text-wrap:pretty}
+.wrap{max-width:76rem;margin-inline:auto;padding-inline:var(--pad)}
+.type{font-family:var(--type)}
+.skip{position:absolute;left:-999px;top:0;background:var(--ink);color:var(--canary);padding:.75rem 1rem;z-index:20}
+.skip:focus{left:0}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;gap:.6rem;font:700 1rem/1 var(--text);letter-spacing:.04em;text-transform:uppercase;text-decoration:none;padding:1.05rem 1.6rem;border:2px solid var(--ink);background:var(--ink);color:var(--canary);cursor:pointer;transition:background .25s var(--ease),color .25s var(--ease),transform .25s var(--ease)}
+.btn:hover{background:var(--stamp);border-color:var(--stamp);color:#fff}
+.btn:active{transform:translateY(1px)}
+.btn.ghost{background:transparent;color:var(--ink)}
+.btn.ghost:hover{background:var(--ink);border-color:var(--ink);color:var(--canary)}
+.btn.sm{padding:.7rem 1.1rem;font-size:.85rem}
+.btn.on-ink-btn{background:var(--canary);color:var(--ink);border-color:var(--canary)}
+.btn.on-ink-btn:hover{background:#fff;border-color:#fff;color:var(--ink)}
+.btn[disabled]{opacity:.55;cursor:not-allowed}
+
+/* nav */
+.nav{background:var(--ink);color:var(--canary)}
+.nav .wrap{display:flex;align-items:center;justify-content:space-between;gap:1rem;min-height:4rem}
+.brand{display:flex;align-items:center;gap:.6rem;font-family:var(--display);font-weight:900;font-size:1.7rem;letter-spacing:.04em;text-decoration:none;text-transform:uppercase}
+.brand svg{width:1.6rem;height:1.6rem}
+.nav ul{display:flex;gap:2rem;list-style:none;margin:0;padding:0;font-size:.95rem;font-weight:500}
+.nav a:not(.btn):not(.brand){text-decoration:none;padding:.4rem 0;border-bottom:2px solid transparent;transition:border-color .2s}
+.nav a:not(.btn):not(.brand):hover{border-color:var(--canary)}
+@media(max-width:760px){.nav ul{display:none}}
+
+/* hero: one telegram blank */
+.hero{padding:clamp(1.5rem,4vw,3rem) 0 clamp(3rem,7vw,6rem)}
+.slip{background:var(--slip);border:2px solid var(--ink);position:relative}
+.slip-head{display:grid;grid-template-columns:1.3fr 2fr 1fr 1fr;border-bottom:2px solid var(--ink)}
+.slip-head div{padding:.7rem 1rem;border-right:1px solid var(--ink);min-width:0}
+.slip-head div:last-child{border-right:0}
+.slip-head small{display:block;font:700 .7rem/1 var(--text);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:.35rem}
+.slip-head span{font-family:var(--type);font-weight:700;font-size:1rem;overflow-wrap:anywhere}
+.slip-body{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:clamp(1.5rem,4vw,3.5rem);padding:clamp(1.5rem,4vw,3.25rem) clamp(1.25rem,3vw,2.5rem) clamp(1.5rem,3vw,2.5rem)}
+.hero h1{font-size:clamp(3.75rem,12.5vw,6rem);font-weight:900;letter-spacing:-.01em}
+.hero h1 em{font-style:normal;color:var(--stamp)}
+.lede{font-size:clamp(1.1rem,1.6vw,1.3rem);max-width:34rem;margin-top:1.5rem;color:var(--ink)}
+.msg{padding-bottom:6.5rem;font-family:var(--type);font-size:clamp(.95rem,1.35vw,1.1rem);line-height:1.75;text-transform:uppercase;font-weight:700;position:relative;align-self:start}
+.msg p+p{margin-top:.9rem}
+.msg .ok{color:var(--ink-soft)}
+.msg mark{background:var(--ink);color:var(--slip);padding:0 .3em}
+.stamp{position:absolute;right:0;bottom:0;font-family:var(--display);font-weight:900;font-size:clamp(2rem,4.5vw,3.25rem);letter-spacing:.06em;color:var(--stamp);border:4px solid var(--stamp);padding:.1em .4em;transform:rotate(-9deg);text-transform:uppercase;background:rgba(251,226,122,.85);mix-blend-mode:multiply;transition:opacity .2s}
+.stamp.off{opacity:0}
+.stamp.slam{animation:slam .5s var(--ease) 1.4s both}
+@keyframes slam{from{opacity:0;transform:rotate(-9deg) scale(2.2)}to{opacity:1;transform:rotate(-9deg) scale(1)}}
+.msg .typed{display:block;overflow:hidden;animation:type 1.2s steps(40,end) .2s both}
+@keyframes type{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+
+.meter{border-top:2px solid var(--ink);padding:1.25rem clamp(1.25rem,3vw,2.5rem) 1.5rem}
+.meter-top{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:1rem 2rem;margin-bottom:.75rem}
+.meter label{font:700 .8rem/1.3 var(--text);letter-spacing:.12em;text-transform:uppercase}
+.meter output{font-family:var(--type);font-weight:700;font-size:1.5rem;display:block;margin-top:.15rem}
+.range{flex:1 1 18rem;max-width:30rem}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:2.25rem;background:transparent;margin:0;cursor:pointer}
+input[type=range]::-webkit-slider-runnable-track{height:4px;background:var(--ink)}
+input[type=range]::-moz-range-track{height:4px;background:var(--ink)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:1.5rem;height:2.25rem;background:var(--stamp);border:2px solid var(--ink);margin-top:-1rem;border-radius:0}
+input[type=range]::-moz-range-thumb{width:1.2rem;height:2rem;background:var(--stamp);border:2px solid var(--ink);border-radius:0}
+.chart{width:100%;height:auto;overflow:visible}
+.chart .grid{stroke:var(--ink);stroke-opacity:.18;stroke-width:1}
+.chart .line{fill:none;stroke:var(--ink);stroke-width:2.5;stroke-linejoin:round}
+.chart .thr{stroke:var(--stamp);stroke-width:2.5;stroke-dasharray:10 7;transition:y1 .15s,y2 .15s}
+.chart .over{fill:var(--stamp);stroke:var(--ink);stroke-width:1.5}
+.chart text{font-family:var(--type);font-size:13px;font-weight:700;fill:var(--ink-soft)}
+.synthetic{font:400 .8rem/1.4 var(--text);color:var(--ink-soft);margin-top:.5rem}
+
+.tear{border-top:2px dashed var(--ink);position:relative;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:1rem 2rem;padding:1.25rem clamp(1.25rem,3vw,2.5rem);background:var(--canary-deep)}
+.tear::before,.tear::after{content:"";position:absolute;top:-1.1rem;width:1.1rem;height:1.1rem;background:var(--canary);border:2px solid var(--ink);border-radius:50%}
+.tear::before{left:-.6rem}.tear::after{right:-.6rem}
+.tear p{font-family:var(--type);font-weight:700;text-transform:uppercase;font-size:1rem}
+.tear .acts{display:flex;flex-wrap:wrap;gap:.75rem}
+@media(max-width:860px){
+  .slip-head{grid-template-columns:1fr 1fr}
+  .slip-head div:nth-child(2){border-right:0}
+  .slip-head div:nth-child(-n+2){border-bottom:1px solid var(--ink)}
+  .slip-body{grid-template-columns:minmax(0,1fr)}
+  .stamp{bottom:0;right:0}
+}
+
+/* sections */
+section{padding:clamp(4rem,9vw,8rem) 0}
+.on-ink{background:var(--ink);color:var(--on-ink)}
+h2{font-size:clamp(2.75rem,7.5vw,6rem);font-weight:900}
+.sub{max-width:36rem;margin-top:1.25rem;font-size:1.15rem}
+
+/* features */
+.feat{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(2rem,6vw,6rem)}
+.feat-intro{position:sticky;top:2rem;align-self:start}
+.feat-intro .sub{color:var(--on-ink-soft)}
+.lines{list-style:none;margin:0;padding:0}
+.lines li{padding:2rem 0;border-top:1px solid rgba(244,196,48,.4)}
+.lines li:last-child{border-bottom:1px solid rgba(244,196,48,.4)}
+.lines h3{font-size:clamp(1.9rem,3.6vw,2.75rem);font-weight:800}
+.lines h3 span{color:var(--stamp);background:var(--on-ink);padding:0 .25em;margin-left:.3em;font-size:.55em;letter-spacing:.08em;vertical-align:.25em}
+.lines p{margin-top:.75rem;max-width:38rem;color:var(--on-ink-soft)}
+.lines p b{color:var(--on-ink);font-weight:500}
+@media(max-width:860px){.feat{grid-template-columns:minmax(0,1fr)}.feat-intro{position:static}}
+
+/* pricing */
+.rates{margin-top:3rem;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:2px solid var(--ink);background:var(--slip)}
+.plan{padding:clamp(1.5rem,3vw,2.5rem);display:flex;flex-direction:column;border-right:2px solid var(--ink)}
+.plan:last-child{border-right:0}
+.plan.pick{background:var(--ink);color:var(--on-ink)}
+.plan h3{font-size:2.25rem}
+.plan .for{margin-top:.4rem;font-size:.95rem;color:var(--ink-soft);min-height:3em}
+.plan.pick .for{color:var(--on-ink-soft)}
+.price{font-family:var(--display);font-weight:900;font-size:clamp(4rem,7vw,5.5rem);line-height:1;margin:1.25rem 0 .25rem;display:flex;align-items:baseline;gap:.4rem}
+.price sup{font-size:.4em;vertical-align:baseline;position:relative;top:-.9em}
+.price small{font:400 1rem/1 var(--type);color:var(--ink-soft)}
+.plan.pick .price small{color:var(--on-ink-soft)}
+.plan ul{list-style:none;padding:0;margin:1.5rem 0 2rem;flex:1}
+.plan li{padding:.6rem 0;border-top:1px solid rgba(23,20,13,.3);font-size:.98rem}
+.plan.pick li{border-color:rgba(244,196,48,.35)}
+.plan li::before{content:"";display:inline-block;width:.55rem;height:.55rem;background:var(--stamp);margin-right:.7rem;transform:translateY(-.05em)}
+.tag{display:inline-block;font:700 .75rem/1 var(--text);letter-spacing:.12em;text-transform:uppercase;background:var(--stamp);color:#fff;padding:.4rem .55rem;margin-bottom:.9rem;align-self:flex-start}
+.plan .btn{justify-content:center}
+.fine{margin-top:1.25rem;font-size:.9rem;color:var(--ink-soft)}
+@media(max-width:900px){
+  .rates{grid-template-columns:minmax(0,1fr)}
+  .plan{border-right:0;border-bottom:2px solid var(--ink)}
+  .plan:last-child{border-bottom:0}
+}
+
+/* testimonials: received strips */
+.voices{background:var(--canary-deep)}
+.strips{margin-top:3.5rem;display:flex;flex-direction:column;gap:1.75rem}
+.strip{background:var(--slip);border:2px solid var(--ink);padding:clamp(1.25rem,3vw,2.25rem);width:min(100%,46rem);position:relative}
+.strip:nth-child(1){transform:rotate(-.7deg)}
+.strip:nth-child(2){align-self:flex-end;transform:rotate(.6deg)}
+.strip:nth-child(3){margin-left:8%;transform:rotate(-.3deg)}
+.strip blockquote{margin:0;font-size:clamp(1.15rem,2vw,1.4rem);line-height:1.5;font-weight:500}
+.strip figcaption{margin-top:1.1rem;font:700 .85rem/1.5 var(--type);text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft)}
+.strip .rcvd{position:absolute;top:-.85rem;right:1.25rem;background:var(--ink);color:var(--on-ink);font:700 .72rem/1 var(--type);letter-spacing:.14em;padding:.4rem .6rem}
+.strip{margin:0}
+@media(max-width:700px){.strip:nth-child(n){margin-left:0;align-self:stretch}}
+
+/* signup */
+.signup{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(2rem,6vw,5rem);align-items:start}
+.signup .sub{color:var(--on-ink-soft)}
+.form-slip{background:var(--slip);color:var(--ink);border:2px solid var(--ink);outline:6px solid var(--ink);box-shadow:0 0 0 8px var(--on-ink)}
+.form-slip header{padding:.75rem 1.25rem;border-bottom:2px solid var(--ink);display:flex;justify-content:space-between;gap:1rem;font:700 .8rem/1.2 var(--text);letter-spacing:.14em;text-transform:uppercase;background:var(--canary-deep)}
+form{padding:clamp(1.25rem,3vw,2rem);display:grid;grid-template-columns:1fr 1fr;gap:1.4rem 1.25rem}
+.field{display:flex;flex-direction:column;gap:.4rem;min-width:0}
+.field.full{grid-column:1/-1}
+.field label{font:700 .75rem/1.2 var(--text);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft)}
+.field input,.field select{font:700 1.1rem/1.3 var(--type);color:var(--ink);background:transparent;border:0;border-bottom:2px solid var(--ink);padding:.5rem 0;border-radius:0;width:100%;-webkit-appearance:none;appearance:none}
+.field select{background-image:linear-gradient(45deg,transparent 50%,var(--ink) 50%),linear-gradient(135deg,var(--ink) 50%,transparent 50%);background-position:calc(100% - 12px) 55%,calc(100% - 6px) 55%;background-size:6px 6px;background-repeat:no-repeat;padding-right:1.5rem}
+.field input::placeholder{color:#6d5f22;font-weight:400}
+.field input:focus,.field select:focus{outline:0;border-bottom-color:var(--stamp);background:rgba(244,196,48,.45)}
+.field input:invalid:not(:placeholder-shown){border-bottom-color:var(--stamp)}
+.field .hint{font-size:.85rem;color:var(--ink-soft)}
+.form-foot{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:1rem 1.5rem;margin-top:.5rem}
+.form-foot p{font-size:.9rem;color:var(--ink-soft);flex:1 1 14rem}
+.done{display:none;padding:clamp(2rem,5vw,3.5rem) clamp(1.25rem,3vw,2rem);font-family:var(--type);font-weight:700;text-transform:uppercase;font-size:1.15rem;line-height:1.8}
+.done strong{display:block;font-family:var(--display);font-weight:900;font-size:clamp(2.5rem,6vw,4rem);line-height:1;color:var(--stamp);margin-bottom:.75rem}
+.form-slip.sent form{display:none}
+.form-slip.sent .done{display:block}
+@media(max-width:860px){.signup{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:520px){form{grid-template-columns:minmax(0,1fr)}}
+
+footer{background:var(--ink);color:var(--on-ink-soft);padding:0 0 2.5rem;font-size:.9rem}
+footer .wrap{border-top:1px solid rgba(244,196,48,.35);padding-top:1.5rem;display:flex;flex-wrap:wrap;justify-content:space-between;gap:.75rem 2rem}
+footer .type{color:var(--on-ink);font-weight:700;letter-spacing:.06em}
+
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#signup">Skip to signup</a>
+
+<header class="nav on-ink">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="Pingwell home">
+      <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><circle cx="16" cy="16" r="3" fill="currentColor" stroke="none"/><circle cx="16" cy="16" r="8"/><circle cx="16" cy="16" r="14" stroke-opacity=".55"/></svg>
+      Pingwell
+    </a>
+    <nav aria-label="Primary">
+      <ul>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#pricing">Pricing</a></li>
+        <li><a href="#customers">Customers</a></li>
+      </ul>
+    </nav>
+    <a class="btn sm on-ink-btn" href="#signup">Start free</a>
+  </div>
+</header>
+
+<main id="top">
+<section class="hero" style="padding-bottom:clamp(3rem,7vw,6rem)">
+  <div class="wrap">
+    <div class="slip">
+      <div class="slip-head" aria-hidden="true">
+        <div><small>Class</small><span>Night letter</span></div>
+        <div><small>From</small><span>api.acme.dev/checkout</span></div>
+        <div><small>Time</small><span>03:14</span></div>
+        <div><small>To</small><span>On-call</span></div>
+      </div>
+
+      <div class="slip-body">
+        <div>
+          <h1>Slow is <em>down.</em></h1>
+          <p class="lede">Pingwell watches your API's latency and pages whoever is on call the moment it crosses the line you set. Not the whole channel. The one person who can fix it.</p>
+        </div>
+        <div class="msg" id="msg" aria-live="polite" aria-atomic="true"></div>
+      </div>
+
+      <div class="meter">
+        <div class="meter-top">
+          <div>
+            <label for="thr">Page me when p95 latency passes</label>
+            <output id="thrOut" for="thr">800 ms</output>
+          </div>
+          <div class="range"><input id="thr" type="range" min="200" max="1900" step="50" value="800" aria-describedby="synthetic"></div>
+        </div>
+        <svg class="chart" id="chart" viewBox="0 0 960 190" role="img" aria-label="Line chart of the last 48 latency checks with a movable alert threshold"></svg>
+        <p class="synthetic" id="synthetic">Sample data from a made-up checkout API. Drag the threshold and watch the telegram rewrite itself.</p>
+      </div>
+
+      <div class="tear">
+        <p>Reply paid. Your first monitor takes about a minute.</p>
+        <div class="acts">
+          <a class="btn" href="#signup">Start monitoring free</a>
+          <a class="btn ghost" href="#features">How it pages</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="features" class="on-ink">
+  <div class="wrap feat">
+    <div class="feat-intro">
+      <h2>Built for the 3 a.m. message.</h2>
+      <p class="sub">Up or down is the easy question. Pingwell pages on the harder one: is it fast enough?</p>
+    </div>
+    <ul class="lines">
+      <li>
+        <h3>A threshold on every endpoint</h3>
+        <p><b>Set p50, p95 or p99 per route.</b> Your checkout can have a tighter line than your admin panel, and each one pages on its own terms.</p>
+      </li>
+      <li>
+        <h3>Pages the person on call</h3>
+        <p><b>Follows your rotation.</b> The alert goes to whoever holds the pager right now, by push, SMS or phone call, not to a channel everyone has muted.</p>
+      </li>
+      <li>
+        <h3>Escalates if nobody answers</h3>
+        <p><b>Unacknowledged in five minutes? Next person.</b> You choose the wait and the ladder, so a missed alert never ends in silence.</p>
+      </li>
+      <li>
+        <h3>Waits for a real breach</h3>
+        <p><b>Require several slow checks in a row</b> before anyone is woken. One hiccup from a cold start stays a hiccup.</p>
+      </li>
+      <li>
+        <h3>Tells you when it's over</h3>
+        <p><b>A short all-clear</b> goes out when latency settles back under the line, with how long it stayed over, so the morning review starts with facts.</p>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<section id="pricing">
+  <div class="wrap">
+    <h2>Rates, plainly stated.</h2>
+    <p class="sub">Start free. Move up when your rotation grows.</p>
+    <div class="rates">
+      <article class="plan">
+        <h3>Side project</h3>
+        <p class="for">One service, one person, no pager fatigue yet.</p>
+        <div class="price"><sup>$</sup>0<small>/ month</small></div>
+        <ul>
+          <li>5 monitors</li>
+          <li>1 person on call</li>
+          <li>Checks every 5 minutes</li>
+          <li>Email and push paging</li>
+        </ul>
+        <a class="btn ghost" href="#signup">Start free</a>
+      </article>
+      <article class="plan pick">
+        <span class="tag">Most teams</span>
+        <h3>Team</h3>
+        <p class="for">A real rotation with escalation, for teams of 2 to 15.</p>
+        <div class="price"><sup>$</sup>29<small>/ month</small></div>
+        <ul>
+          <li>50 monitors</li>
+          <li>Rotations and escalation</li>
+          <li>Checks every 30 seconds</li>
+          <li>SMS and phone-call paging</li>
+        </ul>
+        <a class="btn on-ink-btn" href="#signup">Start Team trial</a>
+      </article>
+      <article class="plan">
+        <h3>Scale</h3>
+        <p class="for">Many services, several rotations, an audit trail.</p>
+        <div class="price"><sup>$</sup>99<small>/ month</small></div>
+        <ul>
+          <li>250 monitors</li>
+          <li>Multiple on-call schedules</li>
+          <li>Checks every 10 seconds</li>
+          <li>Alert history and priority support</li>
+        </ul>
+        <a class="btn ghost" href="#signup">Start Scale trial</a>
+      </article>
+    </div>
+    <p class="fine">Prices in USD, billed monthly.</p>
+  </div>
+</section>
+
+<section id="customers" class="voices">
+  <div class="wrap">
+    <h2>Messages received.</h2>
+    <div class="strips">
+      <figure class="strip">
+        <span class="rcvd">RECEIVED</span>
+        <blockquote>“We used to learn the API was crawling from a customer tweet. Now the page lands on one phone, and it's usually fixed before the tweet.”</blockquote>
+        <figcaption>Priya Raman · Staff engineer, Lantern Pay</figcaption>
+      </figure>
+      <figure class="strip">
+        <span class="rcvd">RECEIVED</span>
+        <blockquote>“Setting a threshold per endpoint changed everything. Checkout pages us at 600 ms. The admin panel can take its time.”</blockquote>
+        <figcaption>Tomás Aguirre · CTO, Fieldnote</figcaption>
+      </figure>
+      <figure class="strip">
+        <span class="rcvd">RECEIVED</span>
+        <blockquote>“Five of us share the pager. Escalation means nobody carries the dread of a missed alert alone.”</blockquote>
+        <figcaption>Hana Okafor · Backend lead, Brightloop</figcaption>
+      </figure>
+    </div>
+    <p class="fine" style="margin-top:2.5rem">Sample quotes from fictional teams. Replace with real customers before launch.</p>
+  </div>
+</section>
+
+<section id="signup" class="on-ink">
+  <div class="wrap signup">
+    <div>
+      <h2>Send us your first endpoint.</h2>
+      <p class="sub">Tell us what to watch and where to draw the line. We'll have the first monitor paging before your coffee cools.</p>
+    </div>
+    <div class="form-slip" id="slip">
+      <header><span>Form for new service</span><span>Reply paid</span></header>
+      <form id="form" novalidate>
+        <div class="field">
+          <label for="name">Your name</label>
+          <input id="name" name="name" autocomplete="name" required placeholder="Maya Chen">
+        </div>
+        <div class="field">
+          <label for="email">Work email</label>
+          <input id="email" name="email" type="email" autocomplete="email" required placeholder="maya@acme.dev">
+        </div>
+        <div class="field full">
+          <label for="url">Endpoint to watch</label>
+          <input id="url" name="url" type="url" required placeholder="https://api.acme.dev/checkout/health">
+        </div>
+        <div class="field">
+          <label for="team">Team size</label>
+          <select id="team" name="team">
+            <option>1 to 5 engineers</option>
+            <option selected>6 to 15 engineers</option>
+            <option>16 to 50 engineers</option>
+            <option>More than 50</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="ms">Page me past (ms)</label>
+          <input id="ms" name="ms" type="number" inputmode="numeric" min="50" max="60000" value="800" required>
+        </div>
+        <div class="form-foot">
+          <button class="btn" type="submit">Send and start free</button>
+          <p id="err" role="alert">Takes about a minute. You can change every setting later.</p>
+        </div>
+      </form>
+      <div class="done" id="done" role="status" tabindex="-1">
+        <strong>Received. Stop.</strong>
+        <span id="doneText">First monitor on its way. Stop.</span>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="on-ink">
+  <div class="wrap">
+    <span class="type">PINGWELL · END OF MESSAGE</span>
+    <span>© 2026 Pingwell. Latency paging for on-call teams.</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  // Synthetic p95 samples (ms) for a made-up checkout API: calm, then a slow patch.
+  var data=[210,225,198,240,232,215,260,248,230,219,205,238,252,244,229,263,271,255,240,236,
+            310,420,610,880,1240,1510,1420,1180,960,790,640,520,430,380,310,285,260,244,231,222,
+            215,228,240,233,219,226,238,230];
+  var W=960,H=190,PL=44,PT=12,PB=26,MAX=2000;
+  var svg=document.getElementById('chart');
+  var msg=document.getElementById('msg');
+  var thr=document.getElementById('thr');
+  var out=document.getElementById('thrOut');
+  var NS='http://www.w3.org/2000/svg';
+  var first=true;
+
+  function X(i){return PL+i*(W-PL-8)/(data.length-1)}
+  function Y(v){return PT+(1-v/MAX)*(H-PT-PB)}
+  function el(n,a){var e=document.createElementNS(NS,n);for(var k in a)e.setAttribute(k,a[k]);return e}
+
+  function draw(t){
+    svg.textContent='';
+    [0,500,1000,1500,2000].forEach(function(v){
+      svg.appendChild(el('line',{class:'grid',x1:PL,x2:W-8,y1:Y(v),y2:Y(v)}));
+      var tx=el('text',{x:PL-8,y:Y(v)+4,'text-anchor':'end'});tx.textContent=v;svg.appendChild(tx);
+    });
+    svg.appendChild(el('polyline',{class:'line',points:data.map(function(v,i){return X(i)+','+Y(v)}).join(' ')}));
+    svg.appendChild(el('line',{class:'thr',x1:PL,x2:W-8,y1:Y(t),y2:Y(t)}));
+    data.forEach(function(v,i){if(v>t)svg.appendChild(el('circle',{class:'over',cx:X(i),cy:Y(v),r:5}))});
+  }
+
+  function write(t){
+    var over=data.filter(function(v){return v>t}).length;
+    var peak=Math.max.apply(null,data);
+    var html;
+    if(over){
+      html='<span class="typed"><p>Checkout p95 latency '+peak+' ms. Stop.</p>'+
+           '<p>Threshold <mark>'+t+' ms</mark> crossed on '+over+' of '+data.length+' checks. Stop.</p>'+
+           '<p>Paging Maya Chen, on call. Escalating in 5 min if unanswered. Stop.</p></span>'+
+           '<span class="stamp'+(first?' slam':'')+'" aria-hidden="true">Paged</span>';
+    }else{
+      html='<span class="typed"><p>Checkout p95 latency peaked at '+peak+' ms. Stop.</p>'+
+           '<p class="ok">Threshold '+t+' ms never crossed. Nobody woken. Stop.</p>'+
+           '<p class="ok">Lower the line to catch slower patches. Stop.</p></span>'+
+           '<span class="stamp off" aria-hidden="true">Paged</span>';
+    }
+    msg.innerHTML=html;
+    if(!first){var s=msg.querySelectorAll('.typed');for(var i=0;i<s.length;i++)s[i].style.animation='none'}
+  }
+
+  function update(){
+    var t=+thr.value;
+    out.textContent=t+' ms';
+    draw(t);write(t);first=false;
+  }
+  thr.addEventListener('input',update);
+  update();
+
+  // Signup: no backend is wired up yet, so this confirms locally.
+  var form=document.getElementById('form'),slip=document.getElementById('slip'),err=document.getElementById('err');
+  form.addEventListener('submit',function(e){
+    e.preventDefault();
+    if(!form.checkValidity()){
+      var bad=form.querySelector(':invalid');
+      err.textContent='Check '+(bad.labels&&bad.labels[0]?bad.labels[0].textContent.toLowerCase():'this field')+' and send again.';
+      err.style.color='var(--stamp)';err.style.fontWeight='700';bad.focus();return;
+    }
+    document.getElementById('doneText').textContent='Watching '+form.url.value+' past '+form.ms.value+' ms. Confirmation to '+form.email.value+'. Stop.';
+    slip.classList.add('sent');document.getElementById('done').focus();
+  });
+})();
+</script>
+</body>
+</html>

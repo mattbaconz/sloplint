@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pingwell: page the on-call engineer when API latency crosses your line</title>
+<meta name="description" content="Pingwell checks your API on a schedule and pages the on-call engineer when p95 latency crosses a threshold you set.">
+<style>
+/* Hallmark · macrostructure: Specimen (poster-scale product, index features) · tone: technical · anchor hue: lime 75° · theme: DESIGN.md Circuit Specimen */
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono:wght@400;500&display=swap");
+
+:root {
+  --bg: #0f1417;
+  --surface: #171c1f;
+  --surface-2: #1f2428;
+  --line: #32383c;
+  --ink: #ecf0f4;
+  --ink-2: #999fa4;
+  --accent: #92c016;
+  --accent-ink: #92c016;
+  --on-accent: #131809;
+  --ok: #76cf8a;
+  --warn: #e8aa4e;
+  --danger: #ff968a;
+  --font-display: "IBM Plex Sans", system-ui, sans-serif;
+  --font-text: "IBM Plex Sans", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  --step--1: 0.781rem;
+  --step-0: 0.938rem;
+  --step-1: 1.125rem;
+  --step-2: 1.35rem;
+  --step-3: 1.62rem;
+  --step-4: clamp(1.62rem, 2.43vw, 1.944rem);
+  --step-5: clamp(1.62rem, 2.92vw, 2.333rem);
+  --step-display: clamp(2.5rem, 6.88vw, 5.5rem);
+  --tracking-display: -0.04em;
+  --leading: 1.55;
+  --measure: 62ch;
+  --radius-sm: 2px;
+  --radius: 4px;
+  --radius-lg: 6px;
+  --border: 1px;
+  --duration: 120ms;
+  --duration-entrance: 400ms;
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+  --gutter: 24px;
+  --section: 80px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { overflow-x: clip; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-text);
+  font-size: var(--step-0);
+  line-height: var(--leading);
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+h1, h2, h3 { font-family: var(--font-display); font-weight: 600; margin: 0; overflow-wrap: anywhere; }
+h2 { font-size: var(--step-5); line-height: 1.05; letter-spacing: -0.02em; }
+h3 { font-size: var(--step-2); line-height: 1.05; letter-spacing: -0.02em; }
+p { margin: 0; max-width: var(--measure); }
+a { color: inherit; }
+code, .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.wrap { width: 100%; max-width: 1248px; margin-inline: auto; padding-inline: var(--gutter); }
+.section { padding-block: var(--section); }
+@media (max-width: 639px) { .section { padding-block: 48px; } }
+
+/* buttons */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 40px; padding: 0 16px; border-radius: var(--radius);
+  font: 600 var(--step-0)/1 var(--font-text); text-decoration: none; white-space: nowrap;
+  border: var(--border) solid transparent; cursor: pointer;
+  transition: background-color var(--duration) var(--ease), border-color var(--duration) var(--ease), color var(--duration) var(--ease), transform var(--duration) var(--ease);
+}
+.btn:active { transform: translateY(1px); }
+.btn-primary { background: var(--accent); color: var(--on-accent); }
+.btn-primary:hover { background: var(--ink); }
+.btn-secondary { border-color: var(--line); color: var(--ink); background: transparent; }
+.btn-secondary:hover { border-color: var(--ink-2); background: var(--surface); }
+.btn-solid { background: var(--bg); color: var(--ink); }
+.btn-solid:hover { background: var(--surface-2); }
+
+/* nav */
+.nav { border-bottom: var(--border) solid var(--line); position: relative; z-index: 2; }
+.nav .wrap { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 24px; min-height: 56px; padding-block: 8px; }
+.brand { font: 600 var(--step-1)/1 var(--font-mono); text-decoration: none; letter-spacing: -0.02em; }
+.brand span { color: var(--accent-ink); }
+.nav ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px 20px; align-items: center; }
+.nav a:not(.btn):not(.brand) { text-decoration: none; color: var(--ink-2); transition: color var(--duration) var(--ease); }
+.nav a:not(.btn):not(.brand):hover { color: var(--ink); }
+.nav .btn { min-height: 32px; padding: 0 12px; }
+
+/* hero */
+.hero { position: relative; overflow: clip; padding-top: 56px; padding-bottom: 0; border-bottom: var(--border) solid var(--line); }
+.gridlines { position: absolute; inset: 0; pointer-events: none; }
+.gridlines .wrap { height: 100%; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--gutter); }
+.gridlines span { border-left: var(--border) solid var(--line); opacity: 0.45; }
+.hero-inner { position: relative; }
+.hero h1 {
+  font-size: var(--step-display); line-height: 0.98; letter-spacing: var(--tracking-display);
+  max-width: 11ch;
+}
+.hero h1 em { font-style: normal; color: var(--accent-ink); }
+.hero-lede { margin-top: 24px; color: var(--ink); max-width: 46ch; font-size: var(--step-1); }
+.hero-actions { margin-top: 32px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+
+.cmd {
+  display: inline-flex; align-items: stretch; max-width: 100%;
+  border: var(--border) solid var(--line); border-radius: var(--radius); background: var(--surface);
+}
+.cmd code { padding: 10px 14px; font-size: var(--step--1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.cmd code b { color: var(--accent-ink); font-weight: 500; }
+.cmd button {
+  border: 0; border-left: var(--border) solid var(--line); background: var(--surface-2); color: var(--ink);
+  font: 600 var(--step--1)/1 var(--font-text); padding: 0 14px; cursor: pointer; border-radius: 0 var(--radius) var(--radius) 0;
+  transition: background-color var(--duration) var(--ease);
+}
+.cmd button:hover { background: var(--line); }
+.cmd-note { margin-top: 12px; font-family: var(--font-mono); font-size: var(--step--1); color: var(--ink-2); }
+
+.product-wrap { margin-top: 56px; margin-right: -240px; }
+.product {
+  min-width: 860px;
+  border: var(--border) solid var(--line); border-right: 0; border-bottom: 0;
+  border-radius: var(--radius-lg) 0 0 0; background: var(--surface);
+}
+.product-bar { display: flex; flex-wrap: nowrap; justify-content: space-between; gap: 16px; padding: 12px 16px; border-bottom: var(--border) solid var(--line); font-family: var(--font-mono); font-size: var(--step--1); color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.product-bar strong { color: var(--ink); font-weight: 500; }
+.mon { width: 100%; border-collapse: collapse; font-size: var(--step-0); }
+.mon th, .mon td { text-align: left; padding: 12px 16px; border-bottom: var(--border) solid var(--line); white-space: nowrap; }
+.mon th { font: 400 var(--step--1)/1.2 var(--font-mono); color: var(--ink-2); text-transform: none; }
+.mon td.num, .mon th.num { text-align: right; font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.mon tr.breach td { background: var(--surface-2); }
+.st { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: var(--step--1); }
+.st::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+.st.ok { color: var(--ok); } .st.warn { color: var(--warn); } .st.bad { color: var(--danger); }
+.mon .hl { color: var(--accent-ink); font-weight: 500; }
+.page-line { padding: 12px 16px; font-family: var(--font-mono); font-size: var(--step--1); color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.page-line b { color: var(--danger); font-weight: 500; }
+
+/* entrance: first screen only */
+@keyframes rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+.enter { animation: rise var(--duration-entrance) var(--ease) both; }
+.enter-1 { animation-delay: 0ms; } .enter-2 { animation-delay: 160ms; } .enter-3 { animation-delay: 320ms; }
+@media (prefers-reduced-motion: reduce) { .enter { animation: none; } }
+
+@media (max-width: 767px) {
+  .gridlines .wrap { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .gridlines span:nth-child(n+5) { display: none; }
+  .product-wrap { margin-right: -400px; margin-top: 40px; }
+  .hero { padding-top: 40px; }
+}
+
+/* section heads */
+.head { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; margin-bottom: 40px; }
+.head h2 { max-width: 22ch; }
+
+/* features index */
+.index { list-style: none; margin: 0; padding: 0; border-top: var(--border) solid var(--line); }
+.index li { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--gutter); padding: 24px 0; border-bottom: var(--border) solid var(--line); align-items: baseline; }
+.index h3 { grid-column: 1 / span 4; }
+.index p { grid-column: 5 / span 8; }
+.index code { color: var(--accent-ink); font-size: var(--step--1); }
+@media (max-width: 767px) {
+  .index li { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .index h3, .index p { grid-column: 1; }
+}
+
+/* pricing */
+.plans { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: var(--border) solid var(--line); border-radius: var(--radius-lg); background: var(--surface); }
+.plan { padding: 32px 24px; display: flex; flex-direction: column; gap: 20px; }
+.plan + .plan { border-left: var(--border) solid var(--line); }
+.plan .price { font: 500 var(--step-5)/1 var(--font-mono); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+.plan .price small { font-size: var(--step--1); color: var(--ink-2); letter-spacing: 0; }
+.plan.pick .price { color: var(--accent-ink); }
+.plan ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.plan li { display: flex; justify-content: space-between; gap: 16px; border-bottom: var(--border) solid var(--line); padding-bottom: 10px; }
+.plan li span:last-child { font-family: var(--font-mono); font-variant-numeric: tabular-nums; text-align: right; }
+.plan .btn { margin-top: auto; }
+.fine { margin-top: 16px; font-family: var(--font-mono); font-size: var(--step--1); color: var(--ink-2); }
+@media (max-width: 767px) {
+  .plans { grid-template-columns: minmax(0, 1fr); }
+  .plan + .plan { border-left: 0; border-top: var(--border) solid var(--line); }
+}
+
+/* testimonials */
+.quotes { list-style: none; margin: 0; padding: 0; border-top: var(--border) solid var(--line); }
+.quotes li { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--gutter); padding: 24px 0; border-bottom: var(--border) solid var(--line); }
+.quotes .who { grid-column: 1 / span 4; font-family: var(--font-mono); font-size: var(--step--1); color: var(--ink-2); }
+.quotes .what { grid-column: 5 / span 8; color: var(--ink-2); }
+@media (max-width: 767px) {
+  .quotes li { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .quotes .who, .quotes .what { grid-column: 1; }
+}
+
+/* signup: full-bleed accent field */
+.signup { background: var(--accent); color: var(--on-accent); }
+.signup h2 { max-width: 14ch; font-size: var(--step-display); line-height: 0.98; letter-spacing: var(--tracking-display); }
+.signup-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--gutter); align-items: end; }
+.signup-copy { grid-column: 1 / span 6; display: grid; gap: 20px; }
+.signup-copy p { max-width: 40ch; }
+form { grid-column: 8 / span 5; display: grid; gap: 16px; }
+.field { display: grid; gap: 6px; }
+.field label { font-weight: 600; }
+.field input, .field select {
+  height: 40px; padding: 0 12px; border-radius: var(--radius); border: var(--border) solid var(--line);
+  background: var(--surface); color: var(--ink); font: 400 var(--step-0)/1 var(--font-text); width: 100%;
+  transition: border-color var(--duration) var(--ease);
+}
+.field input:hover, .field select:hover { border-color: var(--ink-2); }
+.field input:focus-visible, .field select:focus-visible { outline: 2px solid var(--bg); outline-offset: 2px; }
+.field .hint { font-size: var(--step--1); }
+.signup .btn { width: 100%; }
+@media (max-width: 767px) {
+  .signup-grid { grid-template-columns: minmax(0, 1fr); gap: 32px; }
+  .signup-copy, form { grid-column: 1; }
+}
+
+/* footer */
+footer { border-top: var(--border) solid var(--line); padding-block: 24px; font-family: var(--font-mono); font-size: var(--step--1); color: var(--ink-2); }
+footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="#top">ping<span>well</span></a>
+    <nav aria-label="Primary">
+      <ul>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#pricing">Pricing</a></li>
+        <li><a href="#feedback">Feedback</a></li>
+        <li><a class="btn btn-secondary" href="#signup">Start monitoring</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+<section class="hero" aria-labelledby="hero-h">
+  <div class="gridlines" aria-hidden="true"><div class="wrap"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div></div>
+  <div class="wrap hero-inner">
+    <h1 id="hero-h" class="enter enter-1">Page on-call when <em>latency</em> crosses the line.</h1>
+    <p class="hero-lede enter enter-1">Pingwell checks your API from three regions and calls the on-call engineer the moment p95 passes the threshold you set.</p>
+    <div class="hero-actions enter enter-3">
+      <a class="btn btn-primary" href="#signup">Create free account</a>
+      <div class="cmd">
+        <code id="cmd-text"><b>$</b> curl -X POST api.pingwell.dev/v1/monitors -d 'url=https://api.shopfront.dev/health&amp;p95_ms=400'</code>
+        <button type="button" id="copy-btn" data-label="Copy command">Copy command</button>
+      </div>
+    </div>
+    <p class="cmd-note enter enter-3">Example request. Free plan keys are issued after signup.</p>
+
+    <div class="product-wrap enter enter-2">
+      <div class="product" role="group" aria-label="Pingwell monitors view, sample data">
+        <div class="product-bar"><span><strong>shopfront / production</strong> · 4 monitors</span><span>sample data · 14:02:11 UTC</span></div>
+        <table class="mon">
+          <thead><tr><th>Monitor</th><th>Region</th><th class="num">p95 (ms)</th><th class="num">Threshold (ms)</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>GET /v1/orders</td><td class="mono">eu-west-1</td><td class="num">212</td><td class="num">400</td><td><span class="st ok">Healthy</span></td></tr>
+            <tr><td>POST /v1/checkout</td><td class="mono">us-east-1</td><td class="num hl">437</td><td class="num">400</td><td><span class="st bad">Paging Dana</span></td></tr>
+            <tr class="breach"><td>GET /v1/search</td><td class="mono">us-east-1</td><td class="num">358</td><td class="num">400</td><td><span class="st warn">Near limit</span></td></tr>
+            <tr><td>GET /healthz</td><td class="mono">ap-south-1</td><td class="num">96</td><td class="num">250</td><td><span class="st ok">Healthy</span></td></tr>
+          </tbody>
+        </table>
+        <div class="page-line"><b>PAGE</b> 14:01:48 POST /v1/checkout p95 437 ms &gt; 400 ms for 3 checks · call placed to on-call</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="features" aria-labelledby="features-h">
+  <div class="wrap">
+    <div class="head"><h2 id="features-h">What Pingwell does, in order of use</h2></div>
+    <ul class="index">
+      <li><h3>Latency thresholds</h3><p>Set a p95 limit per endpoint in milliseconds. An alert opens after the limit is exceeded for the number of consecutive checks you choose (default <code>3</code>).</p></li>
+      <li><h3>Paging</h3><p>Phone call, SMS or push to whoever is on call. If they do not acknowledge within the window you set, it escalates to the next person.</p></li>
+      <li><h3>On-call rotation</h3><p>Weekly or daily handoffs for teams of two or more. Overrides take effect immediately and appear in the incident log.</p></li>
+      <li><h3>Multi-region checks</h3><p>Every monitor runs from <code>us-east-1</code>, <code>eu-west-1</code> and <code>ap-south-1</code>. A page fires only when the threshold is crossed in at least two regions.</p></li>
+      <li><h3>Monitors as code</h3><p>Create and update monitors with the REST API or a YAML file in your repo. Changes are versioned and show who edited a threshold.</p></li>
+    </ul>
+  </div>
+</section>
+
+<section class="section" id="pricing" aria-labelledby="pricing-h" style="padding-top:0">
+  <div class="wrap">
+    <div class="head"><h2 id="pricing-h">Pricing by monitor count</h2></div>
+    <div class="plans">
+      <div class="plan">
+        <h3>Solo</h3>
+        <div class="price">$0<small> /month</small></div>
+        <ul>
+          <li><span>Monitors</span><span>5</span></li>
+          <li><span>Check interval</span><span>60 s</span></li>
+          <li><span>Paging</span><span>Email, SMS</span></li>
+          <li><span>Users</span><span>1</span></li>
+        </ul>
+        <a class="btn btn-secondary" href="#signup">Start with Solo</a>
+      </div>
+      <div class="plan pick">
+        <h3>Team</h3>
+        <div class="price">$29<small> /month</small></div>
+        <ul>
+          <li><span>Monitors</span><span>50</span></li>
+          <li><span>Check interval</span><span>30 s</span></li>
+          <li><span>Paging</span><span>Phone call, SMS, push</span></li>
+          <li><span>Users</span><span>10, with rotation</span></li>
+        </ul>
+        <a class="btn btn-primary" href="#signup">Start with Team</a>
+      </div>
+      <div class="plan">
+        <h3>Scale</h3>
+        <div class="price">$99<small> /month</small></div>
+        <ul>
+          <li><span>Monitors</span><span>500</span></li>
+          <li><span>Check interval</span><span>10 s</span></li>
+          <li><span>Paging</span><span>Adds escalation chains</span></li>
+          <li><span>Users</span><span>Unlimited</span></li>
+        </ul>
+        <a class="btn btn-secondary" href="#signup">Start with Scale</a>
+      </div>
+    </div>
+    <p class="fine">Launch pricing, billed monthly in USD.</p>
+  </div>
+</section>
+
+<section class="section" id="feedback" aria-labelledby="fb-h" style="padding-top:0">
+  <div class="wrap">
+    <div class="head"><h2 id="fb-h">What on-call engineers say</h2></div>
+    <ul class="quotes">
+      <li><span class="who">Name, role, company</span><p class="what">Quote pending. Add a real customer quote and written permission before this page goes live.</p></li>
+      <li><span class="who">Name, role, company</span><p class="what">Quote pending. Add a real customer quote and written permission before this page goes live.</p></li>
+      <li><span class="who">Name, role, company</span><p class="what">Quote pending. Add a real customer quote and written permission before this page goes live.</p></li>
+    </ul>
+  </div>
+</section>
+
+<section class="section signup" id="signup" aria-labelledby="signup-h">
+  <div class="wrap signup-grid">
+    <div class="signup-copy">
+      <h2 id="signup-h">Get paged before users notice.</h2>
+      <p>Create an account, add a URL and a threshold, and the first check runs within a minute.</p>
+    </div>
+    <form action="/api/signup" method="post">
+      <div class="field">
+        <label for="email">Work email</label>
+        <input id="email" name="email" type="email" autocomplete="email" required>
+      </div>
+      <div class="field">
+        <label for="url">API URL to monitor</label>
+        <input id="url" name="url" type="url" placeholder="https://api.shopfront.dev/health" required>
+      </div>
+      <div class="field">
+        <label for="p95">p95 threshold</label>
+        <select id="p95" name="p95_ms">
+          <option value="250">250 ms</option>
+          <option value="400" selected>400 ms</option>
+          <option value="800">800 ms</option>
+          <option value="1500">1500 ms</option>
+        </select>
+      </div>
+      <button class="btn btn-solid" type="submit">Create free account</button>
+    </form>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap"><span>pingwell · monitors, pages, escalates</span><span>© 2026 Pingwell</span></div>
+</footer>
+
+<script>
+(function () {
+  var btn = document.getElementById('copy-btn');
+  var code = document.getElementById('cmd-text');
+  if (!btn || !navigator.clipboard) { if (btn) btn.hidden = true; return; }
+  btn.addEventListener('click', function () {
+    var text = code.textContent.replace(/^\$\s*/, '');
+    navigator.clipboard.writeText(text).then(function () {
+      btn.textContent = 'Copied';
+      setTimeout(function () { btn.textContent = btn.getAttribute('data-label'); }, 1500);
+    }, function () {
+      btn.textContent = 'Copy failed: select the text';
+    });
+  });
+})();
+</script>
+</body>
+</html>

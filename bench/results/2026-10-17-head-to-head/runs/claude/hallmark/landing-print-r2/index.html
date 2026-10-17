@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Offset Press — Screen-printed posters and vinyl records</title>
+<meta name="description" content="Offset Press is an independent print studio and record label. Limited-run screen-printed posters and vinyl, pulled by hand and numbered.">
+<meta name="theme-color" content="#f3eee3">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* Hallmark · macrostructure: Catalogue (hero-fronted) · tone: utilitarian, hand-pulled · anchor hue: vermilion
+ * theme: custom (vibe: "screen-print shop, overprinted inks, warm stock") · paper oklch(95% 0.02 85) · accent oklch(63% 0.2 38)
+ * fonts: Big Shoulders Display + Newsreader + JetBrains Mono · axes: light / display-condensed / warm
+ * nav: N9 edge-aligned · footer: Ft1 mast-headed · enrichment: Tier A CSS art
+ * Hallmark · pre-emit critique: P4 H4 E4 S4 R4 V4
+ */
+:root {
+  /* colour */
+  --color-paper: oklch(95% 0.02 85);
+  --color-paper-2: oklch(90% 0.03 82);
+  --color-ink: oklch(22% 0.04 265);
+  --color-ink-soft: oklch(41% 0.035 265);
+  --color-rule: oklch(78% 0.03 80);
+  --color-accent: oklch(63% 0.2 38);
+  --color-accent-deep: oklch(52% 0.2 35);
+  --color-blue: oklch(46% 0.15 262);
+  --color-sun: oklch(84% 0.14 88);
+  --color-on-ink: oklch(94% 0.02 85);
+  --color-on-ink-soft: oklch(78% 0.03 85);
+  --color-focus: oklch(46% 0.15 262);
+
+  /* type */
+  --font-display: "Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
+  --font-body: "Newsreader", Georgia, "Times New Roman", serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1.0625rem;
+  --text-lg: 1.25rem;
+  --text-2xl: clamp(2rem, 1.4rem + 2.6vw, 3.25rem);
+  --text-display: clamp(3.25rem, 1.5rem + 8vw, 8rem);
+
+  /* space (4pt) */
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2.5rem;
+  --space-2xl: 4rem;
+  --space-3xl: clamp(4.5rem, 3rem + 7vw, 8rem);
+  --gutter: clamp(1.25rem, 0.5rem + 3vw, 3rem);
+  --max: 76rem;
+
+  /* motion */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 140ms;
+  --dur-base: 220ms;
+  --radius-sm: 2px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { overflow-x: clip; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+img, svg { display: block; max-width: 100%; }
+a { color: inherit; }
+h1, h2, h3, p, dl, dd, ul, figure { margin: 0; }
+ul { padding: 0; list-style: none; }
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-style: normal;
+  text-transform: uppercase;
+  line-height: 0.92;
+  letter-spacing: 0.005em;
+  overflow-wrap: break-word;
+  min-width: 0;
+  text-wrap: balance;
+}
+:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 3px; }
+.wrap { width: 100%; max-width: calc(var(--max) + 2 * var(--gutter)); margin-inline: auto; padding-inline: var(--gutter); }
+.mono { font-family: var(--font-mono); font-size: var(--text-xs); letter-spacing: 0.06em; text-transform: uppercase; }
+.skip { position: absolute; left: var(--space-md); top: -4rem; background: var(--color-ink); color: var(--color-on-ink); padding: var(--space-sm) var(--space-md); z-index: 10; white-space: nowrap; }
+.skip:focus { top: var(--space-md); }
+
+/* buttons */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--space-xs);
+  min-height: 3rem; padding: 0.7rem 1.4rem;
+  font-family: var(--font-mono); font-size: var(--text-sm); font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase;
+  text-decoration: none; white-space: nowrap; cursor: pointer;
+  border: 2px solid var(--color-ink); border-radius: var(--radius-sm);
+  background: var(--color-accent); color: var(--color-ink);
+  box-shadow: 4px 4px 0 var(--color-ink);
+  transition: transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out), background-color var(--dur-fast) var(--ease-out);
+}
+.btn:hover { transform: translate(2px, 2px); box-shadow: 2px 2px 0 var(--color-ink); background: var(--color-sun); }
+.btn:active { transform: translate(4px, 4px); box-shadow: 0 0 0 var(--color-ink); }
+.btn[disabled] { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
+.btn--quiet { background: transparent; box-shadow: none; padding-inline: 1rem; min-height: 2.5rem; font-size: var(--text-xs); }
+.btn--quiet:hover { background: var(--color-ink); color: var(--color-paper); transform: none; box-shadow: none; }
+.link { font-family: var(--font-mono); font-size: var(--text-sm); text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap; text-decoration-thickness: 2px; text-underline-offset: 0.3em; }
+.link:hover { color: var(--color-accent-deep); }
+
+/* header */
+.top { border-bottom: 2px solid var(--color-ink); }
+.top__in { display: flex; align-items: center; justify-content: space-between; gap: var(--space-md); min-height: 4rem; }
+.mark { font-family: var(--font-display); font-weight: 900; font-size: 1.6rem; letter-spacing: 0.02em; text-transform: uppercase; text-decoration: none; white-space: nowrap; line-height: 1; }
+.mark span { color: var(--color-accent-deep); }
+.top nav { display: flex; align-items: center; gap: var(--space-lg); }
+.top nav a { font-family: var(--font-mono); font-size: var(--text-xs); letter-spacing: 0.06em; text-transform: uppercase; text-decoration: none; white-space: nowrap; padding-block: 0.8rem; }
+.top nav a:hover { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 0.35em; }
+.top nav .join { border: 2px solid var(--color-ink); padding: 0.5rem 0.9rem; border-radius: var(--radius-sm); }
+.top nav .join:hover { background: var(--color-ink); color: var(--color-paper); text-decoration: none; }
+@media (max-width: 36rem) { .top nav a:not(.join) { display: none; } }
+
+/* hero */
+.hero { padding-block: var(--space-2xl) var(--space-3xl); }
+.hero__grid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: var(--space-xl); align-items: center; }
+.hero h1 { font-size: var(--text-display); }
+.hero h1 em { font-style: normal; color: var(--color-accent-deep); }
+.hero__lede { max-width: 34ch; margin-top: var(--space-lg); font-size: var(--text-lg); color: var(--color-ink-soft); }
+.hero__cta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-lg); margin-top: var(--space-xl); }
+.stage { position: relative; aspect-ratio: 1 / 1.08; min-width: 0; }
+.stage .poster { position: absolute; left: 0; top: 0; width: 66%; transform: rotate(-2deg); box-shadow: 8px 8px 0 var(--color-ink); }
+.stage .sleeve { position: absolute; right: 0; bottom: 0; width: 56%; box-shadow: 8px 8px 0 var(--color-ink); }
+@media (max-width: 52rem) {
+  .hero__grid { grid-template-columns: minmax(0, 1fr); }
+  .stage { max-width: 28rem; width: 100%; }
+}
+
+/* CSS print art */
+.poster, .sleeve { position: relative; overflow: hidden; border: 2px solid var(--color-ink); isolation: isolate; }
+.poster { aspect-ratio: 2 / 3; background: var(--color-paper-2); }
+.sleeve { aspect-ratio: 1; background: var(--color-ink); }
+.poster i, .sleeve i { position: absolute; display: block; mix-blend-mode: multiply; }
+.sleeve i { mix-blend-mode: normal; }
+.poster::after { content: ""; position: absolute; inset: 0; z-index: 3; pointer-events: none; background: repeating-linear-gradient(0deg, transparent 0 3px, oklch(22% 0.04 265 / 0.04) 3px 4px); }
+.poster b { position: absolute; z-index: 2; left: 8%; bottom: 5%; font-family: var(--font-display); font-weight: 900; font-size: clamp(1.1rem, 0.6rem + 2vw, 1.9rem); text-transform: uppercase; line-height: 0.9; color: var(--color-ink); background: var(--color-paper); padding: 0.3em 0.45em 0.25em; }
+/* tide */
+.tide i:nth-child(1) { width: 78%; aspect-ratio: 1; left: 8%; top: 8%; border-radius: 50%; background: var(--color-accent); }
+.tide i:nth-child(2) { width: 62%; aspect-ratio: 1; left: 34%; top: 24%; border-radius: 50%; background: var(--color-blue); }
+.tide i:nth-child(3) { left: 0; right: 0; bottom: 0; height: 26%; background: repeating-linear-gradient(0deg, var(--color-blue) 0 5px, transparent 5px 12px); }
+/* bloom */
+.bloom { background: var(--color-blue); }
+.bloom i { border-radius: 50% 50% 0 0; left: 50%; transform: translateX(-50%); bottom: 30%; mix-blend-mode: normal; }
+.bloom i:nth-child(1) { width: 86%; aspect-ratio: 2 / 1; background: var(--color-accent); }
+.bloom i:nth-child(2) { width: 62%; aspect-ratio: 2 / 1; background: var(--color-sun); }
+.bloom i:nth-child(3) { width: 38%; aspect-ratio: 2 / 1; background: var(--color-paper); }
+.bloom b { background: var(--color-paper); }
+/* signal */
+.signal { background: var(--color-sun); }
+.signal i:nth-child(1) { inset: -30% -60% 30% 20%; border-radius: 50%; background: repeating-radial-gradient(circle, var(--color-accent) 0 6px, transparent 6px 16px); }
+.signal i:nth-child(2) { width: 30%; aspect-ratio: 1; left: 10%; bottom: 22%; border-radius: 50%; background: var(--color-blue); }
+/* records */
+.sleeve .disc { width: 74%; aspect-ratio: 1; left: 13%; top: 13%; border-radius: 50%; background: repeating-radial-gradient(circle, oklch(14% 0.03 265) 0 2px, oklch(20% 0.04 265) 2px 4px); outline: 2px solid var(--color-paper); }
+.sleeve .disc::after { content: ""; position: absolute; inset: 34%; border-radius: 50%; background: var(--c1, var(--color-accent)); }
+.sleeve .disc::before { content: ""; position: absolute; inset: 48%; border-radius: 50%; background: var(--color-paper); z-index: 1; }
+.sleeve.s-static { --c1: var(--color-accent); background: var(--color-blue); }
+.sleeve.s-lantern { --c1: var(--color-sun); background: var(--color-accent); }
+.sleeve.s-salt { --c1: var(--color-paper); background: var(--color-sun); }
+.sleeve.s-hero { --c1: var(--color-accent); background: var(--color-sun); }
+.sleeve .tag { position: absolute; left: 6%; top: 5%; z-index: 2; color: var(--color-paper); font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase; }
+.s-lantern .tag, .s-salt .tag, .s-hero .tag { color: var(--color-ink); }
+
+/* sections */
+section { padding-block: var(--space-3xl); }
+.head { display: block; max-width: 40rem; margin-bottom: var(--space-xl); }
+.head h2 { font-size: var(--text-2xl); }
+.head p { margin-top: var(--space-md); color: var(--color-ink-soft); max-width: 46ch; }
+
+/* releases */
+.releases { border-top: 2px solid var(--color-ink); background: var(--color-paper); }
+.grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: var(--space-xl); row-gap: var(--space-2xl); }
+@media (max-width: 62rem) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 38rem) { .grid { grid-template-columns: minmax(0, 1fr); } }
+.item { display: flex; flex-direction: column; min-width: 0; }
+.item .art { display: grid; place-items: center; padding: var(--space-lg); background: var(--color-paper-2); border-bottom: 2px solid var(--color-ink); }
+.item .art .poster, .item .art .sleeve { width: 100%; max-width: 15rem; }
+@media (min-width: 38rem) { .item .art { min-height: 26rem; } }
+.item .art .sleeve { max-width: 17rem; }
+.item__body { display: flex; flex-direction: column; flex: 1; gap: var(--space-sm); padding-top: var(--space-md); }
+.item h3 { font-size: 2rem; }
+.item .kind { color: var(--color-accent-deep); }
+.item .meta { color: var(--color-ink-soft); font-size: var(--text-sm); }
+.item__foot { display: flex; align-items: center; justify-content: space-between; gap: var(--space-md); margin-top: auto; padding-top: var(--space-md); border-top: 1px solid var(--color-rule); }
+.price { font-family: var(--font-display); font-weight: 900; font-size: 2rem; line-height: 1; font-variant-numeric: tabular-nums; }
+
+/* about */
+.about { background: var(--color-ink); color: var(--color-on-ink); }
+.about__grid { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: var(--space-2xl); align-items: start; }
+.about h2 { font-size: var(--text-2xl); max-width: 14ch; }
+.about__text { display: grid; gap: var(--space-md); max-width: 52ch; margin-top: var(--space-lg); color: var(--color-on-ink-soft); font-size: var(--text-lg); }
+.about__text p:first-child { color: var(--color-on-ink); }
+.how { border-top: 2px solid var(--color-on-ink); }
+.how div { display: grid; grid-template-columns: minmax(0, 11rem) minmax(0, 1fr); gap: var(--space-md); padding-block: var(--space-md); border-bottom: 1px solid oklch(94% 0.02 85 / 0.3); }
+.how dt { font-family: var(--font-display); font-weight: 900; font-size: 1.35rem; overflow-wrap: break-word; text-transform: uppercase; color: var(--color-sun); line-height: 1.05; }
+.how dd { color: var(--color-on-ink-soft); }
+@media (max-width: 52rem) { .about__grid { grid-template-columns: minmax(0, 1fr); gap: var(--space-xl); } }
+
+/* events */
+.events { background: var(--color-paper-2); }
+.show { display: grid; grid-template-columns: minmax(0, 8rem) minmax(0, 1fr) minmax(0, 11rem) auto; gap: var(--space-lg); align-items: center; padding-block: var(--space-lg); border-top: 1px solid var(--color-ink); }
+.show:last-child { border-bottom: 1px solid var(--color-ink); }
+.show time { font-family: var(--font-display); font-weight: 900; font-size: 2.5rem; line-height: 0.9; text-transform: uppercase; }
+.show time small { display: block; font-family: var(--font-mono); font-weight: 400; font-size: var(--text-xs); letter-spacing: 0.06em; margin-top: 0.4rem; color: var(--color-ink-soft); }
+.show h3 { font-size: 1.75rem; }
+.show p { color: var(--color-ink-soft); margin-top: 0.3rem; }
+.show .where { font-size: var(--text-sm); }
+@media (max-width: 52rem) {
+  .show { grid-template-columns: minmax(0, 6rem) minmax(0, 1fr); row-gap: var(--space-sm); }
+  .show .where { grid-column: 2; }
+  .show .btn { grid-column: 2; justify-self: start; }
+}
+
+/* signup */
+.join-sec { background: var(--color-accent); border-top: 2px solid var(--color-ink); border-bottom: 2px solid var(--color-ink); }
+.join__grid { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: var(--space-2xl); align-items: end; }
+.join-sec h2 { font-size: var(--text-2xl); }
+.join-sec .sub { margin-top: var(--space-md); max-width: 38ch; font-size: var(--text-lg); }
+form { display: grid; gap: var(--space-sm); }
+label { font-family: var(--font-mono); font-size: var(--text-xs); letter-spacing: 0.06em; text-transform: uppercase; }
+.field { display: flex; gap: var(--space-sm); }
+input[type=email] {
+  flex: 1; min-width: 0; min-height: 3rem; padding: 0.6rem 0.9rem;
+  font: inherit; color: var(--color-ink); background: var(--color-paper);
+  border: 2px solid var(--color-ink); border-radius: var(--radius-sm);
+}
+input[type=email]::placeholder { color: var(--color-ink-soft); }
+input[type=email]:focus-visible { outline: 3px solid var(--color-ink); outline-offset: 2px; background: var(--color-on-ink); }
+input[type=email]:user-invalid { border-color: var(--color-accent-deep); background: var(--color-sun); }
+.join-sec .btn { background: var(--color-ink); color: var(--color-paper); box-shadow: 4px 4px 0 var(--color-paper); border-color: var(--color-ink); }
+.join-sec .btn:hover { background: var(--color-paper); color: var(--color-ink); box-shadow: 2px 2px 0 var(--color-ink); }
+.hint { font-size: var(--text-sm); }
+@media (max-width: 52rem) { .join__grid { grid-template-columns: minmax(0, 1fr); gap: var(--space-xl); } }
+@media (max-width: 30rem) { .field { flex-direction: column; } .field .btn { width: 100%; } }
+
+/* footer */
+footer { background: var(--color-ink); color: var(--color-on-ink); padding-block: var(--space-xl); }
+.foot { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--space-md) var(--space-xl); }
+.foot .mark { font-size: 2rem; }
+.foot .mark span { color: var(--color-accent); }
+.foot p { color: var(--color-on-ink-soft); font-size: var(--text-sm); max-width: 32ch; }
+.foot ul { display: flex; flex-wrap: wrap; gap: var(--space-lg); }
+.foot a { font-family: var(--font-mono); font-size: var(--text-xs); letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; }
+.foot a:focus-visible { outline-color: var(--color-sun); }
+.foot small { flex-basis: 100%; color: var(--color-on-ink-soft); font-family: var(--font-mono); font-size: var(--text-xs); }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { transition-duration: 1ms !important; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#releases">Skip to releases</a>
+
+<header class="top">
+  <div class="wrap top__in">
+    <a class="mark" href="#top" aria-label="Offset Press, home">Offset<span>/</span>Press</a>
+    <nav aria-label="Primary">
+      <a href="#releases">Releases</a>
+      <a href="#studio">Studio</a>
+      <a href="#shows">Shows</a>
+      <a class="join" href="#list">Join list</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <div class="hero">
+    <div class="wrap hero__grid">
+      <div>
+        <h1>Pressed by hand. <em>Pressed once.</em></h1>
+        <p class="hero__lede">Screen-printed posters and vinyl records from an independent studio and label. Every run is numbered, then the screens get cleaned.</p>
+        <div class="hero__cta">
+          <a class="btn" href="#releases">Shop the current run</a>
+          <a class="link" href="#shows">Next show: Nov 14</a>
+        </div>
+      </div>
+      <div class="stage" role="img" aria-label="A two-colour screen-printed poster overlapping a record sleeve with a vinyl disc">
+        <div class="poster tide" aria-hidden="true"><i></i><i></i><i></i><b>Low Tide<br>Hours</b></div>
+        <div class="sleeve s-hero" aria-hidden="true"><span class="tag">Offset 007</span><i class="disc"></i></div>
+      </div>
+    </div>
+  </div>
+
+  <section class="releases" id="releases" aria-labelledby="rel-h">
+    <div class="wrap">
+      <div class="head">
+        <h2 id="rel-h">Current releases</h2>
+        <p>Six titles on the shelf. When an edition is gone, the screens are reclaimed and it does not come back.</p>
+      </div>
+      <ul class="grid">
+        <li class="item">
+          <a class="art" href="#" aria-label="Low Tide Hours, poster">
+            <div class="poster tide" aria-hidden="true"><i></i><i></i><i></i><b>Low Tide<br>Hours</b></div>
+          </a>
+          <div class="item__body">
+            <p class="kind mono">Poster · 2 colours</p>
+            <h3>Low Tide Hours</h3>
+            <p class="meta">18 × 24 in, uncoated cotton stock. Edition of 150, signed and numbered.</p>
+            <div class="item__foot"><span class="price">$48</span><a class="btn btn--quiet" href="#">Add to bag</a></div>
+          </div>
+        </li>
+        <li class="item">
+          <a class="art" href="#" aria-label="Static Garden by Hollow Orchard, LP">
+            <div class="sleeve s-static" aria-hidden="true"><span class="tag">Offset 004</span><i class="disc"></i></div>
+          </a>
+          <div class="item__body">
+            <p class="kind mono">12″ LP · 180 g</p>
+            <h3>Static Garden</h3>
+            <p class="meta">Hollow Orchard. Oxblood-and-black splatter vinyl, hand-printed sleeve. Edition of 300.</p>
+            <div class="item__foot"><span class="price">$32</span><a class="btn btn--quiet" href="#">Add to bag</a></div>
+          </div>
+        </li>
+        <li class="item">
+          <a class="art" href="#" aria-label="Night Shift Bloom, poster">
+            <div class="poster bloom" aria-hidden="true"><i></i><i></i><i></i><b>Night Shift<br>Bloom</b></div>
+          </a>
+          <div class="item__body">
+            <p class="kind mono">Poster · 3 colours</p>
+            <h3>Night Shift Bloom</h3>
+            <p class="meta">24 × 36 in, heavyweight stock with a metallic underbase. Edition of 90.</p>
+            <div class="item__foot"><span class="price">$65</span><a class="btn btn--quiet" href="#">Add to bag</a></div>
+          </div>
+        </li>
+        <li class="item">
+          <a class="art" href="#" aria-label="Paper Lanterns EP by Mira Voss, 12 inch">
+            <div class="sleeve s-lantern" aria-hidden="true"><span class="tag">Offset 005</span><i class="disc"></i></div>
+          </a>
+          <div class="item__body">
+            <p class="kind mono">12″ EP · 45 rpm</p>
+            <h3>Paper Lanterns</h3>
+            <p class="meta">Mira Voss. Four tracks on translucent yellow vinyl. Edition of 250.</p>
+            <div class="item__foot"><span class="price">$24</span><a class="btn btn--quiet" href="#">Add to bag</a></div>
+          </div>
+        </li>
+        <li class="item">
+          <a class="art" href="#" aria-label="Signal Fade, poster">
+            <div class="poster signal" aria-hidden="true"><i></i><i></i><b>Signal<br>Fade</b></div>
+          </a>
+          <div class="item__body">
+            <p class="kind mono">Poster · 2 colours</p>
+            <h3>Signal Fade</h3>
+            <p class="meta">12 × 18 in, split-fountain ink. Edition of 200.</p>
+            <div class="item__foot"><span class="price">$30</span><a class="btn btn--quiet" href="#">Add to bag</a></div>
+          </div>
+        </li>
+        <li class="item">
+          <a class="art" href="#" aria-label="Salt and Static, LP">
+            <div class="sleeve s-salt" aria-hidden="true"><span class="tag">Offset 006</span><i class="disc"></i></div>
+          </a>
+          <div class="item__body">
+            <p class="kind mono">12″ LP · 140 g</p>
+            <h3>Salt &amp; Static</h3>
+            <p class="meta">Compilation from the label’s first two years. Clear vinyl, foil-stamped sleeve. Edition of 400.</p>
+            <div class="item__foot"><span class="price">$34</span><a class="btn btn--quiet" href="#">Add to bag</a></div>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="about" id="studio" aria-labelledby="about-h">
+    <div class="wrap about__grid">
+      <div>
+        <h2 id="about-h">A press and a label under one roof</h2>
+        <div class="about__text">
+          <p>Offset Press started as a print studio that kept getting asked to make record sleeves. Now the same room pulls the posters, cuts the sleeves, and puts out the records that go inside them.</p>
+          <p>We print on a manual carousel with water-based inks, one colour at a time, and register every sheet by eye. Nothing is reprinted. Each run is sized to what we can finish properly, then numbered and closed.</p>
+        </div>
+      </div>
+      <dl class="how">
+        <div><dt>Posters</dt><dd>One to four colours, pulled by hand, numbered in pencil.</dd></div>
+        <div><dt>Records</dt><dd>Short pressing runs of artists we would buy ourselves.</dd></div>
+        <div><dt>Commissions</dt><dd>Gig posters and sleeves for bands, venues and festivals.</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="events" id="shows" aria-labelledby="ev-h">
+    <div class="wrap">
+      <div class="head">
+        <h2 id="ev-h">Upcoming events</h2>
+        <p>Print sales, listening nights and open studio days. Come watch a screen get pulled.</p>
+      </div>
+      <ul>
+        <li class="show">
+          <time datetime="2026-11-14">Nov 14<small>Sat · 7 pm</small></time>
+          <div><h3>Static Garden release night</h3><p>Hollow Orchard play the record front to back. Posters and LPs on the merch table.</p></div>
+          <p class="where">The Annex Room<br>Doors 6:30 pm</p>
+          <a class="btn btn--quiet" href="#">Details</a>
+        </li>
+        <li class="show">
+          <time datetime="2026-11-28">Nov 28<small>Sat · 11 am</small></time>
+          <div><h3>Open studio and print sale</h3><p>Watch a three-colour pull from start to finish. Seconds and test prints at half price.</p></div>
+          <p class="where">Offset Press studio<br>Free entry</p>
+          <a class="btn btn--quiet" href="#">Details</a>
+        </li>
+        <li class="show">
+          <time datetime="2026-12-12">Dec 12<small>Sat · 2 pm</small></time>
+          <div><h3>Screen printing for beginners</h3><p>A four-hour workshop. You will print and take home your own two-colour poster.</p></div>
+          <p class="where">Offset Press studio<br>Eight places</p>
+          <a class="btn btn--quiet" href="#">Details</a>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="join-sec" id="list" aria-labelledby="join-h">
+    <div class="wrap join__grid">
+      <div>
+        <h2 id="join-h">Hear about the next run first</h2>
+        <p class="sub">One email a month. New editions go to the list a day before they go on the shelf.</p>
+      </div>
+      <!-- Point action at your mailing-list provider's form endpoint before launch. -->
+      <form action="#" method="post">
+        <label for="email">Email address</label>
+        <div class="field">
+          <input id="email" name="email" type="email" autocomplete="email" inputmode="email" placeholder="you@example.com" required>
+          <button class="btn" type="submit">Join the list</button>
+        </div>
+        <p class="hint">No resale, no spam. Unsubscribe in one click.</p>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <a class="mark" href="#top">Offset<span>/</span>Press</a>
+    <p>Independent print studio and record label.</p>
+    <ul>
+      <li><a href="#releases">Releases</a></li>
+      <li><a href="#studio">Studio</a></li>
+      <li><a href="#shows">Shows</a></li>
+      <li><a href="#list">Mailing list</a></li>
+    </ul>
+    <small>© 2026 Offset Press. All editions numbered.</small>
+  </div>
+</footer>
+</body>
+</html>
