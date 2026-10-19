@@ -9,14 +9,10 @@
     // Comma-separated origins that may call the fetcher.
     "ALLOWED_ORIGINS": "https://mattbaconz.github.io"
   },
-  "ratelimits": [
-    {
-      // Per visitor IP, per Cloudflare location: 10 pages a minute.
-      "name": "LIMITER",
-      "namespace_id": "1001",
-      "simple": { "limit": 10, "period": 60 }
-    }
-  ],
+  // 10 pages a minute per visitor IP, one RateLimiter object per IP. SQLite-backed because the
+  // Free plan requires it; the class keeps its state in memory and never writes to storage.
+  "durable_objects": { "bindings": [{ "name": "LIMITER", "class_name": "RateLimiter" }] },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["RateLimiter"] }],
   // Off: Workers Logs would store every request, scored URL included. PRIVACY.md says no
   // request logs are kept, so turn this on only with a matching change there.
   "observability": { "enabled": false }

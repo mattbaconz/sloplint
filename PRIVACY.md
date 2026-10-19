@@ -11,7 +11,7 @@ sloplint runs on your machine and collects nothing.
 
 The "Score a page" box on the docs site (`site/score.html`) is the one part of sloplint that uses a server.
 
-- **What is sent.** When you score a URL, your browser sends that URL to a Cloudflare Worker run by the sloplint maintainer (`worker/fetch-page.mjs`). As with any website, Cloudflare sees your IP address. The Worker uses it only as the key for its rate limit of 10 pages a minute, a counter Cloudflare keeps for that minute.
+- **What is sent.** When you score a URL, your browser sends that URL to a Cloudflare Worker run by the sloplint maintainer (`worker/fetch-page.mjs`). As with any website, Cloudflare sees your IP address. The Worker uses it only as the key for its rate limit of 10 pages a minute: the times of your requests in the last minute, held in memory and never written to storage.
 - **What the Worker fetches.** It downloads the page and up to 8 of its same-origin stylesheets under its own user agent (`sloplint/0.2`). It forwards none of your headers, cookies or sign-ins, so the site you score sees a request from Cloudflare, not from you. The Worker reads robots.txt first and does not fetch a page that robots.txt disallows for `sloplint` or `*`.
 - **What is kept.** Nothing. The Worker has Workers Logs turned off, stores no URLs, pages or IP addresses, and returns the page to your browser, where the score is computed. Cloudflare keeps aggregate request counts and error rates for the Worker, without URLs.
 - **Share links.** The page puts the scored URL in its own address (`?url=`) so you can share it. Anyone who opens that link sends the URL to GitHub Pages and to the Worker.

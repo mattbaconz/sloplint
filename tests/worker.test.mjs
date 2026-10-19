@@ -3,7 +3,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import worker, { checkTarget, robotsAllows, stylesheetLinks } from '../worker/fetch-page.mjs';
+import worker, { checkTarget, robotsAllows, stylesheetLinks, RateLimiter } from '../worker/fetch-page.mjs';
 
 test('checkTarget accepts public http(s) URLs and refuses everything else', () => {
   assert.equal(checkTarget('https://example.com/a?b=1').href, 'https://example.com/a?b=1');
@@ -33,6 +33,22 @@ test('stylesheetLinks reads rel=stylesheet links and skips alternates', () => {
   ]);
 });
 
+test('the rate limiter allows exactly 10 requests in any 60 seconds', () => {
+  const limiter = new RateLimiter();
+  const real = Date.now;
+  let now = 1_000_000;
+  Date.now = () => now;
+  try {
+    assert.deepEqual(Array.from({ length: 11 }, () => limiter.fetch().status), [...Array(10).fill(204), 429]);
+    now += 59_999;
+    assert.equal(limiter.fetch().status, 429);
+    now += 1;
+    assert.equal(limiter.fetch().status, 204);
+  } finally {
+    Date.now = real;
+  }
+});
+
 // Runs the Worker against a fake network. `routes` maps URL to [status, body, headers].
 async function call(target, routes, { origin = 'https://mattbaconz.github.io', limited = false } = {}) {
   const seen = [];
@@ -44,7 +60,9 @@ async function call(target, routes, { origin = 'https://mattbaconz.github.io', l
   };
   try {
     const request = new Request(`https://fetcher.test/?url=${encodeURIComponent(target)}`, { headers: { origin, cookie: 'session=secret', authorization: 'Bearer x' } });
-    const env = { ALLOWED_ORIGINS: 'https://mattbaconz.github.io', LIMITER: { limit: async () => ({ success: !limited }) } };
+    const limiter = new RateLimiter();
+    if (limited) limiter.hits = Array(10).fill(Date.now());
+    const env = { ALLOWED_ORIGINS: 'https://mattbaconz.github.io', LIMITER: { idFromName: (name) => name, get: () => limiter } };
     const res = await worker.fetch(request, env);
     return { status: res.status, body: await res.json(), cors: res.headers.get('access-control-allow-origin'), seen };
   } finally {

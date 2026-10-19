@@ -21,6 +21,24 @@ const MAX_ROBOTS = 500_000;
 const MAX_SHEETS = 8;
 const MAX_REDIRECTS = 5;
 const DEADLINE_MS = 15_000;
+const LIMIT = 10;
+const PERIOD_MS = 60_000;
+
+// One Durable Object per visitor IP holds the times of its requests in the last minute. One
+// object sees every request for its key, so the limit is exact; the rate-limiting binding
+// counts per machine and let 60 requests a minute through. State is in memory only: an idle
+// object is evicted after 70 to 140 seconds, by which time its window has already expired.
+export class RateLimiter {
+  hits = [];
+
+  fetch() {
+    const now = Date.now();
+    this.hits = this.hits.filter((t) => now - t < PERIOD_MS);
+    if (this.hits.length >= LIMIT) return new Response(null, { status: 429 });
+    this.hits.push(now);
+    return new Response(null, { status: 204 });
+  }
+}
 
 class Refusal extends Error {
   constructor(status, message) {
@@ -206,7 +224,8 @@ export default {
     if (!cors['access-control-allow-origin']) return reply(403, { error: 'This fetcher only serves the sloplint docs site.' });
 
     const ip = request.headers.get('cf-connecting-ip') ?? 'unknown';
-    if (!(await env.LIMITER.limit({ key: ip })).success) return reply(429, { error: 'Too many pages scored from your network. Wait a minute and try again.' });
+    const limiter = env.LIMITER.get(env.LIMITER.idFromName(ip));
+    if ((await limiter.fetch('https://limiter/')).status === 429) return reply(429, { error: 'Too many pages scored from your network. Wait a minute and try again.' });
 
     const target = checkTarget(new URL(request.url).searchParams.get('url'));
     if (typeof target === 'string') return reply(400, { error: target });
