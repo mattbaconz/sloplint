@@ -4,8 +4,8 @@
 import { DOMAINS } from '../src/engine.mjs';
 import { scorePage, findingItems, band, h } from './page-score.mjs';
 
-// ponytail: set to the deployed Worker's URL after `npx wrangler deploy` in ../worker.
-const FETCHER = ['localhost', '127.0.0.1'].includes(location.hostname) ? 'http://localhost:8787/' : 'https://sloplint-score.mattbaconz.workers.dev/';
+// The Worker in ../worker, deployed by hand with `npx wrangler deploy`.
+const FETCHER = ['localhost', '127.0.0.1'].includes(location.hostname) ? 'http://localhost:8787/' : 'https://sloplint-score.mbaconz.workers.dev/';
 
 const $ = (selector) => document.querySelector(selector);
 const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
