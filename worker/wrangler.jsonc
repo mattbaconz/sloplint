@@ -17,5 +17,7 @@
       "simple": { "limit": 10, "period": 60 }
     }
   ],
-  "observability": { "enabled": true }
+  // Off: Workers Logs would store every request, scored URL included. PRIVACY.md says no
+  // request logs are kept, so turn this on only with a matching change there.
+  "observability": { "enabled": false }
 }

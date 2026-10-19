@@ -2,6 +2,13 @@
 // sites' HTML (CORS), so this fetches a public page and its same-origin stylesheets and
 // returns them as JSON. It only fetches: the site lints the result with the in-browser engine.
 //
+// Known limit: any client that sends an allowed Origin header gets the raw HTML of a public,
+// robots-allowed page, so this is a (poor) fetch proxy. The caps below, the 10-a-minute
+// rate limit per IP and the refusal of IP literals and local names keep that small. Linting
+// here and returning findings only would close it, but the engine takes 200 to 500 ms of CPU
+// on a typical 600 KB page and Workers Free allows 10 ms per request, so that needs Workers
+// Paid and a redeploy on every rule change.
+//
 // GET /?url=https://example.com/  ->  { url, html, truncated, stylesheets: [{ url, css, truncated }], skipped }
 //
 // Local: npx wrangler dev --var ALLOWED_ORIGINS:http://localhost:4173
