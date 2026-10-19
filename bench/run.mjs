@@ -18,6 +18,7 @@ import { join, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 import { init } from '../src/init.mjs';
+import { generateStyle } from '../src/design.mjs';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const TASKS = join(ROOT, 'bench', 'tasks');
@@ -162,7 +163,7 @@ async function runOne(job, { out, modules, timeoutMs }) {
   const prompt = readFileSync(join(TASKS, task, 'prompt.md'), 'utf8').trim();
   const { skill, sloplint } = armSpec(arm);
   if (sloplint) {
-    init(work, { brief: /^.*?[.!?](?=\s|$)/.exec(prompt)?.[0], hooks: sloplint === 'hooks' });
+    init(work, { brief: briefOf(prompt), hooks: sloplint === 'hooks', seed: job.seed });
     cpSync(modules, join(work, 'node_modules'), { recursive: true });
   }
   const s = skill && SKILLS[skill];
@@ -191,6 +192,24 @@ async function runOne(job, { out, modules, timeoutMs }) {
   return `${meta.ok ? 'ok' : 'FAILED'} in ${Math.round(meta.durationMs / 1000)}s`;
 }
 
+const briefOf = (prompt) => /^.*?[.!?](?=\s|$)/.exec(prompt)?.[0];
+
+// --spread-layouts: each task's sloplint runs cycle through its mood's layouts in turn, so a handful
+// of runs measures every layout instead of whichever ones random seeds happen to draw.
+function spreadLayouts(jobs) {
+  for (const task of new Set(jobs.map((j) => j.task))) {
+    const brief = briefOf(readFileSync(join(TASKS, task, 'prompt.md'), 'utf8').trim());
+    const layoutOf = (seed) => generateStyle({ seed, brief }).layout.key;
+    const layouts = [...new Set(Array.from({ length: 200 }, (_, i) => layoutOf(`${task}-probe-${i}`)))].sort();
+    jobs.filter((j) => j.task === task && armSpec(j.arm).sloplint).forEach((job, k) => {
+      const prefix = `${task}-${job.arm.replace('+', '-')}-r${job.rep}`;
+      let i = 0;
+      while (layoutOf(`${prefix}-${i}`) !== layouts[k % layouts.length]) i++;
+      job.seed = `${prefix}-${i}`;
+    });
+  }
+}
+
 async function pool(jobs, size, work) {
   const queue = [...jobs];
   const lanes = Array.from({ length: Math.min(size, queue.length) }, async () => {
@@ -208,6 +227,7 @@ async function main() {
       tasks: { type: 'string', default: readdirSync(TASKS).join(',') },
       reps: { type: 'string', default: '1' },
       'timeout-min': { type: 'string', default: '20' },
+      'spread-layouts': { type: 'boolean', default: false },
     },
   });
   if (!values.out) throw new Error('--out <dir> is required');
@@ -221,6 +241,7 @@ async function main() {
   for (let rep = 1; rep <= Number(values.reps); rep++) {
     for (const task of values.tasks.split(',')) for (const arm of arms) for (const agent of agents) jobs.push({ agent, arm, task, rep });
   }
+  if (values['spread-layouts']) spreadLayouts(jobs);
   const modules = arms.some((arm) => armSpec(arm).sloplint) ? sloplintModules(out) : null;
   const options = { out, modules, timeoutMs: Number(values['timeout-min']) * 60_000 };
   console.log(`${jobs.length} runs -> ${out}`);

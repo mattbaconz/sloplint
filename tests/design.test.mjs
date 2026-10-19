@@ -14,11 +14,15 @@ test('a seed always gives the same system, and different seeds give different on
   assert.ok(new Set(styles.map((s) => s.layout.key)).size >= 6, 'layouts converge');
 });
 
-test('the first screen is a rule plus three forms picked by seed, not one named device', () => {
+test('the first screen is a rule plus one form picked by seed, with two fallbacks', () => {
   const styles = Array.from({ length: 210 }, (_, i) => generateStyle({ seed: `first-${i}` }));
   for (const s of styles) {
-    assert.equal(new Set(s.layout.first.options).size, 3, s.seed);
-    assert.match(designDoc(s), /^- First screen: .+ \(1\) .+; \(2\) .+; \(3\) .+ fill it from this brief's own material/m, s.seed);
+    const { options, common } = s.layout.first;
+    assert.equal(new Set(options).size, 3, s.seed);
+    assert.ok(!options.includes(common), s.seed);
+    const line = designDoc(s).split('\n').find((l) => l.startsWith('- First screen: '));
+    assert.ok(line.includes(`Build this form: ${options[0]}.`) && line.includes(options[1]) && line.includes(options[2]), s.seed);
+    assert.ok(line.includes(`stop at ${common}; that is the version to avoid`), s.seed);
   }
   for (const key of new Set(styles.map((s) => s.layout.key))) {
     const sets = new Set(styles.filter((s) => s.layout.key === key).map((s) => s.layout.first.options.join('|')));

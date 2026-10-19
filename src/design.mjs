@@ -178,9 +178,10 @@ export const FONT = {
   'Courier Prime': { w: [400, 700], kind: 'mono' },
 };
 
-// Each layout states what its first screen must do (rule) and offers forms that meet it (options);
-// a design system names three, picked by seed. The forms name a shape, never content: the agent
-// fills one from the brief, so two products with the same layout still open differently.
+// Each layout states what its first screen must do (rule), offers forms that meet it (options) and
+// names the version most pages settle for (common). A design system asks for one form, picked by
+// seed, with two fallbacks. The forms name a shape, never content: the agent fills one from the
+// brief, so two products with the same layout still open differently.
 const LAYOUTS = {
   specimen: {
     name: 'Specimen',
@@ -193,6 +194,7 @@ const LAYOUTS = {
         'the product in its real states (empty, working, done) overlapping like fanned sheets',
         'what the product is made from (its data, materials or source) laid out flat beneath the headline',
       ],
+      common: 'a headline above or beside an uncropped screenshot or table of the product',
     },
     lines: [
       'The first viewport shows the real product (a table, a terminal, a screen) at full width, with the headline in a narrow column beside or above it.',
@@ -205,11 +207,12 @@ const LAYOUTS = {
       rule: 'evidence set as figures and ruled rows in the mono face, with the headline at `--step-4` or larger',
       options: [
         'one oversized figure from the product\'s own sample data (never an unsourced claim), with its label beneath it',
-        'a short ruled table of three to five real line items, set large, under the headline',
+        'three to five real line items set at `--step-3`, so the ruled rows themselves are the display type',
         'a hairline-ruled column of real dates or steps, with the next one marked in `--accent`',
         'a before-and-after pair of figures side by side, with the difference stated in words',
         'a numbered index of the page\'s sections at display size, each with one concrete fact',
       ],
+      common: 'a headline over a plain table at body size',
     },
     lines: [
       'Sections are numbered rows separated by hairline rules: the claim on the left, the evidence on the right.',
@@ -221,12 +224,13 @@ const LAYOUTS = {
     first: {
       rule: 'type is the image: one typographic statement at `--step-display` and no picture',
       options: [
-        'the headline alone, flush left and broken into lines by meaning, with the proof and the action in a narrow column at the bottom right',
         'one word set so large it crops at both edges (the section clips it), with the full headline below it at `--step-4`',
-        'the headline as a stack of the product\'s own nouns, one per line, the last in `--accent`',
         'the question a visitor arrives with, at display size, answered in one plain sentence beneath it',
         'the headline running across a full-bleed `--ink` band, with the proof sentence on `--bg` below it',
+        'the headline with each line aligned differently (left, right, indented), the proof and the action set in the gaps',
+        'one phrase at `--step-display` and the rest of the sentence small beside it, so the line reads as a scale',
       ],
+      common: 'three short sentences or a list of nouns stacked flush left at display size',
     },
     lines: [
       'The first viewport is one typographic statement at the top of the display scale. No hero image, no illustration.',
@@ -238,12 +242,13 @@ const LAYOUTS = {
     first: {
       rule: 'two unequal columns, one a solid field holding the headline at `--step-display`',
       options: [
-        'a narrow solid `--accent` column with the headline, and the product on `--bg` in the wide column',
         'a wide inverted `--ink` field with the headline, and the key facts as a short list in the narrow column',
         'a stepped or diagonal edge between the two fields (a `clip-path`, inside the section)',
         'the headline field on the right and the product on the left, the action pinned to the foot of the field',
         'the problem in the visitor\'s words on one side and the product\'s answer on the other, split by a hairline',
+        'the field ending above the fold of the other column, so the product hangs below it into the next section',
       ],
+      common: 'a narrow solid color column holding the headline beside a poster or screenshot',
     },
     lines: [
       'An asymmetric 5/7 grid: the headline and primary action stay sticky in the narrow column while proof scrolls in the wide one.',
@@ -261,6 +266,7 @@ const LAYOUTS = {
         'the items grouped under their real categories, with the first group already open',
         'the items as a numbered list in the mono face, each with the one fact that sets it apart',
       ],
+      common: 'a headline over a row of equal cards',
     },
     lines: [
       'A dense, scannable grid of specifics (integrations, commands, plans, parts) in small type with real labels.',
@@ -278,6 +284,7 @@ const LAYOUTS = {
         'a short numbered list of the product\'s real promises, signed at the foot',
         'the first paragraph at `--step-4` with a drop cap, the column continuing directly beneath it',
       ],
+      common: 'a centered headline with a paragraph under it',
     },
     lines: [
       'One reading column of about 62 characters, written in the first person, with figures and screenshots inline.',
@@ -295,6 +302,7 @@ const LAYOUTS = {
         'two panels side by side: the normal state and the state the product exists to catch',
         'a status board of the product\'s parts or items, each with a mono state tag',
       ],
+      common: 'a headline above a dashboard of stat tiles and a table',
     },
     lines: [
       'The hero is a working panel with plausible, labeled data; the copy is one line above it.',
@@ -312,6 +320,7 @@ const LAYOUTS = {
         'the field cut into a grid of large index numbers or letters, one cell in `--accent`',
         'two stacked fields, `--accent` over `--ink`, with the headline crossing the boundary',
       ],
+      common: 'a solid color field with a medium headline in its lower-left corner',
     },
     lines: [
       'Full-bleed blocks, one per section, alternating `--surface` and `--accent`; type set large.',
@@ -669,7 +678,8 @@ export function generateStyle({ seed = 'sloplint', brief = '', mood, mode } = {}
     // One first-screen entrance, three state changes long, held between 400 and 700ms.
     motion: { ...m.motion, entrance: Math.min(700, Math.max(400, m.motion.ms * 3)) },
     imagery: m.imagery,
-    layout: { key: layout, ...LAYOUTS[layout], first: { rule: LAYOUTS[layout].first.rule, options: rnd('first').take(LAYOUTS[layout].first.options, 3) } },
+    // The first form is the one to build; the other two are fallbacks.
+    layout: { key: layout, ...LAYOUTS[layout], first: { ...LAYOUTS[layout].first, options: rnd('first').take(LAYOUTS[layout].first.options, 3) } },
     signatures: rnd('signature').take(m.signatures, 2).map((k) => SIGNATURES[k]),
     voice: m.voice,
     avoid: m.avoid,
@@ -746,7 +756,7 @@ With Tailwind, expose the tokens to the theme (v4: \`@theme { --color-accent: va
 
 ## Layout: ${layout.name}
 
-- First screen: ${layout.first.rule}. Three forms that fit: ${layout.first.options.map((o, i) => `(${i + 1}) ${o}`).join('; ')}. Pick one, or another that keeps the rule, and fill it from this brief's own material (what it sells or shows, its own words, names, places, dates and numbers), so it could not open any other page. It must hold at 1280px and at 375px, and the page should be recognizable from it as a thumbnail. A heading, a paragraph and two buttons on an empty background is the generic answer; do not ship it.
+- First screen: ${layout.first.rule}. Build this form: ${layout.first.options[0]}. Only if the brief has nothing to fill it with, use ${layout.first.options[1]}, or ${layout.first.options[2]}. Fill it from this brief's own material (what it sells or shows, its own words, names, places, dates and numbers), so it could not open any other page. Most pages with this layout stop at ${layout.first.common}; that is the version to avoid. It must hold at 1280px and at 375px, and the page should be recognizable from it as a thumbnail. A heading, a paragraph and two buttons on an empty background is the generic answer; do not ship it.
 ${layout.lines.map((l) => `- ${l}`).join('\n')}
 ${style.signatures.map((s) => `- Signature: ${s}`).join('\n')}
 - Grid: 12 columns, 24px gutters, content max 1200px. Sections ${style.space.section[0]}px apart, ${style.space.section[1]}px under 640px.
