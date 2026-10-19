@@ -817,6 +817,46 @@ export const RULES = [
       return out;
     },
   },
+  {
+    id: 'UI-015',
+    slug: 'table-too-wide',
+    severity: 'warn',
+    weight: 3,
+    title: 'Table pushes a 375px page sideways',
+    rationale:
+      'Generated pages put releases, prices and schedules in five- and six-column tables and stop at the desktop. On a phone the table keeps its width and the whole page scrolls sideways. A scroll wrapper only contains what it is the containing block for: visually hidden labels are `position: absolute`, so inside a wrapper that is not positioned they escape it and widen the page anyway.',
+    fix: 'Below 600px, stack each row into a card (`display: block` on `tr` and `td`, with the column name as a label), or put the table in a `position: relative; overflow-x: auto` wrapper with a visible edge.',
+    sample: 'html',
+    langs: MARKUP,
+    when: (ctx) => !ctx.isTest && !ctx.isFixture,
+    check(ctx) {
+      const out = [];
+      const tag = (el, re) => re.test(el.name.toLowerCase());
+      // Rules in force on a phone but not on a desktop, and Tailwind classes that change with the breakpoint.
+      const narrow = ctx.cssRules.filter((r) => r.media.length && r.media.every((m) => holdsAt(m, 375)) && !r.media.every((m) => holdsAt(m, 1280)));
+      const restyled = (el) => narrow.some((r) => r.selector.split(',').some((sel) => matchesSelector(sel.trim(), el))) || classList(el).some((c) => /^(?:sm|md|lg|xl|2xl|max-[\w-]+):/.test(c));
+      for (const table of ctx.markup.elements.filter((el) => tag(el, /^table$/))) {
+        const inside = descendants(table);
+        let wrapper = null;
+        for (let p = table; p && p.name !== '#root' && !wrapper; p = p.parent) if (!tag(p, /^(html|body)$/) && ctx.box(p).scroll) wrapper = p;
+        if (wrapper) {
+          // An absolutely positioned descendant is clipped only if its containing block is the wrapper or inside it.
+          const escapes = (el) => {
+            for (let p = el.parent; p && p !== wrapper; p = p.parent) if (ctx.box(p).positioned) return false;
+            return !ctx.box(wrapper).positioned;
+          };
+          if (inside.some((el) => ctx.box(el).overlay && !ctx.box(el).offLeft && escapes(el))) {
+            out.push(hit(wrapper.start, wrapper.openEnd, 'Absolutely positioned content in this table escapes its scroll wrapper, which is not positioned, and widens the page at 375px; add `position: relative` to the wrapper'));
+          }
+          continue;
+        }
+        const cols = Math.max(0, ...inside.filter((el) => tag(el, /^tr$/)).map((tr) => tr.children.filter((c) => tag(c, /^t[hd]$/)).reduce((n, c) => n + (Number((c.attrs.colspan ?? c.attrs.colSpan)?.value) || 1), 0)));
+        if (cols <= 4 || [table, ...inside].some(restyled)) continue;
+        out.push(hit(table.start, table.openEnd, `${cols}-column table with no scroll wrapper and no narrow-screen layout; the page scrolls sideways at 375px`));
+      }
+      return out;
+    },
+  },
 
   // ──────────────────────────────── Security ────────────────────────────────
   {

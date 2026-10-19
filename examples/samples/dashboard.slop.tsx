@@ -49,6 +49,10 @@ export default function Dashboard() {
         <div><dt>Churn</dt><dd className="stat text-3xl">{stats.churn.toFixed(1)}%</dd></div>
       </dl>
 
+      <table className="mt-8 w-full tabular-nums">
+        <thead><tr><th>Invoice</th><th>Customer</th><th>Plan</th><th>Seats</th><th>Amount</th><th>Due</th></tr></thead>
+      </table>
+
       <p className="mt-8">Signed in as John Doe, Acme Inc.</p>
       <div className="notice" dangerouslySetInnerHTML={{ __html: `<strong>Update:</strong> ${notice}` }} />
       <a href="/reports">Learn more</a>

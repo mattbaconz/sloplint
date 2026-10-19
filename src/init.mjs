@@ -44,12 +44,13 @@ export function ruleBlock(design, { domains = Object.keys(DOMAINS), hooks = fals
     START,
     '## sloplint',
     '',
-    `- Design: follow DESIGN.md (${design}) for every color, typeface, radius and duration.`,
+    `- Design: DESIGN.md (${design}) holds the tokens: every color, typeface, radius and duration comes from it.`,
+    '- Other design skills: if a design skill is available, load it and let it lead the visual direction (layout, composition, type, imagery); DESIGN.md fills in only what it leaves open. Add any color or typeface it chooses to the DESIGN.md tokens before you use it. The sloplint check still applies.',
     hooks
       ? '- Check: hooks lint every file you write and check the project when you stop; fix what they report. A clean write is confirmed ("sloplint: <file> is clean."), so you never need to run the check yourself.'
       : '- Check: before you finish, `npx @sloplint/cli check .` must report 0/100. Fix every finding.',
     '- `npx @sloplint/cli explain <RULE>` gives the reasoning and a worked example.',
-    '- Pages never scroll sideways at 375px: wrap navigation, stack rows, and put wide tables in an `overflow-x: auto` wrapper.',
+    '- Pages never scroll sideways at 375px: wrap navigation, stack rows, and stack wide tables into cards or put them in a `position: relative; overflow-x: auto` wrapper.',
   ];
   for (const [prefix, name] of Object.entries(DOMAINS)) {
     if (!domains.includes(prefix)) continue;

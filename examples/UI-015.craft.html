@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Releases and events</title>
+<style>
+  body { margin: 0; padding: 16px; font-family: system-ui, sans-serif; color: #111827; }
+  table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+  th, td { padding: 8px 12px; text-align: left; }
+  /* Positioned, so it is the containing block for the hidden label; the border shows where it cuts. */
+  .scroll { position: relative; overflow-x: auto; border-right: 1px solid #9ca3af; }
+  .scroll table { min-width: 640px; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+
+  /* On a phone each release is a card: one cell per line, labeled with its column. */
+  @media (max-width: 599px) {
+    .releases thead { display: none; }
+    .releases tr, .releases td { display: block; }
+    .releases tr { padding: 12px 0; }
+    .releases td { padding: 2px 0; }
+    .releases td::before { content: attr(data-label) ": "; }
+  }
+</style>
+</head>
+<body>
+  <h2>Releases</h2>
+  <table class="releases">
+    <thead><tr><th>No.</th><th>Release</th><th>Format</th><th>Edition</th><th>Price</th><th>Ships</th></tr></thead>
+    <tbody>
+      <tr><td data-label="No.">041</td><td data-label="Release">Tidewater</td><td data-label="Format">Screen print</td><td data-label="Edition">60</td><td data-label="Price">45.00</td><td data-label="Ships">12 Nov</td></tr>
+      <tr><td data-label="No.">042</td><td data-label="Release">Night Ferry</td><td data-label="Format">12-inch vinyl</td><td data-label="Edition">300</td><td data-label="Price">28.00</td><td data-label="Ships">19 Nov</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Events</h2>
+  <div class="scroll">
+    <table>
+      <thead><tr><th>Date</th><th>Event</th><th>Doors</th><th><span class="sr">Tickets</span></th></tr></thead>
+      <tbody>
+        <tr><td>22 Nov</td><td>Open studio and print sale</td><td>18:00</td><td><button type="button">Reserve a place</button></td></tr>
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>

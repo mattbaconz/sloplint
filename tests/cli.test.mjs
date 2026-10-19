@@ -101,6 +101,30 @@ test('hook: Stop checks the project once, then lets the agent finish', (t) => {
   assert.equal(run(['hook'], dir, stop(true)).code, 0);
 });
 
+test('hook: with a transcript, Stop checks only the files the session wrote', (t) => {
+  const dir = tempDir(t, { 'theirs.ts': SLOP_TS, 'mine.ts': SLOP_TS, 'clean.ts': 'export const ok = true;\n' });
+  const transcript = (...files) => {
+    const path = join(dir, 'transcript.jsonl');
+    const lines = files.map((f) => JSON.stringify({ type: 'assistant', message: { content: [{ type: 'tool_use', name: 'Write', input: { file_path: join(dir, f) } }] } }));
+    writeFileSync(path, `${[JSON.stringify({ type: 'user', message: { content: 'Build it.' } }), ...lines].join('\n')}\n`);
+    return JSON.stringify({ hook_event_name: 'Stop', cwd: dir, stop_hook_active: false, transcript_path: path });
+  };
+  const wrote = run(['hook'], dir, transcript('mine.ts'));
+  assert.equal(wrote.code, 2);
+  assert.match(wrote.err, /^mine\.ts:1:\d+ error SEC-001 /m);
+  assert.doesNotMatch(wrote.err, /theirs\.ts/);
+  assert.equal(run(['hook'], dir, transcript('clean.ts')).code, 0);
+  assert.equal(run(['hook'], dir, transcript()).code, 0);
+});
+
+test('plugin hooks lint every write and check the session before Claude stops', () => {
+  const { hooks } = JSON.parse(readFileSync(join(ROOT, 'hooks', 'hooks.json'), 'utf8'));
+  const command = 'node "${CLAUDE_PLUGIN_ROOT}/bin/sloplint.mjs" hook';
+  assert.equal(hooks.PostToolUse[0].matcher, 'Write|Edit|MultiEdit');
+  assert.equal(hooks.PostToolUse[0].hooks[0].command, command);
+  assert.equal(hooks.Stop[0].hooks[0].command, command);
+});
+
 test('check --format json reports score, grade and per-file diagnostics', () => {
   const { code, out } = run(['check', 'examples/samples', '--format', 'json']);
   assert.equal(code, 1);

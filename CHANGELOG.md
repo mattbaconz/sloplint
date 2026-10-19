@@ -4,6 +4,12 @@
 
 - [added] "Score a page" on the docs site (`site/score.html`): paste a URL and get its Slop Score, findings with source excerpts, a share link and a 1200x630 score card. A Cloudflare Worker in `worker/` fetches the page HTML and up to 8 same-origin stylesheets (2 MB cap, 15-second deadline, http and https only, no cookies forwarded, robots.txt honored, 10 pages a minute per IP); the engine lints them in the browser.
 - [added] A bookmarklet on the same page scores the live DOM of the current tab, including script-rendered and signed-in pages, and shows the findings in an overlay. Sites with a strict Content-Security-Policy can block it.
+- [added] `UI-015` flags tables that push a 375px page sideways: more than four columns with no scroll wrapper and no narrow-screen layout, or absolutely positioned content (usually a visually hidden label) inside a scroll wrapper that is not positioned, which escapes the wrapper. That second case caused every page in the 2026-10-17 benchmark that overflowed with sloplint's hooks.
+- [added] The Claude Code plugin now checks the files Claude wrote before it stops, blocking once, as `init --hooks` already did.
+- [changed] The Stop hook checks only the files the session wrote, read from the session transcript, so the user's own uncommitted work never blocks the agent. Without a transcript it checks the files changed since the last commit, as before.
+- [changed] `DESIGN.md` no longer names one first-screen device per layout, which agents copied word for word. Each layout states a rule and offers three forms picked by seed, and the device must be built from the brief's own material.
+- [changed] `DESIGN.md` has a Layout line for tables at narrow widths: stack rows into cards below 600px, or scroll inside a `position: relative; overflow-x: auto` wrapper with a visible edge.
+- [changed] When another design skill is in use, the sloplint skill, the agent rule block and `DESIGN.md` let it lead the visual direction, fill in only what it leaves open, and still run the check. In the 2026-10-17 benchmark the agent had stopped loading other skills next to sloplint.
 
 ## 0.2.0 (2026-10-17)
 

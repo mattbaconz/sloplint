@@ -52,7 +52,7 @@ npx @sloplint/cli explain SEC-001
 /plugin install sloplint --marketplace mattbaconz/sloplint
 ```
 
-The plugin lints every file Claude writes, as it writes it, and adds the sloplint skill. The one-step install needs Claude Code 2.1.275 or later; on older versions run `/plugin marketplace add mattbaconz/sloplint`, then `/plugin install sloplint@sloplint`. `init --hooks` installs the same hook in a single project and also checks the changed files when Claude stops; use one or the other.
+The plugin lints every file Claude writes, as it writes it, checks the files it wrote once more before it stops, and adds the sloplint skill. The one-step install needs Claude Code 2.1.275 or later; on older versions run `/plugin marketplace add mattbaconz/sloplint`, then `/plugin install sloplint@sloplint`. `init --hooks` installs the same hooks in a single project; use one or the other.
 
 ### In other agents
 
@@ -171,7 +171,7 @@ Without an argument, lists every rule. With one, prints the rationale, the fix a
 
 ### `sloplint hook`
 
-The command behind the Claude Code plugin and the hooks that `init --hooks` installs. After every `Write`, `Edit` or `MultiEdit` it lints the file just written; with `init --hooks`, it also checks the files changed since the last commit when the agent stops. Findings reach the agent on stderr with exit code 2, in the compact format, so they are fixed in the same turn; a clean write is confirmed with `sloplint: <file> is clean.`, so the agent never spends a turn re-running the check. Unreadable input never blocks, and the second stop in a row always succeeds.
+The command behind the Claude Code plugin and the hooks that `init --hooks` installs. After every `Write`, `Edit` or `MultiEdit` it lints the file just written, and when the agent stops it checks every file the session wrote (read from the session transcript; without one, the files changed since the last commit), so your own uncommitted work never blocks it. Findings reach the agent on stderr with exit code 2, in the compact format, so they are fixed in the same turn; a clean write is confirmed with `sloplint: <file> is clean.`, so the agent never spends a turn re-running the check. Unreadable input never blocks, and the second stop in a row always succeeds.
 
 ## Rules
 
@@ -191,6 +191,7 @@ The command behind the Claude Code plugin and the hooks that `init --hooks` inst
 | UI-012 | Typeface outside the DESIGN.md type system | warn |
 | UI-013 | Link that goes nowhere | warn |
 | UI-014 | Grid cannot fit a 375px screen | warn |
+| UI-015 | Table pushes a 375px page sideways | warn |
 | SEC-001 | Secret falls back to a hard-coded value | error |
 | SEC-002 | CORS allows every origin | error |
 | SEC-003 | SQL assembled from interpolated strings | error |

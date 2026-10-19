@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Releases and events</title>
+<style>
+  body { margin: 0; padding: 16px; font-family: system-ui, sans-serif; color: #111827; }
+  table { border-collapse: collapse; width: 100%; min-width: 640px; font-variant-numeric: tabular-nums; }
+  th, td { padding: 8px 12px; text-align: left; white-space: nowrap; }
+  /* The wrapper scrolls, but it is not positioned, so the hidden label below is not clipped by it. */
+  .scroll { overflow-x: auto; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+</style>
+</head>
+<body>
+  <h2>Releases</h2>
+  <!-- Six columns and nothing for a phone: the page scrolls sideways. -->
+  <table>
+    <thead><tr><th>No.</th><th>Release</th><th>Format</th><th>Edition</th><th>Price</th><th>Ships</th></tr></thead>
+    <tbody>
+      <tr><td>041</td><td>Tidewater</td><td>Screen print</td><td>60</td><td>45.00</td><td>12 Nov</td></tr>
+      <tr><td>042</td><td>Night Ferry</td><td>12-inch vinyl</td><td>300</td><td>28.00</td><td>19 Nov</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Events</h2>
+  <div class="scroll">
+    <table>
+      <thead><tr><th>Date</th><th>Event</th><th>Doors</th><th><span class="sr">Tickets</span></th></tr></thead>
+      <tbody>
+        <tr><td>22 Nov</td><td>Open studio and print sale</td><td>18:00</td><td><button type="button">Reserve a place</button></td></tr>
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>

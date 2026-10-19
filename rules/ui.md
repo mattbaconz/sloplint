@@ -14,7 +14,8 @@ You are building interface code. Generated UI converges on the same handful of d
 - **UI-011 Colors come from DESIGN.md.** Write `var(--accent)` or a theme class mapped to the token, never `#2563eb`, `bg-blue-600` or `text-gray-500`. A new color goes into DESIGN.md first. Runs only when the project has a DESIGN.md token block.
 - **UI-012 Typefaces come from DESIGN.md.** `font-family: var(--font-text)`, not Inter, Roboto or a font imported by reflex. Same condition as UI-011.
 - **UI-013 Every link goes somewhere.** No `href="#"` or `javascript:void(0)` in navigation, footers or pricing cards. Link the real page or leave the link out; an action is a `<button>`.
-- **UI-014 No sideways scroll at 375px.** Collapse grids on phones (`grid-template-columns: minmax(0, 1fr)`, Tailwind `grid-cols-1 md:grid-cols-12`): children spanning all twelve columns still leave eleven gaps. Navs wrap or collapse, stat rows stack, and wide tables scroll inside their own `overflow-x: auto` wrapper. The rule catches grids that cannot fit; `verify-dom.spec.ts` measures the rendered page.
+- **UI-014 No sideways scroll at 375px.** Collapse grids on phones (`grid-template-columns: minmax(0, 1fr)`, Tailwind `grid-cols-1 md:grid-cols-12`): children spanning all twelve columns still leave eleven gaps. Navs wrap or collapse, stat rows stack, and wide tables follow UI-015. The rule catches grids that cannot fit; `verify-dom.spec.ts` measures the rendered page.
+- **UI-015 Tables fit a phone.** Below 600px, a table of more than four columns stacks each row into a card (`display: block` on `tr` and `td`, the column name as a label) or scrolls inside its own wrapper. The wrapper is `position: relative; overflow-x: auto` with a visible edge: visually hidden labels are `position: absolute`, so a wrapper that is not positioned cannot clip them and they widen the page.
 
 ## Motion
 

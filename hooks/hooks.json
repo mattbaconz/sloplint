@@ -11,6 +11,17 @@
           }
         ]
       }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/bin/sloplint.mjs\" hook",
+            "timeout": 60
+          }
+        ]
+      }
     ]
   }
 }

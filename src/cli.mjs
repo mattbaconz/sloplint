@@ -494,8 +494,33 @@ function style(argv, io) {
 
 // ─── hook ────────────────────────────────────────────────────────────────────
 
-// Claude Code hook. PostToolUse lints the file just written; Stop lints every changed file once
-// before the agent may finish. Findings go to stderr with exit code 2, which Claude reads.
+// The files a session wrote, read from its transcript, or null when there is none to read.
+function writtenFiles(transcript, cwd) {
+  let text;
+  try {
+    text = readFileSync(transcript, 'utf8');
+  } catch {
+    return null;
+  }
+  const paths = new Set();
+  for (const line of text.split('\n')) {
+    if (!line.includes('"tool_use"')) continue;
+    let event;
+    try {
+      event = JSON.parse(line);
+    } catch {
+      continue;
+    }
+    for (const c of event.message?.content ?? []) {
+      if (c.type === 'tool_use' && /^(Write|Edit|MultiEdit)$/.test(c.name) && c.input?.file_path) paths.add(resolve(cwd, c.input.file_path));
+    }
+  }
+  return [...paths];
+}
+
+// Claude Code hook. PostToolUse lints the file just written; Stop lints the files the session
+// wrote (every changed file when there is no transcript) once before the agent may finish.
+// Findings go to stderr with exit code 2, which Claude reads.
 function hook(io) {
   let input;
   try {
@@ -504,21 +529,27 @@ function hook(io) {
     return 0;
   }
   const cwd = input.cwd || process.cwd();
+  const inProject = (file) => {
+    const abs = resolve(cwd, file);
+    const rel = toPosix(relative(cwd, abs));
+    return existsSync(abs) && lintable(abs) && !rel.startsWith('..') && !ignoredPath(readIgnores(cwd), rel) ? { abs, rel } : null;
+  };
   let files;
   let intro;
   if (input.hook_event_name === 'Stop' || input.hook_event_name === 'SubagentStop') {
     if (input.stop_hook_active) return 0;
-    files = changedFiles(cwd) ?? collect(cwd);
+    // Only what this session wrote, so the user's own uncommitted work never blocks the agent.
+    const written = input.transcript_path ? writtenFiles(input.transcript_path, cwd) : null;
+    files = written ? written.map(inProject).filter(Boolean) : changedFiles(cwd) ?? collect(cwd);
     intro = 'before you finish';
   } else {
     const file = input.tool_input?.file_path ?? input.tool_input?.path;
-    if (!file) return 0;
-    const abs = resolve(cwd, file);
-    const rel = toPosix(relative(cwd, abs));
-    if (!existsSync(abs) || !lintable(abs) || rel.startsWith('..') || ignoredPath(readIgnores(cwd), rel)) return 0;
-    files = [{ abs, rel }];
+    const one = file && inProject(file);
+    if (!one) return 0;
+    files = [one];
     intro = 'in the file you just wrote';
   }
+  if (!files.length) return 0;
   const here = process.cwd();
   process.chdir(cwd);
   try {

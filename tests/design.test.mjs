@@ -14,6 +14,18 @@ test('a seed always gives the same system, and different seeds give different on
   assert.ok(new Set(styles.map((s) => s.layout.key)).size >= 6, 'layouts converge');
 });
 
+test('the first screen is a rule plus three forms picked by seed, not one named device', () => {
+  const styles = Array.from({ length: 210 }, (_, i) => generateStyle({ seed: `first-${i}` }));
+  for (const s of styles) {
+    assert.equal(new Set(s.layout.first.options).size, 3, s.seed);
+    assert.match(designDoc(s), /^- First screen: .+ \(1\) .+; \(2\) .+; \(3\) .+ fill it from this brief's own material/m, s.seed);
+  }
+  for (const key of new Set(styles.map((s) => s.layout.key))) {
+    const sets = new Set(styles.filter((s) => s.layout.key === key).map((s) => s.layout.first.options.join('|')));
+    assert.ok(sets.size >= 3, `${key}: first-screen forms converge`);
+  }
+});
+
 test('every palette meets its contrast floors and stays out of the AI purple band', () => {
   for (let i = 0; i < 400; i++) {
     const { colors: c, seed } = generateStyle({ seed: `contrast-${i}`, mode: i % 2 ? 'dark' : 'light' });

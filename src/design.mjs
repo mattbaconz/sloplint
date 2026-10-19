@@ -178,66 +178,141 @@ export const FONT = {
   'Courier Prime': { w: [400, 700], kind: 'mono' },
 };
 
+// Each layout states what its first screen must do (rule) and offers forms that meet it (options);
+// a design system names three, picked by seed. The forms name a shape, never content: the agent
+// fills one from the brief, so two products with the same layout still open differently.
 const LAYOUTS = {
   specimen: {
-    first: 'The product at poster scale: a real screen or table cropped large so it bleeds off the right edge (the section clips it, so nothing scrolls sideways), with the headline at `--step-display` above its top-left corner.',
     name: 'Specimen',
+    first: {
+      rule: 'the product itself, shown at poster scale, with the headline at `--step-display`',
+      options: [
+        'one real screen or table from the product, cropped so it bleeds off the right edge (the section clips it)',
+        'one detail of the product (a single row, control or line of output) enlarged until it spans the width',
+        'the product shown twice: whole and small, then cropped large on the part that matters',
+        'the product in its real states (empty, working, done) overlapping like fanned sheets',
+        'what the product is made from (its data, materials or source) laid out flat beneath the headline',
+      ],
+    },
     lines: [
       'The first viewport shows the real product (a table, a terminal, a screen) at full width, with the headline in a narrow column beside or above it.',
       'Features are an index: one row each, the name on the left and the concrete detail on the right. No card grid.',
     ],
   },
   ledger: {
-    first: 'One oversized figure in the mono face at `--step-display`, taken from the product itself (an amount, a count or a time from its sample data, never an unsourced claim), with its label beneath it and the headline under that at `--step-4`.',
     name: 'Ledger',
+    first: {
+      rule: 'evidence set as figures and ruled rows in the mono face, with the headline at `--step-4` or larger',
+      options: [
+        'one oversized figure from the product\'s own sample data (never an unsourced claim), with its label beneath it',
+        'a short ruled table of three to five real line items, set large, under the headline',
+        'a hairline-ruled column of real dates or steps, with the next one marked in `--accent`',
+        'a before-and-after pair of figures side by side, with the difference stated in words',
+        'a numbered index of the page\'s sections at display size, each with one concrete fact',
+      ],
+    },
     lines: [
       'Sections are numbered rows separated by hairline rules: the claim on the left, the evidence on the right.',
       'Figures sit in the mono face, right-aligned, so they read as a column.',
     ],
   },
   manifesto: {
-    first: 'The headline alone fills the first screen at `--step-display`, flush left and broken into lines by meaning; the proof sentence and the action sit in a narrow column at the bottom right.',
     name: 'Manifesto',
+    first: {
+      rule: 'type is the image: one typographic statement at `--step-display` and no picture',
+      options: [
+        'the headline alone, flush left and broken into lines by meaning, with the proof and the action in a narrow column at the bottom right',
+        'one word set so large it crops at both edges (the section clips it), with the full headline below it at `--step-4`',
+        'the headline as a stack of the product\'s own nouns, one per line, the last in `--accent`',
+        'the question a visitor arrives with, at display size, answered in one plain sentence beneath it',
+        'the headline running across a full-bleed `--ink` band, with the proof sentence on `--bg` below it',
+      ],
+    },
     lines: [
       'The first viewport is one typographic statement at the top of the display scale. No hero image, no illustration.',
       'Proof starts directly below: one short paragraph, then the product itself.',
     ],
   },
   split: {
-    first: 'A color field: the narrow column is solid `--accent` (or `--ink`) holding the headline at `--step-display`, and the wide column shows the product on `--bg`.',
     name: 'Split',
+    first: {
+      rule: 'two unequal columns, one a solid field holding the headline at `--step-display`',
+      options: [
+        'a narrow solid `--accent` column with the headline, and the product on `--bg` in the wide column',
+        'a wide inverted `--ink` field with the headline, and the key facts as a short list in the narrow column',
+        'a stepped or diagonal edge between the two fields (a `clip-path`, inside the section)',
+        'the headline field on the right and the product on the left, the action pinned to the foot of the field',
+        'the problem in the visitor\'s words on one side and the product\'s answer on the other, split by a hairline',
+      ],
+    },
     lines: [
       'An asymmetric 5/7 grid: the headline and primary action stay sticky in the narrow column while proof scrolls in the wide one.',
       'Under 768px the sticky column becomes a normal block above the proof.',
     ],
   },
   catalog: {
-    first: 'The catalog is the hero: the real items (commands, parts, plans, places) set as a dense multi-column specimen that runs off the bottom of the first screen, under a headline at `--step-display`.',
     name: 'Catalog',
+    first: {
+      rule: 'the real items are the hero, dense and specific, under a headline at `--step-display`',
+      options: [
+        'the items set as a dense multi-column specimen that runs off the bottom of the first screen',
+        'one item featured large, with the rest as a small-type index beside it',
+        'the items as labeled tiles of mixed sizes, sized by what matters most to a visitor',
+        'the items grouped under their real categories, with the first group already open',
+        'the items as a numbered list in the mono face, each with the one fact that sets it apart',
+      ],
+    },
     lines: [
       'A dense, scannable grid of specifics (integrations, commands, plans, parts) in small type with real labels.',
       'Grouping and filtering instead of decoration: every tile carries a fact, none carries only an icon.',
     ],
   },
   letter: {
-    first: 'A salutation at `--step-display` in the display face (the first words of the letter), with the date and signature in the mono face; the reading column starts directly below.',
     name: 'Letter',
+    first: {
+      rule: 'a first-person opening in the display face at `--step-display`, with the reading column directly below',
+      options: [
+        'a salutation (the first words of the letter), with the date and signature in the mono face',
+        'the letter\'s closing line promoted to the top as a pull quote, signed by whoever wrote it',
+        'a dated note: the date at display size in the mono face, the first sentence beneath it',
+        'a short numbered list of the product\'s real promises, signed at the foot',
+        'the first paragraph at `--step-4` with a drop cap, the column continuing directly beneath it',
+      ],
+    },
     lines: [
       'One reading column of about 62 characters, written in the first person, with figures and screenshots inline.',
       'Claims carry footnotes, and the primary action closes the page like a signature.',
     ],
   },
   console: {
-    first: 'The working panel at full width on an inverted `--ink` field, with the one figure that matters in it at `--step-display`; the copy is one line above.',
     name: 'Console',
+    first: {
+      rule: 'a working panel at full width on an inverted `--ink` field, filled with the product\'s own data, with the copy one line above it',
+      options: [
+        'the one figure that matters, at `--step-display`, inside the panel',
+        'a feed of the product\'s real events, newest first, with one row marked in `--accent`',
+        'the panel mid-task: a form or command half filled in with a realistic example',
+        'two panels side by side: the normal state and the state the product exists to catch',
+        'a status board of the product\'s parts or items, each with a mono state tag',
+      ],
+    },
     lines: [
       'The hero is a working panel with plausible, labeled data; the copy is one line above it.',
       'Later sections reuse the panel grammar: rows, units, timestamps, status tags.',
     ],
   },
   poster: {
-    first: 'A full-bleed `--accent` field as tall as the viewport, with the headline at `--step-display` in `--on-accent`, set so large the edges almost crop it.',
     name: 'Poster',
+    first: {
+      rule: 'a full-bleed field as tall as the viewport, carrying the headline at `--step-display`',
+      options: [
+        'a solid `--accent` field with the headline in `--on-accent`, set so large the edges almost crop it',
+        'an inverted `--ink` field with one object the product is about, drawn in CSS at poster scale behind the headline',
+        'the headline turned to run up one edge of the field, with the action in the opposite corner',
+        'the field cut into a grid of large index numbers or letters, one cell in `--accent`',
+        'two stacked fields, `--accent` over `--ink`, with the headline crossing the boundary',
+      ],
+    },
     lines: [
       'Full-bleed blocks, one per section, alternating `--surface` and `--accent`; type set large.',
       'Each block holds one idea and at most one number.',
@@ -594,7 +669,7 @@ export function generateStyle({ seed = 'sloplint', brief = '', mood, mode } = {}
     // One first-screen entrance, three state changes long, held between 400 and 700ms.
     motion: { ...m.motion, entrance: Math.min(700, Math.max(400, m.motion.ms * 3)) },
     imagery: m.imagery,
-    layout: { key: layout, ...LAYOUTS[layout] },
+    layout: { key: layout, ...LAYOUTS[layout], first: { rule: LAYOUTS[layout].first.rule, options: rnd('first').take(LAYOUTS[layout].first.options, 3) } },
     signatures: rnd('signature').take(m.signatures, 2).map((k) => SIGNATURES[k]),
     voice: m.voice,
     avoid: m.avoid,
@@ -643,7 +718,7 @@ export function designDoc(style) {
   return `<!-- sloplint:style ${marker} -->
 # DESIGN.md: ${style.name}
 
-${style.mood[0].toUpperCase()}${style.mood.slice(1)}, ${style.mode}. Generated by sloplint from the seed \`${style.seed}\`; \`npx @sloplint/cli init --seed "${style.seed}" --mood ${style.mood} --mode ${style.mode}\` rebuilds it. Every color, typeface, radius and duration comes from this file. When it is silent, choose the option that makes this page unlike other pages, within these tokens.
+${style.mood[0].toUpperCase()}${style.mood.slice(1)}, ${style.mode}. Generated by sloplint from the seed \`${style.seed}\`; \`npx @sloplint/cli init --seed "${style.seed}" --mood ${style.mood} --mode ${style.mode}\` rebuilds it. Every color, typeface, radius and duration comes from this file. If another design skill is in use, it leads the visual direction and this file fills in what it leaves open; add any color or typeface it chooses to the tokens below first. When both are silent, choose the option that makes this page unlike other pages, within these tokens.
 
 ## Tokens
 
@@ -671,17 +746,18 @@ With Tailwind, expose the tokens to the theme (v4: \`@theme { --color-accent: va
 
 ## Layout: ${layout.name}
 
-- First screen: ${layout.first} It must hold at 1280px and at 375px, and the page should be recognizable from it as a thumbnail. A heading, a paragraph and two buttons on an empty background is the generic answer; do not ship it.
+- First screen: ${layout.first.rule}. Three forms that fit: ${layout.first.options.map((o, i) => `(${i + 1}) ${o}`).join('; ')}. Pick one, or another that keeps the rule, and fill it from this brief's own material (what it sells or shows, its own words, names, places, dates and numbers), so it could not open any other page. It must hold at 1280px and at 375px, and the page should be recognizable from it as a thumbnail. A heading, a paragraph and two buttons on an empty background is the generic answer; do not ship it.
 ${layout.lines.map((l) => `- ${l}`).join('\n')}
 ${style.signatures.map((s) => `- Signature: ${s}`).join('\n')}
 - Grid: 12 columns, 24px gutters, content max 1200px. Sections ${style.space.section[0]}px apart, ${style.space.section[1]}px under 640px.
-- At 375px nothing scrolls sideways: below 768px grids become one column (\`grid-template-columns: minmax(0, 1fr)\`; spanning all 12 still leaves 11 gutters), navigation wraps or collapses, and tables scroll inside their own \`overflow-x: auto\` wrapper.
+- At 375px nothing scrolls sideways: below 768px grids become one column (\`grid-template-columns: minmax(0, 1fr)\`; spanning all 12 still leaves 11 gutters) and navigation wraps or collapses.
+- Tables at narrow widths: below 600px a table of more than four columns either stacks each row into a card (\`display: block\` on \`tr\` and \`td\`, the column name as a small mono label) or scrolls inside a \`position: relative; overflow-x: auto\` wrapper with a visible edge (a \`--border\` rule or the next column cut off), so the reader can tell it scrolls. Without \`position: relative\`, visually hidden labels inside the table escape the wrapper and widen the page.
 
 ## Components
 
 - Buttons: 40px tall, 16px side padding, \`--radius\`, label is verb + object. Primary: \`--accent\` fill with \`--on-accent\` text. Secondary: \`--border\` in \`--line\`, \`--ink\` text.
 - Inputs: 40px tall, \`--surface\` fill, \`--border\` in \`--line\`, a visible label above and the error below in \`--danger\`.
-- Tables: hairline rows, right-aligned mono figures, inside an \`overflow-x: auto\` wrapper.
+- Tables: hairline rows, right-aligned mono figures; at narrow widths, see Layout.
 - Nested corners: inner radius = outer radius minus the padding between them (\`--radius-lg\` outside, \`--radius-sm\` inside).
 
 ## Voice
@@ -692,7 +768,7 @@ ${style.voice.map((v) => `- ${v}`).join('\n')}
 
 ## Imagery
 
-- The hero visual is the real product, built in HTML and CSS with plausible, labeled data: the screen, table, receipt or object people will use. No stock photos, 3D blobs or illustrated people.
+- The hero visual comes from this product: what it is, sells or shows, built in HTML and CSS with plausible, labeled data from the brief. No stock photos, 3D blobs or illustrated people.
 - Ornament: ${style.imagery}
 - Ornaments and visuals that bleed off an edge sit inside a section with \`overflow: clip\`, so they never widen the page at 375px.
 
@@ -761,7 +837,7 @@ figcaption span { color: var(--ink-2); }
 .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
 label { display: grid; gap: 6px; font-size: var(--step--1); color: var(--ink-2); }
 input { height: 40px; width: 240px; max-width: 100%; padding: 0 12px; border-radius: var(--radius); border: var(--border) solid var(--line); background: var(--surface); color: var(--ink); font: inherit; }
-.table { overflow-x: auto; margin-top: 24px; }
+.table { position: relative; overflow-x: auto; margin-top: 24px; }
 table { border-collapse: collapse; min-width: 420px; width: 100%; font-variant-numeric: tabular-nums; }
 th, td { text-align: left; padding: 10px 12px 10px 0; border-bottom: 1px solid var(--line); }
 th { font: 500 var(--step--1)/1.4 var(--font-mono); color: var(--ink-2); }
@@ -814,7 +890,7 @@ ul { margin: 12px 0 0; padding-left: 20px; max-width: var(--measure); }
   <section>
     <h2>Layout</h2>
     <div>
-      <p class="body"><b>${esc(style.layout.name)}.</b> ${esc([style.layout.first, ...style.layout.lines].join(' ').replace(/`/g, ''))}</p>
+      <p class="body"><b>${esc(style.layout.name)}.</b> ${esc([`First screen: ${style.layout.first.rule}.`, ...style.layout.lines].join(' ').replace(/`/g, ''))}</p>
       <ul>${style.signatures.map((s) => `<li>${esc(s.replace(/`/g, ''))}</li>`).join('')}</ul>
     </div>
   </section>

@@ -135,8 +135,9 @@ export function twBox(classes) {
     else if ((m = /^h-(.+)$/.exec(c))) b.h = twSpacing(m[1]);
     else if (/^text-(gray|slate|zinc|neutral|stone)-(300|400|500|600)$|^text-muted(-foreground)?$/.test(c)) b.muted = true;
     else if (c === 'tabular-nums') b.tabular = true;
-    else if (/^(absolute|fixed)$/.test(c)) b.overlay = true;
+    else if (/^(absolute|fixed|sr-only)$/.test(c)) b.overlay = true;
     else if (/^overflow(-x)?-(auto|scroll|hidden|clip)$/.test(c)) b.scroll = true;
+    if (/^(relative|absolute|fixed|sticky)$/.test(c)) b.positioned = true;
   }
   if (padX != null || padY != null) b.pad = Math.min(padX ?? pad ?? Infinity, padY ?? pad ?? Infinity);
   else if (pad != null) b.pad = pad;
@@ -190,6 +191,12 @@ export function cssBox(decls) {
       case 'height': b.h = toPx(v); break;
       case 'position':
         if (/^(absolute|fixed)$/.test(v)) b.overlay = true;
+        // The containing block for absolutely positioned descendants.
+        b.positioned = /^(relative|absolute|fixed|sticky)$/.test(v);
+        break;
+      case 'left':
+        // Moved off to the left (the old screen-reader idiom), where it cannot widen the page.
+        b.offLeft = /^-/.test(v);
         break;
       case 'overflow':
       case 'overflow-x':

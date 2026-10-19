@@ -21,6 +21,15 @@ It writes `DESIGN.md` (palette, typefaces, layout, signature moves and voice, ge
 - Follow its layout, signature and voice sections; they are what makes this project look like itself.
 - `npx -y @sloplint/cli style --brief "..."` previews a system without writing anything.
 
+## With another design skill
+
+sloplint checks the work; it does not need to direct it. When another design skill is available or already in use (one for frontend, visual or interface design), load it and let it lead:
+
+- It sets the visual direction: layout, composition, type pairing, imagery and motion. Do not override it with `DESIGN.md`.
+- `DESIGN.md` fills in only what that skill leaves open, such as the exact tokens.
+- When it picks a color or typeface that is not in `DESIGN.md`, add it to the `DESIGN.md` tokens first, so the token rules accept it.
+- Still run the check below before you finish. Fix what it reports in the other skill's direction, not by swapping in `DESIGN.md` defaults.
+
 ## Before you finish
 
 ```bash
