@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.3.0 (2026-10-20)
 
 - [added] "Score a page" on the docs site (`site/score.html`): paste a URL and get its Slop Score, findings with source excerpts, a share link and a 1200x630 score card. A Cloudflare Worker in `worker/` fetches the page HTML and up to 8 same-origin stylesheets (2 MB cap, 15-second deadline, http and https only, no cookies forwarded, robots.txt honored, 10 pages a minute per IP); the engine lints them in the browser.
 - [added] A bookmarklet on the same page scores the live DOM of the current tab, including script-rendered and signed-in pages, and shows the findings in an overlay. Sites with a strict Content-Security-Policy can block it.
