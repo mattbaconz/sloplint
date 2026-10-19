@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Offset Press: screen-printed posters and vinyl records</title>
+<meta name="description" content="Offset Press is an independent print studio and record label. Hand-pulled screen prints and vinyl records in numbered runs.">
+<style>
+/* Hallmark · macrostructure: Manifesto (ink-band headline) · tone: brutalist · anchor hue: sky blue (DESIGN.md --accent)
+ * theme: Stencil Manifesto (DESIGN.md tokens, locked) · enrichment: none, product built in CSS
+ * nav: N7 slab · footer: Ft5 statement
+ * pre-emit critique: P5 H4 E4 S4 R5 V4 */
+@import url("https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap");
+
+:root {
+  --bg: #0c0d0d;
+  --surface: #131415;
+  --surface-2: #1b1c1d;
+  --line: #2f2f30;
+  --ink: #e7e8e8;
+  --ink-2: #9d9e9f;
+  --accent: #61b4ff;
+  --accent-ink: #61b4ff;
+  --on-accent: #0a1723;
+  --ok: #76cf8a;
+  --warn: #e8aa4e;
+  --danger: #ff968a;
+  --font-display: "Familjen Grotesk", system-ui, sans-serif;
+  --font-text: "Familjen Grotesk", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  --step-0: 1rem;
+  --step-1: 1.5rem;
+  --step-2: 2.25rem;
+  --step-3: 3.375rem;
+  --step-4: clamp(3.375rem, 6.33vw, 5.063rem);
+  --step-5: clamp(3.375rem, 9.49vw, 7.594rem);
+  --step--1: 0.667rem;
+  --step-display: clamp(2.5rem, 10vw, 8rem);
+  --tracking-display: -0.01em;
+  --leading: 1.45;
+  --measure: 62ch;
+  --radius-sm: 0px;
+  --radius: 0px;
+  --radius-lg: 0px;
+  --border: 2px;
+  --shadow: 4px 4px 0 var(--ink);
+  --duration: 80ms;
+  --duration-entrance: 400ms;
+  --ease: linear;
+  --gutter: 24px;
+  --section: 96px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { overflow-x: clip; }
+html { scroll-behavior: auto; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-text);
+  font-size: var(--step-0);
+  line-height: var(--leading);
+}
+img, svg { max-width: 100%; display: block; }
+a { color: inherit; }
+p { margin: 0; max-width: var(--measure); }
+h1, h2, h3 { margin: 0; font-family: var(--font-display); font-weight: 700; text-transform: uppercase; font-style: normal; overflow-wrap: anywhere; min-width: 0; }
+h2 { font-size: var(--step-4); line-height: 1.05; letter-spacing: 0; }
+h3 { font-size: var(--step-1); line-height: 1.05; letter-spacing: 0; }
+.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+
+.wrap { width: 100%; max-width: 1248px; margin-inline: auto; padding-inline: var(--gutter); }
+
+/* Tag: small mono label, 1px border, never a pill */
+.tag {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 5px 7px;
+  border: 1px solid currentColor;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  padding: 0 16px;
+  border: var(--border) solid var(--line);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--ink);
+  font: 700 var(--step-0)/1 var(--font-text);
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color var(--duration) var(--ease), color var(--duration) var(--ease), border-color var(--duration) var(--ease);
+}
+.btn:hover { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.btn:active { transform: translate(2px, 2px); }
+.btn-primary { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+.btn-primary:hover { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.btn[disabled] { opacity: 0.5; cursor: not-allowed; }
+.btn[disabled]:hover { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+
+/* Nav */
+.nav { border-bottom: var(--border) solid var(--line); background: var(--bg); }
+.nav .wrap { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 24px; padding-block: 12px; }
+.brand { font-family: var(--font-display); font-weight: 700; text-transform: uppercase; font-size: var(--step-1); letter-spacing: 0; text-decoration: none; line-height: 1; }
+.nav ul { display: flex; flex-wrap: wrap; gap: 4px 20px; list-style: none; margin: 0; padding: 0; font-family: var(--font-mono); font-size: 0.8125rem; text-transform: uppercase; }
+.nav li a { display: inline-block; padding: 8px 0; text-decoration: none; white-space: nowrap; border-bottom: var(--border) solid transparent; transition: border-color var(--duration) var(--ease), color var(--duration) var(--ease); }
+.nav li a:hover { border-bottom-color: var(--accent); color: var(--accent-ink); }
+
+/* Hero: headline across a full-bleed ink band */
+.hero { position: relative; overflow: clip; }
+.hero-band { background: var(--ink); color: var(--bg); padding-block: 56px 48px; }
+.hero-band .tag { margin-bottom: 24px; }
+.hero h1 {
+  font-size: var(--step-display);
+  line-height: 0.92;
+  letter-spacing: var(--tracking-display);
+}
+.hero h1 span { display: block; }
+.hero-body { position: relative; padding-block: 48px 56px; }
+/* Signature: faint 12-column grid behind the first viewport */
+.hero-body .wrap { position: relative; }
+.hero-body .wrap::before {
+  content: "";
+  position: absolute;
+  inset: 0 var(--gutter);
+  background: repeating-linear-gradient(90deg, var(--line) 0 1px, transparent 1px calc(100% / 12));
+  border-right: 1px solid var(--line);
+  pointer-events: none;
+}
+.hero-grid { position: relative; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 24px; align-items: end; }
+.hero-proof { grid-column: 1 / span 7; }
+.hero-proof p { font-size: var(--step-1); line-height: 1.25; background: var(--bg); padding-right: 12px; }
+.hero-act { grid-column: 9 / span 4; display: flex; flex-wrap: wrap; gap: 12px; align-content: end; background: var(--bg); padding: 8px 0 8px 12px; }
+.hero-meta { position: relative; margin-top: 40px; display: flex; flex-wrap: wrap; gap: 8px; }
+.hero-meta .tag { background: var(--bg); color: var(--ink-2); }
+
+/* Entrance: first screen only, stepped cuts, no fades */
+@keyframes cut-in { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+.enter { animation: cut-in var(--duration-entrance) steps(4, end) both; }
+.enter-1 { animation-delay: 0ms; }
+.enter-2 { animation-delay: 200ms; }
+.enter-3 { animation-delay: 400ms; }
+
+/* Sections */
+section { padding-block: var(--section); }
+.sec-head { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; margin-bottom: 48px; }
+.sec-head p { color: var(--ink); }
+
+/* Releases */
+.rel-feature { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 24px; border: var(--border) solid var(--line); background: var(--surface); }
+.rel-art { grid-column: 1 / span 5; background: var(--surface-2); border-right: var(--border) solid var(--line); display: grid; place-items: center; padding: 32px; position: relative; overflow: clip; }
+.rel-info { grid-column: 6 / span 7; padding: 32px 32px 32px 8px; display: flex; flex-direction: column; gap: 20px; }
+.rel-info h3 { font-size: var(--step-3); }
+.rel-price { display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; }
+.price-big { font-family: var(--font-mono); font-size: var(--step-3); font-weight: 500; line-height: 1; color: var(--accent-ink); font-variant-numeric: tabular-nums; }
+.spec { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 6px 20px; margin: 0; font-size: 0.9375rem; }
+.spec dt { font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase; color: var(--ink-2); padding-top: 3px; }
+.spec dd { margin: 0; }
+
+/* Vinyl, built in CSS */
+.disc {
+  width: min(100%, 300px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, var(--bg) 0 3%, var(--accent) 3% 22%, var(--bg) 22% 24%, var(--surface) 24% 100%),
+    repeating-radial-gradient(circle, var(--surface) 0 2px, var(--surface-2) 2px 3px);
+  background-blend-mode: normal;
+  border: var(--border) solid var(--ink);
+  box-shadow: var(--shadow);
+  position: relative;
+}
+.disc::after {
+  content: "";
+  position: absolute;
+  inset: 24%;
+  border-radius: 50%;
+  background: repeating-radial-gradient(circle, var(--surface-2) 0 2px, var(--line) 2px 3px);
+  z-index: -1;
+}
+.disc-label {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  text-transform: uppercase;
+  color: var(--on-accent);
+  text-align: center;
+  line-height: 1.1;
+}
+
+/* Poster, built in CSS, with registration marks and a misregistered second pass */
+.poster {
+  width: min(100%, 220px);
+  aspect-ratio: 3 / 4;
+  background: var(--ink);
+  color: var(--bg);
+  border: var(--border) solid var(--ink);
+  box-shadow: var(--shadow);
+  position: relative;
+  overflow: clip;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 12px;
+}
+.poster::before {
+  content: "";
+  position: absolute;
+  width: 78%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--accent);
+  top: 8%;
+  left: 14%;
+}
+.poster::after {
+  content: "";
+  position: absolute;
+  width: 78%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: var(--border) solid var(--bg);
+  top: 10%;
+  left: 17%;
+}
+.poster b { position: relative; font-family: var(--font-display); text-transform: uppercase; font-size: 1.5rem; line-height: 0.9; z-index: 1; }
+.poster i { position: relative; font-style: normal; font-family: var(--font-mono); font-size: 0.625rem; text-transform: uppercase; z-index: 1; }
+.reg { position: absolute; width: 12px; height: 12px; z-index: 1; }
+.reg::before, .reg::after { content: ""; position: absolute; background: var(--bg); }
+.reg::before { left: 5px; top: 0; width: 2px; height: 12px; }
+.reg::after { top: 5px; left: 0; height: 2px; width: 12px; }
+.reg.tl { top: 6px; left: 6px; }
+.reg.tr { top: 6px; right: 6px; }
+
+/* Ledger: rows of releases */
+.ledger { list-style: none; margin: 24px 0 0; padding: 0; border-top: var(--border) solid var(--line); }
+.ledger li {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1.4fr) minmax(0, 1.6fr) 72px 88px auto;
+  gap: 16px;
+  align-items: center;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--line);
+}
+.ledger .title { font-family: var(--font-display); font-weight: 700; text-transform: uppercase; font-size: var(--step-1); line-height: 1.05; }
+.ledger .desc { color: var(--ink-2); font-size: 0.9375rem; }
+.ledger .num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; text-align: right; }
+.ledger .price { color: var(--ink); font-weight: 500; }
+.ledger .lbl { display: none; }
+.ledger-head { display: grid; grid-template-columns: 96px minmax(0, 1.4fr) minmax(0, 1.6fr) 72px 88px auto; gap: 16px; font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase; color: var(--ink-2); margin-top: 48px; padding-bottom: 8px; }
+.ledger-head span:nth-child(4), .ledger-head span:nth-child(5) { text-align: right; }
+.ledger-head span:last-child { visibility: hidden; }
+
+/* About */
+.about { background: var(--surface); border-block: var(--border) solid var(--line); }
+.about-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 24px; }
+.about-lede { grid-column: 1 / span 7; }
+.about-lede h2 { font-size: var(--step-5); line-height: 0.95; }
+.about-copy { grid-column: 8 / span 5; display: flex; flex-direction: column; gap: 20px; }
+.press-log { grid-column: 1 / -1; margin: 32px 0 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(14rem, 100%), 1fr)); border-top: var(--border) solid var(--line); }
+.press-log div { padding: 20px 20px 0 0; }
+.press-log dt { font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase; color: var(--ink-2); margin-bottom: 6px; }
+.press-log dd { margin: 0; font-weight: 700; font-size: var(--step-1); line-height: 1.1; }
+
+/* Events */
+.events { list-style: none; margin: 0; padding: 0; border-top: var(--border) solid var(--line); }
+.events li {
+  display: grid;
+  grid-template-columns: 140px minmax(0, 2fr) minmax(0, 1.4fr) auto;
+  gap: 16px 24px;
+  align-items: center;
+  padding: 24px 0;
+  border-bottom: 1px solid var(--line);
+}
+.ev-date { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: var(--step-1); line-height: 1; }
+.ev-date small { display: block; font-size: 0.75rem; color: var(--ink-2); text-transform: uppercase; margin-top: 6px; }
+.ev-name { font-family: var(--font-display); font-weight: 700; text-transform: uppercase; font-size: var(--step-2); line-height: 1; overflow-wrap: anywhere; }
+.ev-where { color: var(--ink-2); font-size: 0.9375rem; }
+.fine { margin-top: 24px; font-family: var(--font-mono); font-size: 0.75rem; color: var(--ink-2); }
+
+/* Signup: full-bleed accent field */
+.signup { background: var(--accent); color: var(--on-accent); }
+.signup :focus-visible { outline-color: var(--bg); }
+.signup-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 24px; align-items: start; }
+.signup h2 { grid-column: 1 / span 6; font-size: var(--step-5); line-height: 0.95; }
+.signup-form { grid-column: 8 / span 5; display: flex; flex-direction: column; gap: 16px; }
+.signup-form p { font-size: var(--step-0); }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label { font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase; }
+.field input {
+  height: 40px;
+  padding: 0 12px;
+  background: var(--surface);
+  color: var(--ink);
+  border: var(--border) solid var(--bg);
+  border-radius: var(--radius);
+  font: 400 var(--step-0)/1 var(--font-text);
+}
+.field input::placeholder { color: var(--ink-2); }
+.field input[aria-invalid="true"] { border-color: var(--danger); }
+.signup .btn-primary { background: var(--bg); color: var(--ink); border-color: var(--bg); align-self: flex-start; position: relative; }
+.signup .btn-primary:hover { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.signup .btn-primary:hover { box-shadow: var(--shadow); }
+.btn-label { display: inline-block; }
+.btn.is-busy .btn-label { visibility: hidden; }
+.btn .busy { position: absolute; inset: 0; display: none; place-items: center; font-family: var(--font-mono); }
+.btn.is-busy .busy { display: grid; }
+.status { min-height: 1.45em; font-family: var(--font-mono); font-size: 0.8125rem; background: var(--bg); color: var(--ink); padding: 0; }
+.status:not(:empty) { padding: 8px 12px; }
+.status.err { color: var(--danger); }
+.status.ok { color: var(--ok); }
+
+/* Footer */
+footer { padding-block: 48px; }
+.foot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 24px; }
+.foot .big { font-family: var(--font-display); font-weight: 700; text-transform: uppercase; font-size: var(--step-3); line-height: 0.95; }
+.foot p { font-family: var(--font-mono); font-size: 0.75rem; color: var(--ink-2); }
+.foot a { text-decoration-thickness: 2px; text-underline-offset: 3px; }
+.foot a:hover { color: var(--accent-ink); }
+
+/* Tablet down */
+@media (max-width: 1023px) {
+  .ledger li, .ledger-head { grid-template-columns: 80px minmax(0, 1fr) 64px 80px auto; }
+  .ledger .desc { display: none; }
+  .ledger-head span:nth-child(3) { display: none; }
+  .events li { grid-template-columns: 120px minmax(0, 1fr) auto; }
+  .events .ev-where { grid-column: 2 / 3; }
+}
+
+@media (max-width: 767px) {
+  :root { --section: 56px; }
+  .hero-band { padding-block: 40px 32px; }
+  .hero-grid, .rel-feature, .about-grid, .signup-grid { grid-template-columns: minmax(0, 1fr); }
+  .hero-proof, .hero-act, .rel-art, .rel-info, .about-lede, .about-copy, .signup h2, .signup-form { grid-column: 1 / -1; }
+  .hero-act { padding-left: 0; }
+  .rel-art { border-right: 0; border-bottom: var(--border) solid var(--line); }
+  .rel-info { padding: 24px; }
+  .rel-info h3 { font-size: var(--step-2); }
+  .hero-proof p { font-size: 1.25rem; }
+  .sec-head { margin-bottom: 32px; }
+  h2 { font-size: var(--step-3); }
+  .about-lede h2, .signup h2 { font-size: var(--step-3); }
+  .price-big { font-size: var(--step-2); }
+  .foot .big { font-size: var(--step-2); }
+}
+
+/* Phones: ledger rows and events stack into cards */
+@media (max-width: 599px) {
+  .ledger-head { display: none; }
+  .ledger { margin-top: 24px; }
+  .ledger li { grid-template-columns: minmax(0, 1fr) auto; gap: 8px 16px; padding: 20px 0; }
+  .ledger li > :first-child { grid-column: 1 / -1; justify-self: start; }
+  .ledger .title { grid-column: 1 / 2; }
+  .ledger .desc { display: block; grid-column: 1 / -1; }
+  .ledger .num { text-align: left; }
+  .ledger .lbl { display: inline; font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase; color: var(--ink-2); margin-right: 8px; }
+  .ledger .price { grid-column: 2 / 3; grid-row: 2; text-align: right; }
+  .ledger .ed { grid-column: 1 / -1; }
+  .ledger li .btn { grid-column: 1 / -1; justify-self: start; }
+  .events li { grid-template-columns: minmax(0, 1fr); gap: 8px; padding: 20px 0; }
+  .events .ev-where { grid-column: auto; }
+  .events li .btn { justify-self: start; margin-top: 8px; }
+  .nav .wrap { padding-block: 8px; }
+  .hero-act .btn { flex: 1 1 100%; }
+  .btn { white-space: normal; text-align: center; height: auto; min-height: 40px; padding-block: 10px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .enter { animation: none; }
+  .btn:active { transform: none; }
+}
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="#top">Offset Press</a>
+    <nav aria-label="Primary">
+      <ul>
+        <li><a href="#releases">Releases</a></li>
+        <li><a href="#studio">Studio</a></li>
+        <li><a href="#events">Events</a></li>
+        <li><a href="#signup">Mailing list</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <div class="hero">
+    <div class="hero-band">
+      <div class="wrap">
+        <span class="tag enter enter-1">Screen prints + vinyl / Autumn 2026</span>
+        <h1 class="enter enter-1"><span>Pressed.</span><span>Numbered.</span><span>Sold out.</span></h1>
+      </div>
+    </div>
+    <div class="hero-body">
+      <div class="wrap">
+        <div class="hero-grid">
+          <div class="hero-proof enter enter-2">
+            <p>Offset Press is an independent print studio and record label. We pull every poster by hand and press every record in a numbered run. When the run ends, it ends.</p>
+          </div>
+          <div class="hero-act enter enter-3">
+            <a class="btn btn-primary" href="#releases">Shop current releases</a>
+            <a class="btn" href="#events">See upcoming events</a>
+          </div>
+        </div>
+        <div class="hero-meta enter enter-3">
+          <span class="tag">Poster runs: 75 to 300</span>
+          <span class="tag">Water-based inks</span>
+          <span class="tag">Label + studio, one room</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section id="releases" aria-labelledby="releases-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 id="releases-h">Current releases</h2>
+      </div>
+
+      <article class="rel-feature" aria-label="Featured release: Low Tide Hum, LP">
+        <div class="rel-art">
+          <div class="disc" role="img" aria-label="Black vinyl record with a blue center label">
+            <div class="disc-label">Offset<br>Press<br>OP-014</div>
+          </div>
+        </div>
+        <div class="rel-info">
+          <span class="tag" style="align-self:flex-start">New LP / OP-014</span>
+          <h3>Low Tide Hum</h3>
+          <p>Dead Reckoner, ten tracks of slow bass and tape hiss, cut to 180g vinyl. Sleeve is a two-color screen print, folded and glued here.</p>
+          <dl class="spec">
+            <dt>Format</dt><dd>12&Prime; LP, 180g, black</dd>
+            <dt>Sleeve</dt><dd>2-color screen print, hand-numbered</dd>
+            <dt>Run</dt><dd class="mono">300 copies</dd>
+          </dl>
+          <div class="rel-price">
+            <span class="price-big">$28</span>
+            <a class="btn btn-primary" href="#signup">Reserve Low Tide Hum</a>
+          </div>
+        </div>
+      </article>
+
+      <div class="ledger-head" aria-hidden="true">
+        <span>Type</span><span>Title</span><span>Spec</span><span>Run</span><span>Price</span><span>Action</span>
+      </div>
+      <ul class="ledger">
+        <li>
+          <span class="tag">Poster</span>
+          <span class="title">Night Shift</span>
+          <span class="desc">18 &times; 24 in, 3 colors on 100 lb cover stock</span>
+          <span class="num ed"><span class="lbl">Run</span>75</span>
+          <span class="num price"><span class="lbl">Price</span>$45</span>
+          <a class="btn" href="#signup">Reserve Night Shift</a>
+        </li>
+        <li>
+          <span class="tag">Poster</span>
+          <span class="title">Wire &amp; Salt</span>
+          <span class="desc">12 &times; 18 in, 2 colors, tour edition</span>
+          <span class="num ed"><span class="lbl">Run</span>150</span>
+          <span class="num price"><span class="lbl">Price</span>$30</span>
+          <a class="btn" href="#signup">Reserve Wire &amp; Salt</a>
+        </li>
+        <li>
+          <span class="tag">7&Prime;</span>
+          <span class="title">Static Bloom</span>
+          <span class="desc">Dead Reckoner, 45 rpm, screen-printed sleeve</span>
+          <span class="num ed"><span class="lbl">Run</span>200</span>
+          <span class="num price"><span class="lbl">Price</span>$12</span>
+          <a class="btn" href="#signup">Reserve Static Bloom</a>
+        </li>
+        <li>
+          <span class="tag">LP</span>
+          <span class="title">Paper Weather</span>
+          <span class="desc">Repress, clear vinyl, jacket printed in one color</span>
+          <span class="num ed"><span class="lbl">Run</span>250</span>
+          <span class="num price"><span class="lbl">Price</span>$26</span>
+          <a class="btn" href="#signup">Reserve Paper Weather</a>
+        </li>
+        <li>
+          <span class="tag">Bundle</span>
+          <span class="title">Night Shift + Low Tide Hum</span>
+          <span class="desc">One poster, one LP, shipped together</span>
+          <span class="num ed"><span class="lbl">Run</span>40</span>
+          <span class="num price"><span class="lbl">Price</span>$65</span>
+          <a class="btn" href="#signup">Reserve the bundle</a>
+        </li>
+      </ul>
+      <p class="fine">Prices in USD. Reservations open to the mailing list first; the list gets the drop link before anyone else.</p>
+    </div>
+  </section>
+
+  <section id="studio" class="about" aria-labelledby="studio-h">
+    <div class="wrap">
+      <div class="about-grid">
+        <div class="about-lede">
+          <h2 id="studio-h">One room. Two presses.</h2>
+        </div>
+        <div class="about-copy">
+          <p>Offset Press started as a screen-print bench and grew a record label because the bands we printed for kept asking who could press their album. Now the same room does both.</p>
+          <p>We pull every sheet by hand, one color at a time, and cap each run so a number on the print means something. Records come back from the plant and get sleeved, stamped and numbered at the same bench.</p>
+        </div>
+        <dl class="press-log">
+          <div><dt>Inks</dt><dd>Water-based, mixed in-house</dd></div>
+          <div><dt>Paper</dt><dd>Cover stock, hand-numbered</dd></div>
+          <div><dt>Records</dt><dd>180g vinyl, pressed in short runs</dd></div>
+          <div><dt>Runs</dt><dd class="mono">75 to 300, then retired</dd></div>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <section id="events" aria-labelledby="events-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 id="events-h">Upcoming events</h2>
+      </div>
+      <ul class="events">
+        <li>
+          <div class="ev-date"><time datetime="2026-11-14">14 Nov</time><small>Sat / 2026</small></div>
+          <div class="ev-name">Open press day</div>
+          <div class="ev-where">At the studio. Watch a three-color pull start to finish. Free.</div>
+          <span class="tag">Open house</span>
+        </li>
+        <li>
+          <div class="ev-date"><time datetime="2026-11-21">21 Nov</time><small>Sat / 2026</small></div>
+          <div class="ev-name">Low Tide Hum release night</div>
+          <div class="ev-where">At the studio. Full album playback on vinyl, LP on sale first.</div>
+          <span class="tag">Release</span>
+        </li>
+        <li>
+          <div class="ev-date"><time datetime="2026-12-05">05 Dec</time><small>Sat / 2026</small></div>
+          <div class="ev-name">Winter print sale</div>
+          <div class="ev-where">At the studio. Last copies from retired runs, back catalogue records.</div>
+          <span class="tag">Sale</span>
+        </li>
+        <li>
+          <div class="ev-date"><time datetime="2026-12-19">19 Dec</time><small>Sat / 2026</small></div>
+          <div class="ev-name">Last pull of the year</div>
+          <div class="ev-where">At the studio. One new poster, pulled live, one night only.</div>
+          <span class="tag">Live print</span>
+        </li>
+      </ul>
+      <p class="fine">Doors and times go out to the mailing list a week ahead.</p>
+    </div>
+  </section>
+
+  <section id="signup" class="signup" aria-labelledby="signup-h">
+    <div class="wrap">
+      <div class="signup-grid">
+        <h2 id="signup-h">Get the drop before it's gone.</h2>
+        <form class="signup-form" id="signup-form" action="/api/subscribe" method="post" novalidate>
+          <p>One email per release or event. Drop links go to the list first. Unsubscribe in one click.</p>
+          <div class="field">
+            <label for="email">Email address</label>
+            <input id="email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required aria-describedby="status">
+          </div>
+          <button class="btn btn-primary" type="submit" id="submit">
+            <span class="btn-label">Join the mailing list</span>
+            <span class="busy" aria-hidden="true">Sending...</span>
+          </button>
+          <div class="status" id="status" role="status" aria-live="polite"></div>
+        </form>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <div class="big">Offset Press</div>
+    <p>&copy; 2026 Offset Press. Posters and records in numbered runs. <a href="#top">Back to top</a></p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var form = document.getElementById('signup-form');
+  var input = document.getElementById('email');
+  var button = document.getElementById('submit');
+  var status = document.getElementById('status');
+
+  function show(kind, text) {
+    status.className = 'status ' + kind;
+    status.textContent = text;
+  }
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var email = input.value.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      input.setAttribute('aria-invalid', 'true');
+      show('err', 'That email is missing an @ or a domain. Check it and try again.');
+      input.focus();
+      return;
+    }
+    input.removeAttribute('aria-invalid');
+    button.disabled = true;
+    button.classList.add('is-busy');
+    show('', '');
+
+    fetch(form.getAttribute('action'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email }),
+      signal: AbortSignal.timeout(10000)
+    }).then(function (res) {
+      if (!res.ok) { throw new Error('status ' + res.status); }
+      form.reset();
+      show('ok', 'You are on the list. Check ' + email + ' for a confirmation.');
+    }).catch(function () {
+      show('err', 'Signup did not go through, so you are not on the list yet. Check your connection and try again.');
+    }).then(function () {
+      button.disabled = false;
+      button.classList.remove('is-busy');
+    });
+  });
+})();
+</script>
+</body>
+</html>

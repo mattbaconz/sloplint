@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pingwell: page the on-call engineer when API latency crosses your threshold</title>
+<meta name="description" content="Pingwell checks your API from five regions and pages the engineer on call when p95 latency crosses the threshold you set.">
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;700&family=Spline+Sans+Mono:wght@400;500&display=swap");
+
+:root {
+  --bg: #0e0c0a;
+  --surface: #151412;
+  --surface-2: #1d1c1a;
+  --line: #312f2d;
+  --ink: #efedec;
+  --ink-2: #a09e9b;
+  --accent: #f39b02;
+  --accent-ink: #f39b02;
+  --on-accent: #1f1306;
+  --ok: #76cf8a;
+  --warn: #e8aa4e;
+  --danger: #ff968a;
+  --font-display: "Schibsted Grotesk", system-ui, sans-serif;
+  --font-text: "Schibsted Grotesk", system-ui, sans-serif;
+  --font-mono: "Spline Sans Mono", ui-monospace, Menlo, Consolas, monospace;
+  --step-0: 0.938rem;
+  --step-1: 1.125rem;
+  --step-2: 1.35rem;
+  --step-3: 1.62rem;
+  --step-4: clamp(1.62rem, 2.43vw, 1.944rem);
+  --step-5: clamp(1.62rem, 2.92vw, 2.333rem);
+  --step--1: 0.781rem;
+  --step-display: clamp(2.5rem, 6.88vw, 5.5rem);
+  --tracking-display: -0.04em;
+  --leading: 1.55;
+  --measure: 62ch;
+  --radius-sm: 2px;
+  --radius: 4px;
+  --radius-lg: 6px;
+  --border: 1px;
+  --shadow: none;
+  --duration: 120ms;
+  --duration-entrance: 400ms;
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-text);
+  font-size: var(--step-0);
+  line-height: var(--leading);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+::selection { background: var(--accent); color: var(--on-accent); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+a { color: inherit; text-underline-offset: 0.2em; }
+p { margin: 0; max-width: var(--measure); }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 700; margin: 0; }
+h2 { font-size: var(--step-5); line-height: 1.05; letter-spacing: -0.02em; }
+h3 { font-size: var(--step-3); line-height: 1.05; letter-spacing: -0.02em; }
+.mono, code, kbd { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.wrap { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+section { padding: 80px 0; }
+@media (max-width: 640px) { section { padding: 48px 0; } }
+
+/* buttons */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  height: 40px; padding: 0 16px; border-radius: var(--radius);
+  font: 700 var(--step-0)/1 var(--font-text); text-decoration: none; cursor: pointer;
+  border: var(--border) solid transparent;
+  transition: background-color var(--duration) var(--ease), color var(--duration) var(--ease), border-color var(--duration) var(--ease);
+}
+.btn-primary { background: var(--accent); color: var(--on-accent); }
+.btn-primary:hover { background: var(--ink); }
+.btn-secondary { border-color: var(--line); color: var(--ink); background: transparent; }
+.btn-secondary:hover { border-color: var(--ink); }
+.field .btn-primary, .field .btn-dark { background: var(--bg); color: var(--ink); }
+.field .btn-primary:hover, .field .btn-dark:hover { background: var(--surface-2); }
+
+/* header + hero: inverted field */
+.field { background: var(--ink); color: var(--bg); }
+.field :focus-visible { outline-color: var(--bg); }
+.field ::selection { background: var(--bg); color: var(--ink); }
+header.top { position: relative; z-index: 2; }
+header.top .wrap { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; padding-top: 20px; padding-bottom: 20px; }
+.logo { font: 700 var(--step-2)/1 var(--font-display); letter-spacing: -0.03em; text-decoration: none; }
+nav.main { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 24px; }
+nav.main a { text-decoration: none; font-weight: 700; transition: opacity var(--duration) var(--ease); }
+nav.main a:hover { opacity: 0.6; }
+nav.main a.btn { opacity: 1; }
+
+.hero { position: relative; overflow: clip; padding: 24px 0 80px; }
+.hero::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0.22;
+  background: repeating-linear-gradient(90deg, var(--line) 0 1px, transparent 1px calc(100% / 12));
+  max-width: 1200px; margin: 0 auto; left: 24px; right: 24px;
+}
+.hero .wrap { position: relative; }
+.hero h1 {
+  font-size: var(--step-display); line-height: 0.98; letter-spacing: var(--tracking-display);
+  max-width: 14ch; text-wrap: balance;
+}
+.hero-lead { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 24px; margin-bottom: 40px; }
+.hero-lead p { font-size: var(--step-1); max-width: 38ch; }
+.cmd {
+  display: flex; align-items: stretch; max-width: 100%; margin-top: 24px;
+  background: var(--bg); color: var(--ink); border-radius: var(--radius);
+}
+.cmd code { padding: 11px 16px; font-size: var(--step--1); white-space: nowrap; overflow-x: auto; min-width: 0; line-height: 18px; }
+.cmd code b { color: var(--accent-ink); font-weight: 500; }
+.cmd button {
+  flex: none; background: var(--surface-2); color: var(--ink); border: 0; padding: 0 16px; cursor: pointer;
+  font: 500 var(--step--1)/1 var(--font-mono); border-radius: 0 var(--radius) var(--radius) 0;
+  transition: background-color var(--duration) var(--ease);
+}
+.cmd button:hover { background: var(--line); }
+
+/* hero panel: event feed */
+.panel { background: var(--bg); color: var(--ink); border-radius: var(--radius-lg); overflow: clip; }
+.panel-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 16px; padding: 12px 20px; border-bottom: var(--border) solid var(--line); font: 500 var(--step--1)/1.4 var(--font-mono); color: var(--ink-2); }
+.panel-head strong { color: var(--ink); font-weight: 500; }
+.feed { list-style: none; margin: 0; padding: 0; }
+.feed li {
+  display: grid; grid-template-columns: 96px 88px minmax(0, 1fr) auto; gap: 8px 20px; align-items: baseline;
+  padding: 14px 20px; border-bottom: var(--border) solid var(--line); font-size: var(--step-0);
+}
+.feed li:last-child { border-bottom: 0; }
+.feed time, .feed .meta, .tag { font-family: var(--font-mono); font-size: var(--step--1); font-variant-numeric: tabular-nums; }
+.feed time { color: var(--ink-2); }
+.tag { font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; }
+.tag.ok { color: var(--ok); }
+.tag.warn { color: var(--warn); }
+.tag.danger { color: var(--danger); }
+.feed .meta { color: var(--ink-2); text-align: right; }
+.feed li.hot { background: var(--accent); color: var(--on-accent); }
+.feed li.hot time, .feed li.hot .meta { color: var(--on-accent); }
+.feed li.hot .tag { color: var(--on-accent); }
+.feed .path { font-family: var(--font-mono); font-size: var(--step--1); }
+.feed .what { overflow-wrap: anywhere; }
+@media (max-width: 767px) {
+  .feed li { grid-template-columns: auto minmax(0, 1fr); }
+  .feed .what, .feed .meta { grid-column: 1 / -1; text-align: left; }
+}
+
+.enter { opacity: 0; transform: translateY(12px); animation: enter var(--duration-entrance) var(--ease) forwards; }
+.enter.e2 { animation-delay: 120ms; }
+.enter.e3 { animation-delay: 240ms; }
+@keyframes enter { to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .enter { animation: none; opacity: 1; transform: none; }
+  html { scroll-behavior: auto; }
+}
+
+/* features: ranked, not equal cards */
+.features h2 { max-width: 20ch; margin-bottom: 40px; text-wrap: balance; }
+.f-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 24px; }
+.f-lead { grid-column: span 7; background: var(--surface); border-radius: var(--radius-lg); padding: 32px; }
+.f-lead h3 { margin-bottom: 16px; }
+.f-lead p { color: var(--ink); }
+.thresholds { margin-top: 28px; width: 100%; border-collapse: collapse; font-family: var(--font-mono); font-size: var(--step--1); font-variant-numeric: tabular-nums; }
+.thresholds th, .thresholds td { padding: 10px 0; border-bottom: var(--border) solid var(--line); text-align: right; font-weight: 400; }
+.thresholds th:first-child, .thresholds td:first-child { text-align: left; }
+.thresholds thead th { color: var(--ink-2); }
+.thresholds td.over { color: var(--accent-ink); }
+.f-list { grid-column: span 5; list-style: none; margin: 0; padding: 0; }
+.f-list li { padding: 20px 0; border-bottom: var(--border) solid var(--line); }
+.f-list li:first-child { padding-top: 0; }
+.f-list h3 { font-size: var(--step-2); margin-bottom: 6px; }
+.f-list p { color: var(--ink-2); }
+.f-list .mono { color: var(--ink); }
+@media (max-width: 767px) {
+  .f-grid { grid-template-columns: minmax(0, 1fr); }
+  .f-lead, .f-list { grid-column: 1 / -1; }
+  .f-lead { padding: 24px; }
+  .thresholds { display: block; }
+  .thresholds thead { display: none; }
+  .thresholds tbody, .thresholds tr, .thresholds td { display: block; }
+  .thresholds tr { padding: 10px 0; border-bottom: var(--border) solid var(--line); }
+  .thresholds td { border: 0; padding: 2px 0; text-align: left; }
+  .thresholds td::before { content: attr(data-label) " "; color: var(--ink-2); }
+}
+
+/* pricing */
+.pricing { background: var(--surface); }
+.pricing h2 { margin-bottom: 40px; max-width: 22ch; text-wrap: balance; }
+.plans { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 24px; align-items: start; }
+.plan { grid-column: span 4; padding: 28px 0 0; border-top: 2px solid var(--line); display: flex; flex-direction: column; gap: 20px; }
+.plan.pick { border-top-color: var(--accent); }
+.plan .name { display: flex; justify-content: space-between; align-items: baseline; }
+.plan .badge { font: 500 var(--step--1)/1 var(--font-mono); color: var(--accent-ink); }
+.price { font: 700 var(--step-display)/0.98 var(--font-display); letter-spacing: var(--tracking-display); font-variant-numeric: tabular-nums; }
+.plan.pick .price { color: var(--accent-ink); }
+.price small { font: 400 var(--step-0)/1 var(--font-mono); letter-spacing: 0; color: var(--ink-2); }
+.plan ul { list-style: none; margin: 0; padding: 0; }
+.plan li { padding: 10px 0; border-bottom: var(--border) solid var(--line); display: flex; justify-content: space-between; gap: 16px; }
+.plan li span:last-child { font-family: var(--font-mono); font-size: var(--step--1); font-variant-numeric: tabular-nums; text-align: right; padding-top: 2px; }
+.plan .btn { align-self: flex-start; }
+.note { margin-top: 32px; color: var(--ink-2); font-size: var(--step--1); font-family: var(--font-mono); }
+@media (max-width: 767px) {
+  .plans { grid-template-columns: minmax(0, 1fr); }
+  .plan { grid-column: 1 / -1; }
+}
+
+/* testimonials */
+.voices h2 { margin-bottom: 40px; max-width: 20ch; text-wrap: balance; }
+.v-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 40px 24px; }
+blockquote { margin: 0; }
+blockquote p { max-width: none; }
+.v-main { grid-column: span 7; }
+.v-main p { font: 700 var(--step-4)/1.2 var(--font-display); letter-spacing: -0.02em; }
+.v-side { grid-column: span 5; display: grid; gap: 32px; align-content: start; }
+.v-side p { font-size: var(--step-1); }
+cite { display: block; margin-top: 16px; font: 500 var(--step--1)/1.5 var(--font-mono); font-style: normal; color: var(--ink-2); }
+@media (max-width: 767px) {
+  .v-grid { grid-template-columns: minmax(0, 1fr); }
+  .v-main, .v-side { grid-column: 1 / -1; }
+}
+
+/* signup: accent field */
+.signup { background: var(--accent); color: var(--on-accent); }
+.signup :focus-visible { outline-color: var(--on-accent); }
+.signup ::selection { background: var(--bg); color: var(--ink); }
+.signup .wrap { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 40px 24px; }
+.s-copy { grid-column: span 5; }
+.s-copy h2 { font-size: var(--step-display); line-height: 0.98; letter-spacing: var(--tracking-display); margin-bottom: 20px; text-wrap: balance; }
+.s-copy p { font-size: var(--step-1); }
+form { grid-column: 7 / span 6; display: grid; gap: 20px; align-content: start; }
+label { display: grid; gap: 6px; font-weight: 700; }
+label .hint { font: 400 var(--step--1)/1.4 var(--font-mono); }
+input, select {
+  height: 40px; padding: 0 12px; border-radius: var(--radius); border: var(--border) solid var(--line);
+  background: var(--surface); color: var(--ink); font: 400 var(--step-0)/1 var(--font-text); width: 100%;
+  transition: border-color var(--duration) var(--ease);
+}
+input::placeholder { color: var(--ink-2); }
+input:hover, select:hover { border-color: var(--ink-2); }
+input:focus-visible, select:focus-visible { outline: 2px solid var(--on-accent); outline-offset: 2px; border-color: var(--ink); }
+input:user-invalid { border-color: var(--danger); }
+.form-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; }
+.form-foot p { font: 400 var(--step--1)/1.4 var(--font-mono); max-width: 36ch; }
+@media (max-width: 767px) {
+  .signup .wrap { grid-template-columns: minmax(0, 1fr); }
+  .s-copy, form { grid-column: 1 / -1; }
+}
+
+footer { padding: 32px 0; border-top: var(--border) solid var(--line); color: var(--ink-2); font: 400 var(--step--1)/1.5 var(--font-mono); }
+footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; }
+</style>
+</head>
+<body>
+
+<div class="field">
+  <header class="top">
+    <div class="wrap">
+      <a class="logo" href="#top">Pingwell</a>
+      <nav class="main" aria-label="Primary">
+        <a href="#features">Features</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#voices">Testimonials</a>
+        <a class="btn btn-primary" href="#signup">Start monitoring</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero" id="top">
+    <div class="wrap">
+      <div class="hero-lead">
+        <div class="enter">
+          <h1>Latency up. On-call paged.</h1>
+        </div>
+        <div class="enter e3">
+          <p>Pingwell checks your API from five regions and calls the engineer on shift when p95 latency crosses the line you set.</p>
+          <div class="cmd">
+            <code id="cmd-text"><b>$</b> curl -X POST https://api.pingwell.dev/v1/monitors -d url=https://api.example.com/health -d p95_ms=400</code>
+            <button type="button" id="copy-btn">Copy command</button>
+          </div>
+          <p class="mono" id="copy-status" role="status" style="margin-top:8px;font-size:var(--step--1)"></p>
+        </div>
+      </div>
+
+      <div class="panel enter e2" role="region" aria-label="Example incident feed">
+        <div class="panel-head">
+          <span><strong>api.example.com</strong> / incident feed</span>
+          <span>example data, newest first, UTC</span>
+        </div>
+        <ol class="feed">
+          <li class="hot">
+            <time datetime="2026-10-19T03:12:07Z">03:12:07</time>
+            <span class="tag">paged</span>
+            <span class="what">Priya Nair paged by phone. Acknowledged in 41 s.</span>
+            <span class="meta">escalation: level 1</span>
+          </li>
+          <li>
+            <time datetime="2026-10-19T03:12:06Z">03:12:06</time>
+            <span class="tag danger">breach</span>
+            <span class="what"><span class="path">POST /v1/orders</span> p95 612 ms, threshold 400 ms</span>
+            <span class="meta">3 of 5 regions</span>
+          </li>
+          <li>
+            <time datetime="2026-10-19T03:11:36Z">03:11:36</time>
+            <span class="tag warn">slow</span>
+            <span class="what"><span class="path">POST /v1/orders</span> p95 438 ms, second check over</span>
+            <span class="meta">2 of 5 regions</span>
+          </li>
+          <li>
+            <time datetime="2026-10-19T03:11:06Z">03:11:06</time>
+            <span class="tag warn">slow</span>
+            <span class="what"><span class="path">POST /v1/orders</span> p95 411 ms, first check over</span>
+            <span class="meta">1 of 5 regions</span>
+          </li>
+          <li>
+            <time datetime="2026-10-19T03:10:36Z">03:10:36</time>
+            <span class="tag ok">ok</span>
+            <span class="what"><span class="path">POST /v1/orders</span> p95 187 ms</span>
+            <span class="meta">5 of 5 regions</span>
+          </li>
+        </ol>
+      </div>
+    </div>
+  </section>
+</div>
+
+<main>
+  <section class="features" id="features">
+    <div class="wrap">
+      <h2>One alert, sent to the right person, with the numbers attached</h2>
+      <div class="f-grid">
+        <div class="f-lead">
+          <h3>Thresholds on p95 latency, not just up or down</h3>
+          <p>A 200 that takes 4 seconds is an outage for your users. Set a limit per endpoint, and Pingwell pages only after consecutive checks agree.</p>
+          <table class="thresholds">
+            <thead><tr><th>Endpoint</th><th>Limit</th><th>Now</th><th>Pages after</th></tr></thead>
+            <tbody>
+              <tr><td data-label="Endpoint">GET /v1/health</td><td data-label="Limit">150 ms</td><td data-label="Now">64 ms</td><td data-label="Pages after">3 checks</td></tr>
+              <tr><td data-label="Endpoint">POST /v1/orders</td><td data-label="Limit">400 ms</td><td data-label="Now" class="over">612 ms</td><td data-label="Pages after">3 checks</td></tr>
+              <tr><td data-label="Endpoint">GET /v1/search</td><td data-label="Limit">800 ms</td><td data-label="Now">233 ms</td><td data-label="Pages after">2 checks</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <ul class="f-list">
+          <li>
+            <h3>On-call rotations that follow your calendar</h3>
+            <p>Weekly handoffs, overrides for sick days, and escalation to the next engineer after <span class="mono">5 min</span> without an acknowledgement.</p>
+          </li>
+          <li>
+            <h3>Phone, SMS and Slack</h3>
+            <p>Voice call first for the on-call engineer, a Slack message for the rest of the team.</p>
+          </li>
+          <li>
+            <h3>Checks from five regions</h3>
+            <p>A breach counts only when at least <span class="mono">2</span> regions agree, so one flaky route does not wake anyone.</p>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="pricing" id="pricing">
+    <div class="wrap">
+      <h2>Pay for monitors, not for seats</h2>
+      <div class="plans">
+        <div class="plan">
+          <div class="name"><h3>Hobby</h3></div>
+          <div class="price">$0<small> /mo</small></div>
+          <ul>
+            <li><span>Monitors</span><span>5</span></li>
+            <li><span>Check interval</span><span>5 min</span></li>
+            <li><span>Alerts</span><span>Email, Slack</span></li>
+            <li><span>On-call rotation</span><span>1 person</span></li>
+          </ul>
+          <a class="btn btn-secondary" href="#signup">Start with Hobby</a>
+        </div>
+        <div class="plan pick">
+          <div class="name"><h3>Team</h3><span class="badge">for 2 to 10 engineers</span></div>
+          <div class="price">$29<small> /mo</small></div>
+          <ul>
+            <li><span>Monitors</span><span>50</span></li>
+            <li><span>Check interval</span><span>30 s</span></li>
+            <li><span>Alerts</span><span>Phone, SMS, Slack</span></li>
+            <li><span>On-call rotation</span><span>10 people</span></li>
+          </ul>
+          <a class="btn btn-primary" href="#signup">Start with Team</a>
+        </div>
+        <div class="plan">
+          <div class="name"><h3>Scale</h3></div>
+          <div class="price">$99<small> /mo</small></div>
+          <ul>
+            <li><span>Monitors</span><span>250</span></li>
+            <li><span>Check interval</span><span>10 s</span></li>
+            <li><span>Alerts</span><span>Phone, SMS, Slack, webhook</span></li>
+            <li><span>On-call rotation</span><span>Unlimited</span></li>
+          </ul>
+          <a class="btn btn-secondary" href="#signup">Start with Scale</a>
+        </div>
+      </div>
+      <p class="note">Prices in USD, billed monthly. Team and Scale include a 14-day trial with no card.</p>
+    </div>
+  </section>
+
+  <section class="voices" id="voices">
+    <div class="wrap">
+      <h2>What on-call engineers say after the first week</h2>
+      <div class="v-grid">
+        <blockquote class="v-main">
+          <p>The page told me which endpoint, how slow, and how many regions agreed. I knew where to look before I had opened my laptop.</p>
+          <cite>Backend engineer, 6-person payments team (sample quote)</cite>
+        </blockquote>
+        <div class="v-side">
+          <blockquote>
+            <p>We stopped waking up for single-region blips. The two-region rule cut our night pages to the ones that mattered.</p>
+            <cite>Platform lead, 4-person SaaS team (sample quote)</cite>
+          </blockquote>
+          <blockquote>
+            <p>Setting up the rotation took one afternoon, and handoff is now a calendar entry instead of a pinned message.</p>
+            <cite>Founder and on-call engineer, 3-person startup (sample quote)</cite>
+          </blockquote>
+        </div>
+      </div>
+      <p class="note">Sample quotes for layout. Replace with named, permissioned customer quotes before launch.</p>
+    </div>
+  </section>
+
+  <section class="signup field-accent" id="signup" style="background:var(--accent);color:var(--on-accent)">
+    <div class="wrap">
+      <div class="s-copy">
+        <h2>Page your first on-call in 5 minutes</h2>
+        <p>Add an endpoint, set a latency limit, pick who gets the call. The Team trial lasts 14 days and needs no card.</p>
+      </div>
+      <form action="/api/signup" method="post">
+        <label>Work email
+          <input type="email" name="email" autocomplete="email" placeholder="you@yourteam.dev" required>
+        </label>
+        <label>First endpoint to monitor
+          <input type="url" name="endpoint" placeholder="https://api.yourteam.dev/health" required>
+          <span class="hint">We check it from five regions every 30 s.</span>
+        </label>
+        <label>Latency limit (p95, ms)
+          <input type="number" name="p95_ms" min="50" max="30000" value="400" inputmode="numeric" required>
+        </label>
+        <label>Plan
+          <select name="plan">
+            <option value="hobby">Hobby, $0 /mo</option>
+            <option value="team" selected>Team, $29 /mo</option>
+            <option value="scale">Scale, $99 /mo</option>
+          </select>
+        </label>
+        <div class="form-foot">
+          <button class="btn btn-dark" type="submit" style="background:var(--bg);color:var(--ink)">Create Pingwell account</button>
+          <p>We email a confirmation link. No card for the trial.</p>
+        </div>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Pingwell, uptime and latency monitoring</span>
+    <span>Example data shown on this page is illustrative.</span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var btn = document.getElementById('copy-btn');
+  var status = document.getElementById('copy-status');
+  var text = document.getElementById('cmd-text').textContent.replace(/^\$\s*/, '');
+  btn.addEventListener('click', function () {
+    if (!navigator.clipboard) {
+      status.textContent = 'Clipboard unavailable here. Select the command and copy it by hand.';
+      return;
+    }
+    navigator.clipboard.writeText(text).then(function () {
+      status.textContent = 'Copied to clipboard.';
+    }, function () {
+      status.textContent = 'Copy blocked by the browser. Select the command and copy it by hand.';
+    });
+  });
+})();
+</script>
+</body>
+</html>

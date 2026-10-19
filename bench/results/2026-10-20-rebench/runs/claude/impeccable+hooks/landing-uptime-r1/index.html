@@ -1,0 +1,486 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pingwell: page the on-call engineer when API latency crosses the line</title>
+<meta name="description" content="Pingwell checks your API from six regions and pages the on-call engineer by phone when p95 latency crosses your threshold.">
+<style>
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono:wght@400;500&display=swap");
+
+:root {
+  --bg: #f3fafa;
+  --surface: #fbfefe;
+  --surface-2: #e7eeef;
+  --line: #c7cfd0;
+  --ink: #171e1f;
+  --ink-2: #626b6c;
+  --accent: #02767f;
+  --accent-ink: #02767f;
+  --on-accent: #f1fdfe;
+  --ok: #1d7d3e;
+  --warn: #8d5e05;
+  --danger: #a7463e;
+  --font-display: "IBM Plex Sans", system-ui, sans-serif;
+  --font-text: "IBM Plex Sans", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  --step-0: 0.938rem;
+  --step-1: 1.125rem;
+  --step-2: 1.35rem;
+  --step-3: 1.62rem;
+  --step-4: clamp(1.62rem, 2.43vw, 1.944rem);
+  --step-5: clamp(1.62rem, 2.92vw, 2.333rem);
+  --step--1: 0.781rem;
+  --step-display: clamp(2.5rem, 6.88vw, 5.5rem);
+  --tracking-display: -0.04em;
+  --leading: 1.55;
+  --measure: 62ch;
+  --radius-sm: 2px;
+  --radius: 4px;
+  --radius-lg: 6px;
+  --border: 1px;
+  --shadow: none;
+  --duration: 120ms;
+  --duration-entrance: 400ms;
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-text);
+  font-size: var(--step-0);
+  line-height: var(--leading);
+  overflow-x: clip;
+  caret-color: var(--accent);
+}
+::selection { background: var(--accent); color: var(--on-accent); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+a { color: inherit; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 600; margin: 0; }
+h2 { font-size: var(--step-5); line-height: 1.05; letter-spacing: -0.02em; text-wrap: balance; }
+h3 { font-size: var(--step-2); line-height: 1.05; letter-spacing: -0.02em; }
+p { margin: 0; max-width: var(--measure); }
+code, .mono, pre { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; text-align: right; }
+
+.wrap { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+.grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px; }
+section { padding: 80px 0; }
+.rule { border-top: var(--border) solid var(--line); }
+
+/* buttons */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  height: 40px; padding: 0 16px; border-radius: var(--radius);
+  font: 600 var(--step-0)/1 var(--font-text); text-decoration: none; cursor: pointer;
+  border: var(--border) solid transparent;
+  transition: background-color var(--duration) var(--ease), color var(--duration) var(--ease), border-color var(--duration) var(--ease);
+}
+.btn-primary { background: var(--accent); color: var(--on-accent); }
+.btn-primary:hover { background: var(--ink); }
+.btn-secondary { border-color: var(--line); color: var(--ink); background: transparent; }
+.btn-secondary:hover { border-color: var(--ink); }
+.btn-field { background: var(--bg); color: var(--ink); }
+.btn-field:hover { background: var(--surface-2); }
+.btn[disabled] { opacity: 0.6; cursor: progress; }
+
+/* nav */
+header { position: relative; z-index: 2; }
+.nav { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; padding: 20px 0; }
+.brand { font: 600 var(--step-2)/1 var(--font-display); letter-spacing: -0.02em; text-decoration: none; }
+.brand span { color: var(--accent-ink); }
+.nav ul { display: flex; flex-wrap: wrap; gap: 8px 24px; list-style: none; margin: 0; padding: 0; }
+.nav ul a { text-decoration: none; transition: color var(--duration) var(--ease); }
+.nav ul a:hover { color: var(--accent-ink); }
+
+/* hero */
+.hero { position: relative; overflow: clip; padding: 48px 0 80px; }
+.hero::before {
+  content: ""; position: absolute; inset: 0; z-index: 0;
+  background-image: radial-gradient(var(--line) 1px, transparent 1px);
+  background-size: 24px 24px;
+  mask-image: linear-gradient(to bottom, var(--ink) 40%, transparent);
+}
+.hero .wrap { position: relative; z-index: 1; }
+.hero h1 {
+  font-size: var(--step-display); line-height: 0.98; letter-spacing: var(--tracking-display);
+  max-width: 11ch; text-wrap: balance;
+}
+.hero h1 em { font-style: normal; color: var(--accent-ink); }
+.hero-lede { margin-top: 24px; font-size: var(--step-1); max-width: 52ch; }
+.hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
+.marginalia { font: 400 var(--step--1)/1.4 var(--font-mono); color: var(--ink-2); font-variant-numeric: tabular-nums; }
+
+.ledger { margin-top: 56px; border-top: var(--border) solid var(--ink); }
+.ledger-row {
+  display: grid; grid-template-columns: minmax(0, 1fr) 7ch 11ch 15ch; column-gap: 24px; align-items: baseline;
+  padding: 14px 0; border-bottom: var(--border) solid var(--line);
+  font: 400 var(--step-3)/1.2 var(--font-mono); font-variant-numeric: tabular-nums;
+}
+.ledger-row .route { overflow-wrap: anywhere; }
+.ledger-row .limit { color: var(--ink-2); font-size: var(--step-0); }
+.ledger-row .state { font-size: var(--step-0); font-weight: 500; text-align: right; letter-spacing: 0.04em; }
+.ledger-row .state.ok { color: var(--ok); }
+.ledger-row .state.paged { color: var(--danger); }
+.ledger-row.hot .p95 { color: var(--accent-ink); font-weight: 500; }
+.ledger-foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 24px; padding-top: 12px; }
+
+/* entrance */
+@keyframes enter { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+.hero h1, .hero .ledger, .hero-actions { animation: enter var(--duration-entrance) var(--ease) both; }
+.hero .ledger { animation-delay: 120ms; }
+.hero-actions { animation-delay: 240ms; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .hero h1, .hero .ledger, .hero-actions { animation: none; }
+}
+
+/* sections */
+.claim { grid-column: span 4; }
+.evidence { grid-column: span 8; }
+.claim p { margin-top: 16px; }
+
+.feature-list { list-style: none; margin: 0; padding: 0; }
+.feature-list li {
+  display: grid; grid-template-columns: minmax(0, 1fr) 14ch; column-gap: 24px; align-items: baseline;
+  padding: 20px 0; border-bottom: var(--border) solid var(--line);
+}
+.feature-list li:first-child { padding-top: 0; }
+.feature-list h3 { margin-bottom: 8px; }
+.feature-list .num { font-size: var(--step-1); color: var(--accent-ink); }
+.feature-list li:not(:first-child) .num { color: var(--ink); }
+
+.config {
+  margin: 32px 0 0; padding: 16px; background: var(--ink); color: var(--bg);
+  border-radius: var(--radius-lg); overflow-x: auto; position: relative;
+  font-size: var(--step--1); line-height: 1.7;
+}
+.config .c { color: var(--line); }
+
+/* pricing */
+.plans { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: 24px; border-top: var(--border) solid var(--ink); }
+.plan { padding: 24px 0 8px; display: flex; flex-direction: column; }
+.plan + .plan { border-left: var(--border) solid var(--line); padding-left: 24px; margin-left: -1px; }
+.plan .price { font: 500 var(--step-5)/1 var(--font-mono); font-variant-numeric: tabular-nums; margin: 16px 0 4px; }
+.plan.pick .price { color: var(--accent-ink); }
+.plan .per { font: 400 var(--step--1)/1.4 var(--font-mono); color: var(--ink-2); }
+.plan dl { margin: 24px 0; display: grid; grid-template-columns: 1fr auto; gap: 0; }
+.plan dt, .plan dd { margin: 0; padding: 10px 0; border-top: var(--border) solid var(--line); }
+.plan dd { font-family: var(--font-mono); font-variant-numeric: tabular-nums; text-align: right; padding-left: 12px; }
+.plan .btn { margin-top: auto; margin-bottom: 24px; align-self: flex-start; }
+.pricing-note { margin-top: 16px; }
+
+/* testimonials */
+.quotes { list-style: none; margin: 0; padding: 0; }
+.quotes li { padding: 24px 0; border-bottom: var(--border) solid var(--line); display: grid; grid-template-columns: minmax(0, 1fr) 24ch; column-gap: 24px; align-items: baseline; }
+.quotes li:first-child { padding-top: 0; }
+.quotes blockquote { margin: 0; font-size: var(--step-2); line-height: 1.3; letter-spacing: -0.01em; max-width: 40ch; }
+.quotes .who { font: 400 var(--step--1)/1.5 var(--font-mono); color: var(--ink-2); text-align: right; }
+
+/* closing field */
+.field { background: var(--accent); color: var(--on-accent); }
+.field a { color: var(--on-accent); }
+.field p { max-width: 46ch; }
+form { display: grid; gap: 16px; }
+.row2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+label { display: grid; gap: 6px; font-weight: 600; }
+input, select {
+  height: 40px; padding: 0 12px; border-radius: var(--radius);
+  background: var(--surface); color: var(--ink); border: var(--border) solid var(--line);
+  font: 400 var(--step-0)/1 var(--font-text); width: 100%;
+  transition: border-color var(--duration) var(--ease);
+}
+input:hover, select:hover { border-color: var(--ink); }
+.field :focus-visible { outline-color: var(--bg); }
+.hint { font: 400 var(--step--1)/1.4 var(--font-mono); }
+.status { display: none; padding: 12px 16px; border-radius: var(--radius); background: var(--surface); font-weight: 600; }
+.status.show { display: block; }
+.status.err { color: var(--danger); }
+.status.good { color: var(--ok); }
+
+footer { padding: 32px 0 48px; }
+footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; }
+
+@media (max-width: 960px) {
+  .plans { grid-template-columns: minmax(0, 1fr); }
+  .plan + .plan { border-left: 0; padding-left: 0; margin-left: 0; border-top: var(--border) solid var(--line); }
+}
+@media (max-width: 767px) {
+  section { padding: 48px 0; }
+  .hero { padding-bottom: 48px; }
+  .grid { grid-template-columns: minmax(0, 1fr); row-gap: 32px; }
+  .claim, .evidence { grid-column: auto; }
+  .ledger { margin-top: 40px; }
+  .ledger-row { grid-template-columns: minmax(0, 1fr) auto; row-gap: 4px; }
+  .ledger-row .route { grid-column: 1 / -1; font-size: var(--step-2); }
+  .ledger-row .limit { text-align: left; }
+  .ledger-row .state { grid-column: 1 / -1; text-align: left; }
+  .ledger-row .p95 { text-align: left; }
+  .feature-list li, .quotes li { grid-template-columns: minmax(0, 1fr); row-gap: 8px; }
+  .quotes .who { text-align: left; }
+  .row2 { grid-template-columns: minmax(0, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <nav class="nav" aria-label="Primary">
+      <a class="brand" href="#top">Ping<span>well</span></a>
+      <ul>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#pricing">Pricing</a></li>
+        <li><a href="#testimonials">Testimonials</a></li>
+        <li><a href="#signup">Sign up</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <div class="hero">
+    <div class="wrap">
+      <h1>Latency over the line. <em>Phone rings.</em></h1>
+      <p class="hero-lede">Pingwell checks your API from six regions every 30 seconds. When p95 stays above your threshold, it calls the engineer on your on-call rotation, then the next one if nobody acknowledges.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#signup">Start monitoring free</a>
+        <a class="btn btn-secondary" href="#pricing">Compare plans</a>
+      </div>
+
+      <div class="ledger" role="table" aria-label="Sample p95 latency by endpoint">
+        <div class="ledger-row" role="row">
+          <span class="route" role="cell">GET /v1/orders</span>
+          <span class="num p95" role="cell">118 ms</span>
+          <span class="num limit" role="cell">limit 400</span>
+          <span class="state ok" role="cell">OK</span>
+        </div>
+        <div class="ledger-row hot" role="row">
+          <span class="route" role="cell">POST /v1/charges</span>
+          <span class="num p95" role="cell">412 ms</span>
+          <span class="num limit" role="cell">limit 400</span>
+          <span class="state paged" role="cell">PAGED 02:14:07Z</span>
+        </div>
+        <div class="ledger-row" role="row">
+          <span class="route" role="cell">GET /v1/search</span>
+          <span class="num p95" role="cell">231 ms</span>
+          <span class="num limit" role="cell">limit 500</span>
+          <span class="state ok" role="cell">OK</span>
+        </div>
+        <div class="ledger-row" role="row">
+          <span class="route" role="cell">POST /v1/webhooks</span>
+          <span class="num p95" role="cell">87 ms</span>
+          <span class="num limit" role="cell">limit 250</span>
+          <span class="state ok" role="cell">OK</span>
+        </div>
+        <div class="ledger-foot marginalia">
+          <span>Sample data, not a live customer. p95 over a 3-check window.</span>
+          <span>api.example.com / 6 regions / 30 s interval</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section id="features" class="rule">
+    <div class="wrap grid">
+      <div class="claim">
+        <h2>What happens between a slow response and a ringing phone</h2>
+      </div>
+      <div class="evidence">
+        <ul class="feature-list">
+          <li>
+            <div>
+              <h3>Thresholds per endpoint</h3>
+              <p>Set a p95 limit on each route. <code>POST /v1/charges</code> can page at 400&nbsp;ms while <code>GET /v1/search</code> waits until 500&nbsp;ms.</p>
+            </div>
+            <span class="num">p95 &gt; N ms</span>
+          </li>
+          <li>
+            <div>
+              <h3>Phone call, then escalation</h3>
+              <p>The on-call engineer gets a call and an SMS. If nobody acknowledges within 5 minutes, Pingwell moves to the next person in the rotation.</p>
+            </div>
+            <span class="num">ack in 5 min</span>
+          </li>
+          <li>
+            <div>
+              <h3>Two regions must agree</h3>
+              <p>A single slow probe does not wake anyone up. An alert fires only when at least two of six regions see the breach.</p>
+            </div>
+            <span class="num">2 of 6</span>
+          </li>
+          <li>
+            <div>
+              <h3>Rotations you already keep</h3>
+              <p>Import the schedule from an iCalendar feed, so the person who gets paged is the person your calendar says is on call.</p>
+            </div>
+            <span class="num">.ics import</span>
+          </li>
+        </ul>
+        <pre class="config" aria-label="Example pingwell.yml"><code><span class="c"># pingwell.yml</span>
+monitors:
+  - url: https://api.example.com/v1/charges
+    method: POST
+    interval: 30s
+    p95_over: 400ms
+    consecutive: 3
+    regions_agree: 2
+    page: payments-oncall</code></pre>
+      </div>
+    </div>
+  </section>
+
+  <section id="pricing" class="rule">
+    <div class="wrap">
+      <div class="grid" style="margin-bottom:40px">
+        <div class="claim"><h2>Pricing by monitor count, not by seat</h2></div>
+        <div class="evidence"><p>Every plan includes the whole team. Prices in USD, billed monthly, cancel from the dashboard.</p></div>
+      </div>
+
+      <div class="plans">
+        <div class="plan">
+          <h3>Starter</h3>
+          <p class="price">$0</p>
+          <p class="per">forever</p>
+          <dl>
+            <dt>Monitors</dt><dd>5</dd>
+            <dt>Check interval</dt><dd>5 min</dd>
+            <dt>Alert channel</dt><dd>Email</dd>
+            <dt>Rotations</dt><dd>1</dd>
+          </dl>
+          <a class="btn btn-secondary" href="#signup">Start with Starter</a>
+        </div>
+        <div class="plan pick">
+          <h3>Team</h3>
+          <p class="price">$29</p>
+          <p class="per">per month</p>
+          <dl>
+            <dt>Monitors</dt><dd>50</dd>
+            <dt>Check interval</dt><dd>30 s</dd>
+            <dt>Alert channel</dt><dd>Phone, SMS</dd>
+            <dt>Rotations</dt><dd>3</dd>
+          </dl>
+          <a class="btn btn-primary" href="#signup">Start with Team</a>
+        </div>
+        <div class="plan">
+          <h3>Scale</h3>
+          <p class="price">$99</p>
+          <p class="per">per month</p>
+          <dl>
+            <dt>Monitors</dt><dd>250</dd>
+            <dt>Check interval</dt><dd>15 s</dd>
+            <dt>Alert channel</dt><dd>Phone, SMS</dd>
+            <dt>Rotations</dt><dd>Unlimited</dd>
+          </dl>
+          <a class="btn btn-secondary" href="#signup">Start with Scale</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="testimonials" class="rule">
+    <div class="wrap grid">
+      <div class="claim"><h2>What on-call engineers say after the first week</h2></div>
+      <div class="evidence">
+        <ul class="quotes">
+          <li>
+            <blockquote>“We stopped finding out about slow checkouts from customers. The page arrives before the support ticket does.”</blockquote>
+            <span class="who">Backend lead<br>6-person team</span>
+          </li>
+          <li>
+            <blockquote>“Requiring two regions to agree cut our false pages to almost none. I sleep through the blips now.”</blockquote>
+            <span class="who">Platform engineer<br>4-person team</span>
+          </li>
+          <li>
+            <blockquote>“The escalation is the feature. If I miss the call, my teammate gets it five minutes later.”</blockquote>
+            <span class="who">Founding engineer<br>3-person team</span>
+          </li>
+        </ul>
+        <p class="marginalia" style="margin-top:16px">Illustrative quotes written for this draft; swap in approved customer quotes with names and dates before launch.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="signup" class="field">
+    <div class="wrap grid">
+      <div class="claim">
+        <h2>Point Pingwell at one endpoint today</h2>
+        <p style="margin-top:16px">Add a URL and a threshold. The first check runs within a minute, and the Starter plan needs no card.</p>
+      </div>
+      <div class="evidence">
+        <form id="signup-form" action="/api/signup" method="post" novalidate>
+          <div class="row2">
+            <label>Work email
+              <input type="email" name="email" autocomplete="email" placeholder="you@yourteam.dev" required>
+            </label>
+            <label>Team size
+              <select name="team_size" required>
+                <option value="1-3">1 to 3 engineers</option>
+                <option value="4-10" selected>4 to 10 engineers</option>
+                <option value="11-25">11 to 25 engineers</option>
+              </select>
+            </label>
+          </div>
+          <label>API URL to watch first
+            <input type="url" name="api_url" placeholder="https://api.yourteam.dev/v1/health" required>
+          </label>
+          <p class="hint">Only the URL is requested; Pingwell sends no auth headers unless you add them.</p>
+          <div><button class="btn btn-field" type="submit" id="submit-btn">Create my account</button></div>
+          <p class="status" id="status" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap marginalia">
+    <span>Pingwell / uptime and latency paging for small dev teams</span>
+    <span><a href="#top">Back to top</a></span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var form = document.getElementById("signup-form");
+  var status = document.getElementById("status");
+  var btn = document.getElementById("submit-btn");
+
+  function show(kind, text) {
+    status.className = "status show " + kind;
+    status.textContent = text;
+  }
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var email = form.elements.email, url = form.elements.api_url;
+    if (!email.validity.valid || !url.validity.valid) {
+      var bad = !email.validity.valid ? email : url;
+      show("err", (bad === email ? "Enter a valid work email, like you@yourteam.dev." : "Enter the full API URL, starting with https://.") );
+      bad.focus();
+      return;
+    }
+    btn.disabled = true;
+    fetch(form.action, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(Object.fromEntries(new FormData(form))),
+      signal: AbortSignal.timeout(10000)
+    }).then(function (res) {
+      if (!res.ok) throw new Error("status " + res.status);
+      show("good", "Account created. Check " + email.value + " for the link to add your first threshold.");
+      form.reset();
+    }).catch(function () {
+      show("err", "Signup did not go through: the server did not accept the request. Your details are still in the form, so try again in a minute.");
+    }).finally(function () {
+      btn.disabled = false;
+    });
+  });
+})();
+</script>
+</body>
+</html>

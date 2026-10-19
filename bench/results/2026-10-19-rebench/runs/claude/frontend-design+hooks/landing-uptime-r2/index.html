@@ -1,0 +1,514 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pingwell: page the on-call engineer when API latency crosses your threshold</title>
+<meta name="description" content="Pingwell checks your API endpoints from multiple regions and pages your on-call engineer when p95 latency crosses the threshold you set.">
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@700&family=Red+Hat+Text:wght@400;600&family=Red+Hat+Mono:wght@400;500&display=swap");
+
+:root {
+  --bg: #f5fafd;
+  --surface: #fdfdfe;
+  --surface-2: #e9eef2;
+  --line: #c9cfd4;
+  --ink: #161b1f;
+  --ink-2: #636a6f;
+  --accent: #b73133;
+  --accent-ink: #b73133;
+  --on-accent: #fef9f8;
+  --ok: #1d7d3e;
+  --warn: #8d5e05;
+  --danger: #a7463e;
+  --font-display: "Red Hat Display", system-ui, sans-serif;
+  --font-text: "Red Hat Text", system-ui, sans-serif;
+  --font-mono: "Red Hat Mono", ui-monospace, Menlo, Consolas, monospace;
+  --step-0: 0.938rem;
+  --step-1: 1.125rem;
+  --step-2: 1.35rem;
+  --step-3: 1.62rem;
+  --step-4: clamp(1.62rem, 2.43vw, 1.944rem);
+  --step-5: clamp(1.62rem, 2.92vw, 2.333rem);
+  --step--1: 0.781rem;
+  --step-display: clamp(2.5rem, 6.88vw, 5.5rem);
+  --tracking-display: -0.04em;
+  --leading: 1.55;
+  --measure: 62ch;
+  --radius-sm: 2px;
+  --radius: 4px;
+  --radius-lg: 6px;
+  --border: 1px;
+  --shadow: none;
+  --duration: 120ms;
+  --duration-entrance: 400ms;
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-text);
+  font-size: var(--step-0);
+  line-height: var(--leading);
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3 { font-family: var(--font-display); font-weight: 700; margin: 0; }
+h2 { font-size: var(--step-5); line-height: 1.05; letter-spacing: -0.02em; }
+h3 { font-size: var(--step-2); line-height: 1.05; letter-spacing: -0.02em; }
+p { margin: 0; max-width: var(--measure); }
+a { color: inherit; }
+code, .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.on-field :focus-visible { outline-color: var(--bg); }
+
+.wrap { width: 100%; max-width: 1248px; margin: 0 auto; padding: 0 24px; }
+.section { padding: 80px 0; }
+@media (max-width: 639px) { .section { padding: 48px 0; } }
+
+/* buttons */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  height: 40px; padding: 0 16px;
+  font: 600 var(--step-0)/1 var(--font-text);
+  border: var(--border) solid var(--line);
+  border-radius: var(--radius);
+  background: transparent; color: var(--ink);
+  text-decoration: none; cursor: pointer;
+  transition: background-color var(--duration) var(--ease), color var(--duration) var(--ease), border-color var(--duration) var(--ease);
+}
+.btn:hover { background: var(--surface-2); }
+.btn-primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.btn-primary:hover { background: var(--ink); border-color: var(--ink); }
+.btn-field { background: var(--bg); border-color: var(--bg); color: var(--ink); }
+.btn-field:hover { background: var(--surface-2); border-color: var(--surface-2); }
+
+.tag {
+  display: inline-block; padding: 1px 6px;
+  font: 500 var(--step--1)/1.5 var(--font-mono);
+  border: var(--border) solid var(--line);
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}
+.tag.ok { color: var(--ok); border-color: var(--ok); }
+.tag.warn { color: var(--warn); border-color: var(--warn); }
+.tag.danger { color: var(--danger); border-color: var(--danger); }
+
+/* header */
+.top { border-bottom: var(--border) solid var(--line); background: var(--bg); }
+.top .wrap { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 24px; min-height: 56px; }
+.brand { font-family: var(--font-display); font-weight: 700; font-size: var(--step-1); letter-spacing: -0.02em; text-decoration: none; }
+.top nav { display: flex; flex-wrap: wrap; gap: 4px 24px; font-size: var(--step-0); }
+.top nav a { text-decoration: none; color: var(--ink-2); transition: color var(--duration) var(--ease); }
+.top nav a:hover { color: var(--ink); }
+
+/* hero: the product, cropped off the right edge */
+.hero {
+  position: relative; overflow: clip;
+  padding: 56px 0 80px;
+  background-image: radial-gradient(var(--line) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+.hero-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 24px; align-items: start; }
+.hero-copy { grid-column: 1 / -1; }
+.hero h1 {
+  font-size: var(--step-display); line-height: 0.98; letter-spacing: var(--tracking-display);
+  max-width: 11ch;
+}
+.hero-lede { margin-top: 24px; font-size: var(--step-1); }
+.hero-actions { margin-top: 32px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.cmd {
+  display: inline-flex; align-items: center; max-width: 100%;
+  min-height: 40px; padding: 0 0 0 12px;
+  background: var(--surface); border: var(--border) solid var(--line); border-radius: var(--radius);
+  font: 400 var(--step--1)/1 var(--font-mono);
+}
+.cmd code { overflow-x: auto; white-space: nowrap; padding: 12px 0; }
+.cmd button {
+  margin-left: 12px; height: 38px; padding: 0 12px; flex: none;
+  font: 600 var(--step--1)/1 var(--font-text); color: var(--ink);
+  background: var(--surface-2); border: 0; border-left: var(--border) solid var(--line);
+  border-radius: 0 var(--radius) var(--radius) 0; cursor: pointer;
+  transition: background-color var(--duration) var(--ease);
+}
+.cmd button:hover { background: var(--line); }
+
+.board {
+  grid-column: 1 / -1; margin-top: 16px;
+  min-width: 0;
+}
+.board-frame {
+  background: var(--surface); border: var(--border) solid var(--line);
+  border-radius: var(--radius-lg) 0 0 var(--radius-lg); border-right: 0;
+  padding: 12px 0 0 12px;
+  width: 960px; max-width: none;
+}
+.board-bar { display: flex; justify-content: space-between; gap: 16px; padding: 0 16px 12px 4px; color: var(--ink-2); font: 400 var(--step--1)/1.4 var(--font-mono); }
+.board table { width: 100%; border-collapse: collapse; font-family: var(--font-mono); font-size: var(--step--1); font-variant-numeric: tabular-nums; }
+.board th { text-align: left; font-weight: 400; color: var(--ink-2); padding: 8px 16px 8px 4px; border-top: var(--border) solid var(--line); }
+.board td { padding: 10px 16px 10px 4px; border-top: var(--border) solid var(--line); white-space: nowrap; }
+.board th.num, .board td.num { text-align: right; }
+.board tr.hot td { background: var(--surface-2); }
+.board .hl { color: var(--accent-ink); font-weight: 500; }
+.bar { display: inline-block; vertical-align: middle; width: 160px; height: 8px; background: var(--surface-2); border-radius: var(--radius-sm); position: relative; }
+.bar i { position: absolute; inset: 0 auto 0 0; background: var(--ink); border-radius: var(--radius-sm); }
+.bar i.over { background: var(--accent); }
+.bar b { position: absolute; top: -3px; bottom: -3px; width: 1px; background: var(--ink-2); }
+.page-line {
+  margin: 0; padding: 12px 16px 12px 4px;
+  border-top: var(--border) solid var(--line);
+  font: 400 var(--step--1)/1.5 var(--font-mono); max-width: none;
+}
+
+@media (min-width: 1024px) {
+  .hero-copy { grid-column: 1 / span 5; }
+  .board { grid-column: 6 / -1; margin-top: 0; }
+  .board-frame { width: 880px; }
+}
+@media (max-width: 767px) {
+  .board-frame { width: 760px; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero h1, .hero-lede { animation: rise var(--duration-entrance) var(--ease) both; }
+  .board { animation: rise var(--duration-entrance) var(--ease) 120ms both; }
+  .hero-actions { animation: rise var(--duration-entrance) var(--ease) 240ms both; }
+  @keyframes rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+}
+
+/* features: an index */
+.features-head { max-width: 22ch; }
+.index { margin: 40px 0 0; padding: 0; list-style: none; border-top: var(--border) solid var(--ink); }
+.index li {
+  display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 8px 24px;
+  padding: 24px 0; border-bottom: var(--border) solid var(--line);
+}
+.index h3 { grid-column: 1 / span 4; }
+.index p { grid-column: 5 / span 7; }
+.index code { font-size: 0.9em; background: var(--surface-2); padding: 1px 4px; border-radius: var(--radius-sm); }
+@media (max-width: 767px) {
+  .index li { grid-template-columns: minmax(0, 1fr); }
+  .index h3, .index p { grid-column: 1; }
+}
+
+/* inverted field: how a page happens */
+.field-ink { background: var(--ink); color: var(--bg); }
+.field-ink .steps { margin: 40px 0 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(15rem, 100%), 1fr)); gap: 24px; }
+.field-ink .steps li { border-top: var(--border) solid var(--ink-2); padding-top: 16px; }
+.field-ink .steps .mono { font-size: var(--step--1); color: var(--line); display: block; margin-bottom: 8px; }
+.field-ink .steps p { font-size: var(--step-0); }
+
+/* pricing */
+.plans { margin-top: 40px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr) minmax(0, 1fr); gap: 24px; align-items: stretch; }
+.plan { background: var(--surface); border: var(--border) solid var(--line); border-radius: var(--radius-lg); padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+.plan.main { border-color: var(--ink); }
+.plan-price { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: var(--step-4); font-weight: 500; letter-spacing: -0.02em; }
+.plan.main .plan-price { color: var(--accent-ink); font-size: var(--step-5); }
+.plan-price small { font-size: var(--step--1); color: var(--ink-2); font-weight: 400; letter-spacing: 0; }
+.plan dl { margin: 0; display: grid; gap: 0; font-size: var(--step-0); }
+.plan dl div { display: flex; justify-content: space-between; gap: 16px; padding: 8px 0; border-top: var(--border) solid var(--line); }
+.plan dt { color: var(--ink-2); }
+.plan dd { margin: 0; font-family: var(--font-mono); font-variant-numeric: tabular-nums; text-align: right; }
+.plan .btn { margin-top: auto; }
+@media (max-width: 899px) { .plans { grid-template-columns: minmax(0, 1fr); } }
+.fine { margin-top: 16px; font: 400 var(--step--1)/1.5 var(--font-mono); color: var(--ink-2); }
+
+/* testimonials */
+.quotes { margin-top: 40px; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 40px 24px; }
+.quote { margin: 0; }
+.quote blockquote { margin: 0; font-family: var(--font-display); font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; }
+.quote figcaption { margin-top: 16px; font-size: var(--step-0); }
+.quote figcaption span { color: var(--ink-2); display: block; }
+.quote.lead { grid-column: 1 / span 7; }
+.quote.lead blockquote { font-size: var(--step-4); }
+.quote.side { grid-column: 9 / -1; }
+.quote.side + .quote.side { grid-column: 9 / -1; }
+.quote.side blockquote { font-size: var(--step-2); }
+.side-col { grid-column: 9 / -1; display: grid; gap: 40px; align-content: start; border-left: var(--border) solid var(--line); padding-left: 24px; }
+.side-col .quote { grid-column: auto; }
+@media (max-width: 899px) {
+  .quote.lead, .side-col { grid-column: 1 / -1; }
+  .side-col { border-left: 0; padding-left: 0; border-top: var(--border) solid var(--line); padding-top: 24px; }
+}
+
+/* signup: accent field */
+.field-accent { background: var(--accent); color: var(--on-accent); }
+.signup-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 40px 24px; }
+.signup-copy { grid-column: 1 / span 5; }
+.signup-copy p { margin-top: 16px; }
+.signup-form { grid-column: 7 / -1; display: grid; gap: 16px; }
+.signup-form label { display: grid; gap: 6px; font-weight: 600; }
+.signup-form input, .signup-form select {
+  height: 40px; padding: 0 12px;
+  background: var(--surface); color: var(--ink);
+  border: var(--border) solid var(--line); border-radius: var(--radius);
+  font: 400 var(--step-0)/1 var(--font-text);
+}
+.signup-form .hint { font: 400 var(--step--1)/1.4 var(--font-mono); font-weight: 400; }
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(12rem, 100%), 1fr)); gap: 16px; }
+.btn-submit { position: relative; justify-self: start; }
+.btn-submit .spin { position: absolute; visibility: hidden; font-family: var(--font-mono); }
+.btn-submit[aria-busy="true"] .label { visibility: hidden; }
+.btn-submit[aria-busy="true"] .spin { visibility: visible; }
+.status { min-height: 1.55em; font-weight: 600; max-width: none; }
+.status.err { background: var(--bg); color: var(--danger); padding: 8px 12px; border-radius: var(--radius); }
+.status.done { background: var(--bg); color: var(--ok); padding: 8px 12px; border-radius: var(--radius); }
+@media (max-width: 899px) {
+  .signup-copy, .signup-form { grid-column: 1 / -1; }
+}
+
+footer { padding: 24px 0 40px; color: var(--ink-2); font: 400 var(--step--1)/1.5 var(--font-mono); }
+footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#top">Pingwell</a>
+    <nav aria-label="Primary">
+      <a href="#features">Features</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#teams">Teams</a>
+      <a href="#signup">Sign up</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <h1 id="hero-title">Slow API. Pager rings.</h1>
+        <p class="hero-lede">Pingwell checks your endpoints from three regions every 30 seconds. When p95 latency stays over the threshold you set, it calls whoever is on call.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#signup">Start monitoring free</a>
+          <div class="cmd">
+            <code id="cmd-text">npx pingwell add https://api.example.com/health --p95 400ms</code>
+            <button type="button" id="copy-btn" aria-label="Copy command">Copy</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="board" aria-label="Example Pingwell dashboard">
+        <div class="board-frame">
+          <div class="board-bar"><span>checks / api.example.com</span><span>window: last 5 min, p95</span></div>
+          <table>
+            <thead>
+              <tr><th>Endpoint</th><th class="num">p95</th><th class="num">Limit</th><th>Against limit</th><th>State</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>GET /v1/health</td><td class="num">84 ms</td><td class="num">400 ms</td><td><span class="bar"><i style="width:21%"></i><b style="left:100%"></b></span></td><td><span class="tag ok">ok</span></td></tr>
+              <tr><td>GET /v1/orders</td><td class="num">212 ms</td><td class="num">400 ms</td><td><span class="bar"><i style="width:53%"></i><b style="left:100%"></b></span></td><td><span class="tag ok">ok</span></td></tr>
+              <tr><td>POST /v1/checkout</td><td class="num">361 ms</td><td class="num">400 ms</td><td><span class="bar"><i style="width:90%"></i><b style="left:100%"></b></span></td><td><span class="tag warn">near limit</span></td></tr>
+              <tr class="hot"><td>GET /v1/search</td><td class="num hl">1,240 ms</td><td class="num">500 ms</td><td><span class="bar"><i class="over" style="width:100%"></i><b style="left:40%"></b></span></td><td><span class="tag danger">paging</span></td></tr>
+            </tbody>
+          </table>
+          <p class="page-line">14:32:10 UTC GET /v1/search p95 1,240 ms &gt; 500 ms for 3 checks. Paged on-call: Dana R. (SMS, phone call).</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="features" aria-labelledby="features-title">
+    <div class="wrap">
+      <h2 id="features-title" class="features-head">Built for the one person holding the pager</h2>
+      <ul class="index">
+        <li>
+          <h3>Latency thresholds per endpoint</h3>
+          <p>Set a p95 limit in milliseconds for each route. <code>/v1/health</code> can allow 400 ms while <code>/v1/search</code> allows 500 ms. Pingwell pages after the limit is crossed on consecutive checks, so one slow response does not wake anyone.</p>
+        </li>
+        <li>
+          <h3>Paging that follows your rota</h3>
+          <p>Import the on-call schedule, or enter it by hand. Pingwell sends an SMS, then calls the phone if nobody acknowledges within 5 minutes, then moves to the next person on the rota.</p>
+        </li>
+        <li>
+          <h3>Checks from three regions</h3>
+          <p>Every endpoint is requested from Frankfurt, Virginia and Singapore. An alert needs at least two regions to agree, so a network fault near one probe does not page you.</p>
+        </li>
+        <li>
+          <h3>Incident log with response timings</h3>
+          <p>Each page records which check crossed the limit, who was paged, and when they acknowledged. Export it as CSV for your post-incident review.</p>
+        </li>
+        <li>
+          <h3>Setup from the command line</h3>
+          <p>Add a check with <code>npx pingwell add</code>, or keep checks in a <code>pingwell.toml</code> file in your repo and apply it from CI.</p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="section field-ink on-field" aria-labelledby="flow-title">
+    <div class="wrap">
+      <h2 id="flow-title">What happens when /v1/search slows down</h2>
+      <ol class="steps">
+        <li><span class="mono">14:29:40</span><p>Frankfurt and Virginia both measure p95 over 500 ms on GET /v1/search.</p></li>
+        <li><span class="mono">14:31:10</span><p>Third consecutive slow check. Pingwell opens an incident.</p></li>
+        <li><span class="mono">14:31:12</span><p>SMS goes to the engineer on call, with the endpoint, the p95 and a link to the check.</p></li>
+        <li><span class="mono">14:36:12</span><p>No acknowledgement after 5 minutes: Pingwell phones them, then the next person on the rota.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="section" id="pricing" aria-labelledby="pricing-title">
+    <div class="wrap">
+      <h2 id="pricing-title">Pricing by number of checks</h2>
+      <div class="plans">
+        <article class="plan">
+          <h3>Side project</h3>
+          <p class="plan-price">$0 <small>/ month</small></p>
+          <dl>
+            <div><dt>Checks</dt><dd>5</dd></div>
+            <div><dt>Check interval</dt><dd>5 min</dd></div>
+            <div><dt>Regions</dt><dd>1</dd></div>
+            <div><dt>On-call people</dt><dd>1</dd></div>
+          </dl>
+          <a class="btn" href="#signup">Create free account</a>
+        </article>
+        <article class="plan main">
+          <h3>Team</h3>
+          <p class="plan-price">$29 <small>/ month</small></p>
+          <dl>
+            <div><dt>Checks</dt><dd>50</dd></div>
+            <div><dt>Check interval</dt><dd>30 s</dd></div>
+            <div><dt>Regions</dt><dd>3</dd></div>
+            <div><dt>On-call people</dt><dd>10</dd></div>
+            <div><dt>Paging</dt><dd>SMS + phone call</dd></div>
+          </dl>
+          <a class="btn btn-primary" href="#signup">Start Team trial</a>
+        </article>
+        <article class="plan">
+          <h3>Scale</h3>
+          <p class="plan-price">$99 <small>/ month</small></p>
+          <dl>
+            <div><dt>Checks</dt><dd>250</dd></div>
+            <div><dt>Check interval</dt><dd>15 s</dd></div>
+            <div><dt>Regions</dt><dd>6</dd></div>
+            <div><dt>On-call people</dt><dd>50</dd></div>
+          </dl>
+          <a class="btn" href="#signup">Start Scale trial</a>
+        </article>
+      </div>
+      <p class="fine">Prices in USD, billed monthly. Paid plans start with a 14-day trial; no card needed.</p>
+    </div>
+  </section>
+
+  <section class="section" id="teams" aria-labelledby="teams-title" style="padding-top:0">
+    <div class="wrap">
+      <h2 id="teams-title">From teams on the rota</h2>
+      <div class="quotes">
+        <figure class="quote lead">
+          <blockquote>“We used to find out the checkout API was slow from a customer email. Now the page arrives while the p95 is still at 600.”</blockquote>
+          <figcaption>Priya Nair<span>Backend lead, six-person payments team</span></figcaption>
+        </figure>
+        <div class="side-col">
+          <figure class="quote">
+            <blockquote>“Two regions have to agree before it rings. My phone has been quiet for the right reasons.”</blockquote>
+            <figcaption>Tomás Herrera<span>Platform engineer, on call one week in four</span></figcaption>
+          </figure>
+          <figure class="quote">
+            <blockquote>“Checks live in pingwell.toml next to the service. A new endpoint ships with its own alert.”</blockquote>
+            <figcaption>Hannah Okafor<span>Engineering manager, four-person API team</span></figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section field-accent on-field" id="signup" aria-labelledby="signup-title">
+    <div class="wrap signup-grid">
+      <div class="signup-copy">
+        <h2 id="signup-title">Add your first check in two minutes</h2>
+        <p>Enter an endpoint and a limit. We send a test page to your phone so you know it works before you rely on it.</p>
+      </div>
+      <form class="signup-form" id="signup-form" action="/api/signup" method="post" novalidate>
+        <label>Work email
+          <input type="email" name="email" autocomplete="email" required placeholder="dana@example.com">
+        </label>
+        <div class="two">
+          <label>Endpoint to watch
+            <input type="url" name="endpoint" required placeholder="https://api.example.com/health">
+          </label>
+          <label>Page when p95 exceeds
+            <select name="threshold">
+              <option value="200">200 ms</option>
+              <option value="500" selected>500 ms</option>
+              <option value="1000">1,000 ms</option>
+              <option value="2000">2,000 ms</option>
+            </select>
+          </label>
+        </div>
+        <label>Mobile number for the test page
+          <input type="tel" name="phone" autocomplete="tel" required placeholder="+1 415 555 0134">
+          <span class="hint">Used for paging only.</span>
+        </label>
+        <button class="btn btn-field btn-submit" type="submit">
+          <span class="label">Create account</span><span class="spin" aria-hidden="true">sending…</span>
+        </button>
+        <p class="status" id="form-status" role="status" aria-live="polite"></p>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Pingwell</span>
+    <span>Checks run from fra, iad, sin</span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var copyBtn = document.getElementById("copy-btn");
+  var cmd = document.getElementById("cmd-text");
+  copyBtn.addEventListener("click", function () {
+    if (!navigator.clipboard) { copyBtn.textContent = "Select and copy"; return; }
+    navigator.clipboard.writeText(cmd.textContent).then(function () {
+      copyBtn.textContent = "Copied";
+      setTimeout(function () { copyBtn.textContent = "Copy"; }, 1500);
+    }, function () { copyBtn.textContent = "Copy failed"; });
+  });
+
+  var form = document.getElementById("signup-form");
+  var status = document.getElementById("form-status");
+  var submit = form.querySelector(".btn-submit");
+
+  function show(kind, text) {
+    status.className = "status " + kind;
+    status.textContent = text;
+  }
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      show("err", "Fix the highlighted fields: email, a full https:// endpoint URL and a mobile number are required.");
+      return;
+    }
+    submit.setAttribute("aria-busy", "true");
+    submit.disabled = true;
+    show("", "");
+    fetch(form.action, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(Object.fromEntries(new FormData(form))),
+      signal: AbortSignal.timeout(10000)
+    }).then(function (res) {
+      if (!res.ok) { throw new Error("status " + res.status); }
+      form.reset();
+      show("done", "Account created. A test page is on its way to your phone.");
+    }).catch(function () {
+      show("err", "Signup did not go through; nothing was saved. Check your connection and submit again.");
+    }).then(function () {
+      submit.removeAttribute("aria-busy");
+      submit.disabled = false;
+    });
+  });
+})();
+</script>
+</body>
+</html>
