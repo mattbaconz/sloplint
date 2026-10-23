@@ -7,7 +7,7 @@
   "workers_dev": true,
   "vars": {
     // Comma-separated origins that may call the fetcher.
-    "ALLOWED_ORIGINS": "https://mattbaconz.github.io"
+    "ALLOWED_ORIGINS": "https://mattbaconz.github.io,https://sloplint.xyz"
   },
   // 10 pages a minute per visitor IP, one RateLimiter object per IP. SQLite-backed because the
   // Free plan requires it; the class keeps its state in memory and never writes to storage.

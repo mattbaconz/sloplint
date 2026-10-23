@@ -290,7 +290,7 @@ export function sarif(results) {
       shortDescription: { text: r.title },
       fullDescription: { text: r.rationale },
       help: { text: r.fix },
-      helpUri: `https://mattbaconz.github.io/sloplint/#rule/${r.id}`,
+      helpUri: `https://sloplint.xyz/site/#rule/${r.id}`,
       defaultConfiguration: { level: level(r.severity) },
     })),
   };

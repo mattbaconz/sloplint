@@ -12,7 +12,7 @@ sloplint ships five things:
 - **A design-system generator** that gives every project its own `DESIGN.md`: a typeface trio, a contrast-checked palette, shape, motion and a layout archetype picked from a seed and a one-line brief, so agents stop converging on the same look. Two rules then hold the code to it.
 - **Agent integrations**: a Claude Code plugin that lints every file as it is written, a skill for any agent that reads skills, rule blocks synced into `CLAUDE.md`, `GEMINI.md`, `AGENTS.md` and Cursor rules, master briefs per discipline, and a Playwright suite that audits the rendered page.
 - **A GitHub Action** that annotates findings on pull requests and can send them to code scanning.
-- **A docs site** with the rule catalog, worked examples, a style generator and an in-browser grader that runs the same engine as the CLI.
+- **A docs site** ([sloplint.xyz](https://sloplint.xyz/)) with the rule catalog, worked examples, a style generator and an in-browser grader that runs the same engine as the CLI.
 
 ```text
 $ npx @sloplint/cli check examples/samples
@@ -313,7 +313,7 @@ The path matters: it decides the language, and whether the file is a test, a ser
 npm run site
 ```
 
-Then open `http://localhost:4173`. The site is static: `site/` plus the engine in `src/`, served from the repository root. It has no build step, so any static host that serves the repository works.
+Then open `http://localhost:4173`. The site is static: `site/` plus the engine in `src/`, served from the repository root. It has no build step, so any static host that serves the repository works. The live copy is at https://sloplint.xyz/ (Vercel, from `vercel.json`) and https://mattbaconz.github.io/sloplint/ (GitHub Pages).
 
 ## Development
 

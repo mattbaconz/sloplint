@@ -7,7 +7,7 @@
     "type": "git",
     "url": "git+https://github.com/mattbaconz/sloplint.git"
   },
-  "homepage": "https://mattbaconz.github.io/sloplint/",
+  "homepage": "https://sloplint.xyz/",
   "bugs": "https://github.com/mattbaconz/sloplint/issues",
   "publishConfig": {
     "access": "public"

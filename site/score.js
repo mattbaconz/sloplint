@@ -111,7 +111,7 @@ async function downloadCard() {
   g.font = `500 24px ${v('--font-mono')}`;
   g.fillText(`${plural(s.errors, 'error')} · ${plural(s.warnings, 'warning')}`, 80, 570);
   g.textAlign = 'right';
-  g.fillText('sloplint · mattbaconz.github.io/sloplint', 1120, 570);
+  g.fillText('sloplint · sloplint.xyz', 1120, 570);
   canvas.toBlob((blob) => {
     const link = h('a', { href: URL.createObjectURL(blob), download: `slop-score-${host}.png` });
     link.click();

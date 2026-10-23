@@ -3,6 +3,7 @@
 ## Unreleased
 
 - [added] The benchmark write-up on the docs site (`site/benchmark.html`): where sloplint lost to four design skills, what 0.3.0 changed, and the re-runs.
+- [added] The docs site is also served at https://sloplint.xyz/ from Vercel (`vercel.json` builds the same layout as the Pages workflow). The package, plugin and SARIF rule links point there, and the Score a page Worker accepts that origin.
 
 ## 0.3.0 (2026-10-20)
 
