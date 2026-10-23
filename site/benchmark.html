@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en" data-preset="obsidian-telemetry">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>We benchmarked the top anti-slop skills · sloplint</title>
+<meta name="description" content="sloplint against frontend-design, hallmark, impeccable and taste-skill on three landing-page briefs: where it lost, what 0.3.0 changed, and the re-runs.">
+<meta property="og:title" content="We benchmarked the top anti-slop skills">
+<meta property="og:description" content="Where sloplint lost to four design skills, what 0.3.0 changed, and how far that got. Every output is published.">
+<meta property="og:image" content="https://mattbaconz.github.io/sloplint/bench/results/2026-10-17-head-to-head/grids/claude-landing-print.jpg">
+<meta property="og:type" content="article">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&family=Chivo+Mono:wght@400;500&family=Chivo:wght@400;600;800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Newsreader:opsz,wght@6..72,400;6..72,500&family=Public+Sans:wght@400;600&display=swap">
+<link rel="stylesheet" href="styles.css">
+<script>
+  try {
+    var saved = localStorage.getItem('sloplint:preset');
+    if (saved) document.documentElement.dataset.preset = saved;
+  } catch (e) {
+    // Storage blocked: keep the default preset.
+  }
+</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="masthead">
+  <div class="wrap masthead-row">
+    <a class="wordmark" href="./" aria-label="sloplint home"><span class="mark" aria-hidden="true"></span>sloplint</a>
+    <nav class="nav" aria-label="Sections">
+      <a href="./#grader">Grader</a>
+      <a href="score.html">Score a page</a>
+      <a href="benchmark.html" aria-current="page">Benchmark</a>
+      <a href="./#rules">Rules</a>
+      <a href="./#cli">CLI</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <article class="wrap article" aria-labelledby="page-title">
+    <header class="page-intro">
+      <p class="kicker">Benchmark · 23 October 2026</p>
+      <h1 id="page-title">We benchmarked the top anti-slop skills</h1>
+      <p class="lede">I build sloplint, a linter for the patterns AI coding agents leave behind. Before launching it I wanted to know how it does next to the design skills people already install: Anthropic's frontend-design, hallmark, impeccable and taste-skill. So I ran them head to head, published every output, and sloplint lost on three counts. This post covers those losses first, then what the 0.3.0 release changed and how far that got.</p>
+    </header>
+
+    <h2>The setup</h2>
+    <p>Claude Code on Claude Sonnet 5.5, three landing-page briefs (a bakery, a print studio that also presses records, and an uptime monitor), two runs per arm, a fresh directory each time. The arms were no skill, sloplint's hooks alone, each of the four skills alone, and each skill plus sloplint's hooks. Each skill was pinned to a commit and installed as the only skill the agent could see. The prompt never named it, so the agent decided on its own whether to load it. 60 runs cost $28.53.</p>
+    <p>One caveat up front: the Slop Score is sloplint's own metric, and the hooks arms are told to drive it to zero. A zero there shows the agent followed instructions, not that the page is better. That is why the benchmark also measures things sloplint does not: whether the page overflows a 375px screen, how many numbers on the page are invented, and the screenshots themselves.</p>
+    <p>Full results, transcripts and per-run outputs: <a href="https://github.com/mattbaconz/sloplint/tree/main/bench/results/2026-10-17-head-to-head">bench/results/2026-10-17-head-to-head</a>.</p>
+
+    <h2>Where sloplint lost</h2>
+    <p><strong>Pages that fit a phone.</strong> With sloplint's hooks, all six print-studio pages from the frontend-design, hallmark and taste-skill arms overflowed at 375px. The same three skills without sloplint overflowed on none of their print pages. sloplint had no check for it.</p>
+    <p><strong>Convergence.</strong> sloplint generates a DESIGN.md per project so agents stop producing the same page. Instead, the pages converged on the examples DESIGN.md gave them. Four of the uptime pages opened on a large "412 ms" figure. Every sloplint bakery page had an order-slip card. Five of the eight print pages from the skill-plus-hooks arms used a split colour field with a poster. Counting headline typefaces hides this, since every hooks arm used six faces in six pages. The screenshots don't hide it.</p>
+    <figure>
+      <a href="../bench/results/2026-10-17-head-to-head/grids/claude-landing-print.jpg"><img src="../bench/results/2026-10-17-head-to-head/grids/claude-landing-print.jpg" alt="Grid of print-studio landing pages, one row per arm, from the 17 October run." loading="lazy"></a>
+      <figcaption>Print-studio brief, every arm, 17 October.</figcaption>
+    </figure>
+    <p><strong>Skill drop-out.</strong> Next to sloplint's instructions, the agent often stopped using the skill it had been given. impeccable loaded in 0 of 6 runs, frontend-design in 3 of 6. taste-skill loaded in all 6, but its scripts never ran. So "skill plus sloplint" mostly measured sloplint, and anyone who installed both would have lost the skill they chose.</p>
+    <p>On looks generally, my read of the grids is that the boldest individual pages came from the skills alone. taste-skill pulled real archive photographs into its pages, and impeccable produced a yellow telegram-style uptime page and a blue-and-yellow bakery page.</p>
+
+    <h2>Where it helped</h2>
+    <p>The Slop Score was 0 in every hooks arm, against 9.8 (frontend-design), 17.7 (hallmark), 17.8 (impeccable) and 29.7 (taste-skill) for the skills alone and 27.2 with no skill. Again, that is our metric.</p>
+    <p>The check I trust more is invented numbers: percentages, "2,400+"-style counts, multipliers and star ratings that the brief never supplied. It is a crude regex over the rendered text, independent of sloplint's rules. With hooks, pages had 0 to 0.2 of them on average. The skills alone had 0.3 to 2.7, and no skill had 2.7.</p>
+    <p>Cost per run was $0.31 to $0.48 with hooks. impeccable alone cost $0.82 per run and taste-skill alone $1.13, at about twelve minutes a run.</p>
+
+    <h2>What 0.3.0 changed</h2>
+    <p><strong>Overflow.</strong> Every page that overflowed already had an <code>overflow-x: auto</code> wrapper around its table, which is the textbook fix. The cause was a visually hidden "Order" label with <code>position: absolute</code> in the last header cell. The wrapper wasn't positioned, so it couldn't clip the label, and the label pushed the page out to between 442 and 590px. The new rule UI-015 flags that case and the plain one (a wide table with no wrapper and no narrow layout), and DESIGN.md now has a line on tables at narrow widths.</p>
+    <p><strong>Skill drop-out.</strong> The skill, the rule block and DESIGN.md now tell the agent to let another design skill lead the visual direction and to fill in only what it leaves open. sloplint still runs its check.</p>
+    <p><strong>Convergence.</strong> DESIGN.md no longer names one first-screen device per layout, because agents copied it word for word. Each layout now states a rule, asks for one form picked by seed from five, names two fallbacks, and names the version most pages settle for as the one to avoid.</p>
+
+    <h2>The re-runs</h2>
+    <p>I re-ran the four skill-plus-hooks arms on the print and uptime briefs, the two where the losses showed. The bakery brief was not re-run, so the order-slip convergence is fixed in the generator but not re-measured.</p>
+    <p>On 19 October (16 runs, $7.66):</p>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th scope="col">Check</th><th scope="col">17 October</th><th scope="col">19 October</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Pages that overflow at 375px</th><td>6 of 16</td><td>0 of 16</td></tr>
+          <tr><th scope="row">Runs that loaded the arm's skill</th><td>8 of 16</td><td>16 of 16</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>impeccable ran its engine once per run, up from zero, and taste-skill ran its scripts five times per run, also up from zero.</p>
+    <p>The first screens did not clearly get more varied. No uptime page opened on "412 ms" and only one print page used the split poster, but the agents mostly swapped one default for another: all eight uptime pages put the headline over the product, and five print pages opened on a stacked typographic statement. So I tuned the generator to ask for one specific form instead of offering three, and ran it again on 20 October (8 runs, $4.36, one run per cell):</p>
+    <ul>
+      <li>0 of 8 pages overflowed.</li>
+      <li>8 of 8 runs loaded their skill.</li>
+      <li>7 of 8 built the first-screen form DESIGN.md asked for. taste-skill's print page built a full-bleed field instead of a split.</li>
+    </ul>
+    <figure>
+      <a href="../bench/results/2026-10-20-rebench/grids/claude-landing-print.jpg"><img src="../bench/results/2026-10-20-rebench/grids/claude-landing-print.jpg" alt="Grid of print-studio landing pages from the four skill-plus-hooks arms, 20 October run." loading="lazy"></a>
+      <figcaption>Print-studio brief, skill-plus-hooks arms, 20 October.</figcaption>
+    </figure>
+    <p>First-screen variety only partly improved. Counting distinct first-screen devices across the four pages of each brief, print went from 2 to 4. Uptime stayed at 3. The uptime brief is a dashboard product and every agent still puts its data under the headline. What changed is the shape of that data (an incident feed, endpoint rows set as display type) and no page opens on a lone oversized number any more. But it is not more varied by this count, and the device classes are my own judgment from the screenshots.</p>
+    <figure>
+      <a href="../bench/results/2026-10-20-rebench/grids/claude-landing-uptime.jpg"><img src="../bench/results/2026-10-20-rebench/grids/claude-landing-uptime.jpg" alt="Grid of uptime-monitor landing pages from the four skill-plus-hooks arms, 20 October run." loading="lazy"></a>
+      <figcaption>Uptime brief, skill-plus-hooks arms, 20 October.</figcaption>
+    </figure>
+    <p>One more cost of the fix: once the skills actually run, runs get more expensive. taste-skill plus hooks averaged $0.41 per run on 17 October across three briefs, then $0.64 and $0.85 on the two re-runs. That money is going to the skill you installed, which is the point, but it is no longer the cheapest arm.</p>
+
+    <h2>Caveats</h2>
+    <ul>
+      <li>Two runs per cell on 17 and 19 October, one on 20 October. That shows patterns. It doesn't rank arms that are close.</li>
+      <li>One model, landing pages only. The skills do more than build landing pages.</li>
+      <li>The looks verdict and the device counts are judgment calls. The grids are there so you can disagree.</li>
+    </ul>
+    <p>Results: <a href="https://github.com/mattbaconz/sloplint/tree/main/bench/results/2026-10-17-head-to-head">17 October</a>, <a href="https://github.com/mattbaconz/sloplint/tree/main/bench/results/2026-10-19-rebench">19 October</a>, <a href="https://github.com/mattbaconz/sloplint/tree/main/bench/results/2026-10-20-rebench">20 October</a>. The harness is in <code>bench/</code> if you want to run it yourself.</p>
+
+    <h2>Try it</h2>
+    <p>To see what sloplint finds on a page you already have, paste its URL into <a href="score.html">Score a page</a>. To run it on code, <code>npx @sloplint/cli check .</code> needs nothing but Node 20. If a finding is wrong, please open an <a href="https://github.com/mattbaconz/sloplint/issues">issue</a> with the snippet. False positives get fixed before new rules, because an agent that obeys a wrong finding makes the code worse.</p>
+  </article>
+</main>
+<footer class="wrap footer">
+  <p>MIT licensed. Every benchmark output is in the <a href="https://github.com/mattbaconz/sloplint/tree/main/bench/results">repository</a>.</p>
+  <p><a href="./">Docs</a><a href="../README.md">README</a></p>
+</footer>
+</body>
+</html>

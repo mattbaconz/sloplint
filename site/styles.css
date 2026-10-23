@@ -1554,3 +1554,51 @@ main > section {
     top: 88px;
   }
 }
+
+/* Benchmark article */
+
+.article {
+  display: grid;
+  gap: 16px;
+  max-width: 72ch;
+  padding-block: 48px 64px;
+}
+
+.article h2 {
+  margin: 24px 0 0;
+}
+
+.article figure {
+  margin: 8px 0;
+  display: grid;
+  gap: 8px;
+}
+
+.article img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--line);
+}
+
+.article figcaption {
+  font-size: 14px;
+  color: var(--ink-2);
+}
+
+.table-scroll {
+  position: relative;
+  overflow-x: auto;
+}
+
+.article table {
+  border-collapse: collapse;
+  min-width: 100%;
+}
+
+.article th,
+.article td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+}

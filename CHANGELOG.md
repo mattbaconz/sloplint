@@ -1,5 +1,8 @@
 # Changelog
 
+n## Unreleased
+
+- [added] The benchmark write-up on the docs site (`site/benchmark.html`): where sloplint lost to four design skills, what 0.3.0 changed, and the re-runs.
 ## 0.3.0 (2026-10-20)
 
 - [added] "Score a page" on the docs site (`site/score.html`): paste a URL and get its Slop Score, findings with source excerpts, a share link and a 1200x630 score card. A Cloudflare Worker in `worker/` fetches the page HTML and up to 8 same-origin stylesheets (2 MB cap, 15-second deadline, http and https only, no cookies forwarded, robots.txt honored, 10 pages a minute per IP); the engine lints them in the browser.
