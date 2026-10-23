@@ -14,6 +14,8 @@ sloplint ships five things:
 - **A GitHub Action** that annotates findings on pull requests and can send them to code scanning.
 - **A docs site** ([sloplint.xyz](https://sloplint.xyz/)) with the rule catalog, worked examples, a style generator and an in-browser grader that runs the same engine as the CLI.
 
+Help, false positives and release news: [Discord](https://discord.gg/2k669a6ebc).
+
 ```text
 $ npx @sloplint/cli check examples/samples
 
