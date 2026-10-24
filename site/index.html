@@ -5,9 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>sloplint · find the tells of generated code</title>
 <meta name="description" content="A zero-dependency linter, agent brief pack and live grader for the patterns AI assistants leave in UI, security, backend, copy and tests.">
+<meta property="og:title" content="sloplint · find the tells of generated code">
+<meta property="og:description" content="A zero-dependency linter, agent brief pack and live grader for the patterns AI assistants leave in UI, security, backend, copy and tests.">
+<meta property="og:url" content="https://sloplint.xyz/">
+<meta property="og:image" content="https://sloplint.xyz/og.png">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&family=Chivo+Mono:wght@400;500&family=Chivo:wght@400;600;800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Newsreader:opsz,wght@6..72,400;6..72,500&family=Public+Sans:wght@400;600&display=swap">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="stylesheet" href="styles.css">
 <script>
   try {
@@ -24,11 +33,11 @@
 
 <header class="masthead">
   <div class="wrap masthead-row">
-    <a class="wordmark" href="#top" aria-label="sloplint home"><span class="mark" aria-hidden="true"></span>sloplint</a>
+    <a class="wordmark" href="#top" aria-label="sloplint home"><svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><rect class="mark-tile" width="32" height="32" rx="7"/><path class="mark-glyph" d="M14.6 11.9C13.8 10.7 12.5 10.2 11 10.2 8.9 10.2 7.4 11.3 7.4 12.9c0 3.9 7.6 2 7.6 5.9 0 1.7-1.6 2.8-3.8 2.8-1.8 0-3.4-.7-4.3-2"/><rect class="mark-l" x="19" y="5" width="3.6" height="17" rx="1.8"/><path class="mark-squiggle" d="M6.5 26.2q2.4-2.6 4.8 0t4.8 0 4.8 0 4.8 0"/></svg>sloplint</a>
     <nav class="nav" aria-label="Sections">
       <a href="#grader">Grader</a>
-      <a href="score.html">Score a page</a>
-      <a href="benchmark.html">Benchmark</a>
+      <a href="/score">Score a page</a>
+      <a href="/benchmark">Benchmark</a>
       <a href="#styles">Styles</a>
       <a href="#rules">Rules</a>
       <a href="#presets">Presets</a>
@@ -47,9 +56,11 @@
 
 <main id="main">
   <section class="hero wrap" id="top">
-    <div class="hero-copy">
+    <div class="hero-title">
       <p class="kicker">Linter · design systems · agent briefs</p>
       <h1>Find the tells of generated code before your users do.</h1>
+    </div>
+    <div class="hero-copy">
       <p class="lede">sloplint is a zero-dependency linter for the patterns AI assistants leave behind: purple gradients, swallowed errors, fallback secrets, mock data, invented proof and tests that assert nothing. It also gives each project its own design system, so agents stop converging on one look.</p>
       <div class="command">
         <code id="install-command">npx @sloplint/cli check .</code>
@@ -238,12 +249,12 @@ jobs:
         <p>Token-dense briefs you can drop into a system prompt, one per specialist. They cite the same rule IDs the linter enforces, so the reviewer and the author agree on what done means.</p>
       </header>
       <ol class="briefs">
-        <li><a href="../rules/ui.md">rules/ui.md</a><span>Visual design, motion and UX writing for frontend agents.</span><code>UI · COPY</code></li>
-        <li><a href="../rules/backend.md">rules/backend.md</a><span>Errors, data access, network calls and API design.</span><code>BE</code></li>
-        <li><a href="../rules/security.md">rules/security.md</a><span>Secrets, CORS, injection, server-side auth and webhooks.</span><code>SEC</code></li>
-        <li><a href="../rules/testing.md">rules/testing.md</a><span>Assertions, waits, focused tests and READMEs.</span><code>TEST</code></li>
-        <li><a href="../rules/motion.md">rules/motion.md</a><span>Motion, pacing and sound for videos written as code.</span><code>MOTION</code></li>
-        <li><a href="../scripts/verify-dom.spec.ts">scripts/verify-dom.spec.ts</a><span>Playwright checks against the rendered page: computed transitions, gradients, radii, layout shift and visible copy.</span><code>DOM</code></li>
+        <li><a href="/rules/ui.md">rules/ui.md</a><span>Visual design, motion and UX writing for frontend agents.</span><code>UI · COPY</code></li>
+        <li><a href="/rules/backend.md">rules/backend.md</a><span>Errors, data access, network calls and API design.</span><code>BE</code></li>
+        <li><a href="/rules/security.md">rules/security.md</a><span>Secrets, CORS, injection, server-side auth and webhooks.</span><code>SEC</code></li>
+        <li><a href="/rules/testing.md">rules/testing.md</a><span>Assertions, waits, focused tests and READMEs.</span><code>TEST</code></li>
+        <li><a href="/rules/motion.md">rules/motion.md</a><span>Motion, pacing and sound for videos written as code.</span><code>MOTION</code></li>
+        <li><a href="https://github.com/mattbaconz/sloplint/blob/main/scripts/verify-dom.spec.ts">scripts/verify-dom.spec.ts</a><span>Playwright checks against the rendered page: computed transitions, gradients, radii, layout shift and visible copy.</span><code>DOM</code></li>
       </ol>
     </div>
   </section>
@@ -251,7 +262,7 @@ jobs:
 
 <footer class="wrap footer">
   <p>MIT licensed. sloplint scores <strong>0/100</strong> on its own source, this page included.</p>
-  <p><a href="https://github.com/mattbaconz/sloplint#readme">README</a><a href="https://discord.gg/2k669a6ebc">Discord</a><a href="../rules/README.md">Using the briefs</a></p>
+  <p><a href="https://github.com/mattbaconz/sloplint#readme">README</a><a href="https://discord.gg/2k669a6ebc">Discord</a><a href="/rules/README.md">Using the briefs</a></p>
 </footer>
 </body>
 </html>

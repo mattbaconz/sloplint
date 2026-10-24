@@ -2,7 +2,14 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
   "installCommand": "",
-  "buildCommand": "mkdir -p _site && cp -r site src examples presets rules _site/",
+  "buildCommand": "mkdir -p _site && cp -r site/. _site/ && cp -r src examples presets rules _site/",
   "outputDirectory": "_site",
-  "redirects": [{ "source": "/", "destination": "/site/", "permanent": false }]
+  "cleanUrls": true,
+  "redirects": [
+    { "source": "/site", "destination": "/", "permanent": true },
+    { "source": "/site/", "destination": "/", "permanent": true },
+    { "source": "/site/index.html", "destination": "/", "permanent": true },
+    { "source": "/site/:page.html", "destination": "/:page", "permanent": true },
+    { "source": "/site/:path*", "destination": "/:path*", "permanent": true }
+  ]
 }

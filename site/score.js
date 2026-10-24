@@ -133,7 +133,7 @@ function copy(button, text) {
 // overlay always runs the current engine. `void` keeps the tab from navigating to the result.
 function initBookmarklet() {
   const src = new URL('bookmarklet.mjs', import.meta.url).href;
-  const home = new URL('score.html', import.meta.url).href;
+  const home = new URL('score', import.meta.url).href;
   const blocked = `sloplint could not load on this page: its Content-Security-Policy blocks outside scripts. Score it by URL at ${home} instead.`;
   const code = `javascript:void import(${JSON.stringify(src)}).then(m=>m.run(),()=>alert(${JSON.stringify(blocked)}))`;
   $('#bookmarklet-link').href = code;

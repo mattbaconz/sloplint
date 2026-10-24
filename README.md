@@ -315,7 +315,7 @@ The path matters: it decides the language, and whether the file is a test, a ser
 npm run site
 ```
 
-Then open `http://localhost:4173`. The site is static: `site/` plus the engine in `src/`, served from the repository root. It has no build step, so any static host that serves the repository works. The live copy is at https://sloplint.xyz/ (Vercel, from `vercel.json`) and https://mattbaconz.github.io/sloplint/ (GitHub Pages).
+Then open `http://localhost:4173/`. The site is static: `site/` plus the engine in `src/`, laid out the way it deploys, with `site/` at the root and clean URLs (`/score`, `/benchmark`). It has no build step beyond copying those folders. The live copy is at https://sloplint.xyz/ (Vercel, from `vercel.json`); the old https://mattbaconz.github.io/sloplint/ address and `/site/...` paths redirect there.
 
 ## Development
 

@@ -8,7 +8,7 @@
 import { scorePage, findingItems, band, h } from './page-score.mjs';
 
 const HOST_ID = 'sloplint-overlay';
-const HOME = new URL('score.html', import.meta.url).href;
+const HOME = new URL('score', import.meta.url).href;
 const ruleHref = (id) => new URL(`./#rule/${id}`, import.meta.url).href;
 const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
 

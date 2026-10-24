@@ -14,7 +14,7 @@
 // Local: npx wrangler dev --var ALLOWED_ORIGINS:http://localhost:4173
 
 const AGENT = 'sloplint';
-const USER_AGENT = 'sloplint/0.2 (+https://sloplint.xyz/site/score.html)';
+const USER_AGENT = 'sloplint/0.2 (+https://sloplint.xyz/score)';
 const MAX_HTML = 2_000_000;
 const MAX_CSS = 1_000_000;
 const MAX_ROBOTS = 500_000;

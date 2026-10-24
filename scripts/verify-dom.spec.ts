@@ -6,7 +6,7 @@
 
 import { test, expect, type Page } from '@playwright/test';
 
-const TARGET = process.env.SLOPLINT_URL ?? 'http://localhost:4173/site/';
+const TARGET = process.env.SLOPLINT_URL ?? 'http://localhost:4173/';
 
 type Audit = {
   transitionAll: string[];

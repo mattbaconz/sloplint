@@ -5,11 +5,11 @@ sloplint runs on your machine and collects nothing.
 - **No network access.** The CLI, the Claude Code hook, the skill and the GitHub Action make no network requests and send no telemetry.
 - **What the hook reads.** After Claude writes a file, the hook reads that file from disk, lints it in the same process and returns the findings to Claude Code. When Claude stops, a second hook reads the session transcript that Claude Code keeps on disk, only for the paths of the files Claude wrote, and lints those files; without a transcript it lints the files changed since the last commit. Nothing is uploaded or logged elsewhere.
 - **What it writes.** `sloplint init` writes `DESIGN.md`, the instruction files (`CLAUDE.md`, `AGENTS.md`, `GEMINI.md`, Cursor rules) and, with `--hooks`, `.claude/settings.json` in your project. `check --fix` edits the files you point it at. Nothing else is stored.
-- **Fonts.** A generated `DESIGN.md` and the specimen page reference typefaces on Google Fonts. Opening a page that loads them sends a request to Google, as any page using Google Fonts does. The docs site at https://sloplint.xyz/ (mirrored at https://mattbaconz.github.io/sloplint/) does the same and runs its grader in your browser.
+- **Fonts.** A generated `DESIGN.md` and the specimen page reference typefaces on Google Fonts. Opening a page that loads them sends a request to Google, as any page using Google Fonts does. The docs site at https://sloplint.xyz/ does the same and runs its grader in your browser.
 
 ## Score a page
 
-The "Score a page" box on the docs site (`site/score.html`) is the one part of sloplint that uses a server.
+The "Score a page" box on the docs site (https://sloplint.xyz/score) is the one part of sloplint that uses a server.
 
 - **What is sent.** When you score a URL, your browser sends that URL to a Cloudflare Worker run by the sloplint maintainer (`worker/fetch-page.mjs`). As with any website, Cloudflare sees your IP address. The Worker uses it only as the key for its rate limit of 10 pages a minute: the times of your requests in the last minute, held in memory and never written to storage.
 - **What the Worker fetches.** It downloads the page and up to 8 of its same-origin stylesheets under its own user agent (`sloplint/0.2`). It forwards none of your headers, cookies or sign-ins, so the site you score sees a request from Cloudflare, not from you. The Worker reads robots.txt first and does not fetch a page that robots.txt disallows for `sloplint` or `*`.

@@ -22,11 +22,17 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      # The site imports ../src and loads examples, presets and rules, so they ship together.
+      # The docs moved to https://sloplint.xyz/. Each old page forwards there, keeping the query and the #section.
       - run: |
-          mkdir _site
-          cp -r site src examples presets rules _site/
-          printf '<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="0; url=site/"><title>sloplint</title><a href="site/">sloplint docs</a>\n' > _site/index.html
+          mkdir -p _site/site
+          page() {
+            printf '<!doctype html><meta charset="utf-8"><title>sloplint</title><meta name="robots" content="noindex"><link rel="canonical" href="https://sloplint.xyz/%s"><meta http-equiv="refresh" content="0; url=https://sloplint.xyz/%s"><script>location.replace("https://sloplint.xyz/%s" + location.search + location.hash)</script><a href="https://sloplint.xyz/%s">sloplint.xyz</a>
+' "$2" "$2" "$2" "$2" > "_site/$1"
+          }
+          page index.html ''
+          page site/index.html ''
+          page site/score.html score
+          page site/benchmark.html benchmark
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site

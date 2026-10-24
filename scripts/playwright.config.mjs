@@ -16,7 +16,7 @@ export default defineConfig({
     ? undefined
     : {
         command: 'node scripts/serve.mjs 4173',
-        url: 'http://localhost:4173/site/',
+        url: 'http://localhost:4173/',
         reuseExistingServer: true,
         cwd: fileURLToPath(new URL('..', import.meta.url)),
       },
