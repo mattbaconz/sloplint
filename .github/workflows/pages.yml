@@ -26,8 +26,7 @@ jobs:
       - run: |
           mkdir -p _site/site
           page() {
-            printf '<!doctype html><meta charset="utf-8"><title>sloplint</title><meta name="robots" content="noindex"><link rel="canonical" href="https://sloplint.xyz/%s"><meta http-equiv="refresh" content="0; url=https://sloplint.xyz/%s"><script>location.replace("https://sloplint.xyz/%s" + location.search + location.hash)</script><a href="https://sloplint.xyz/%s">sloplint.xyz</a>
-' "$2" "$2" "$2" "$2" > "_site/$1"
+            printf '<!doctype html><meta charset="utf-8"><title>sloplint</title><meta name="robots" content="noindex"><link rel="canonical" href="https://sloplint.xyz/%s"><meta http-equiv="refresh" content="0; url=https://sloplint.xyz/%s"><script>location.replace("https://sloplint.xyz/%s" + location.search + location.hash)</script><a href="https://sloplint.xyz/%s">sloplint.xyz</a>\n' "$2" "$2" "$2" "$2" > "_site/$1"
           }
           page index.html ''
           page site/index.html ''
