@@ -106,8 +106,9 @@ export function rgbaOf(literal) {
     const f = (k) => { const n = (k + h / 30) % 12; return l - s * Math.min(l, 1 - l) * Math.max(-1, Math.min(n - 3, 9 - n, 1)); };
     rgb = [f(0), f(8), f(4)].map((v) => v * 255);
   } else {
-    const hex = toHex(oklchToLinear(num(raw[0], 1), parseFloat(raw[1]), parseFloat(raw[2])));
-    return [...rgbaOf(hex).slice(0, 3), alpha];
+    // Non-numeric channels (a template like `oklch(${l}% ...)`) yield no valid hex.
+    const rgba = rgbaOf(toHex(oklchToLinear(num(raw[0], 1), parseFloat(raw[1]), parseFloat(raw[2]))));
+    return rgba && !Number.isNaN(alpha) ? [...rgba.slice(0, 3), alpha] : null;
   }
   return rgb.some(Number.isNaN) || Number.isNaN(alpha) ? null : [...rgb.map((v) => Math.round(v)), alpha];
 }

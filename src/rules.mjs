@@ -152,7 +152,9 @@ function blurOf(value) {
 
 const SENSITIVE = /(SECRET|PASSWORD|PASSWD|TOKEN|API_?KEY|PRIVATE|SALT|CREDENTIAL|JWT|SIGNING|ENCRYPT|SESSION_KEY|COOKIE_KEY|DATABASE_URL|DB_PASS)/i;
 const PUBLIC_ENV = /^(NEXT_PUBLIC|VITE|PUBLIC|REACT_APP|EXPO_PUBLIC|NUXT_PUBLIC)_/;
-const sensitive = (name) => SENSITIVE.test(name) && !PUBLIC_ENV.test(name);
+// Lifetimes, claims and cost factors of a secret (JWT_TTL, JWT_EXPIRES_IN, SALT_ROUNDS) are settings, not secrets.
+const SETTING = /_(?:TTL|EXPIRES(?:_IN)?|EXPIRY|EXPIRATION|LIFETIME|MAX_AGE|TIMEOUT|ALG(?:ORITHM)?|ISSUER|AUDIENCE|ROUNDS)(?:_(?:MS|SECONDS?|SECS?|MINUTES?|MINS?|HOURS?|DAYS?))?$/i;
+const sensitive = (name) => SENSITIVE.test(name) && !PUBLIC_ENV.test(name) && !SETTING.test(name);
 const SQL = /^\s*(?:select\s[\s\S]*?\bfrom\b|insert\s+into\b|update\s+[\w."`]+\s+set\b|delete\s+from\b|with\s+\w+\s+as\s*\()/i;
 const ALLOWLIST = "(process.env.CORS_ORIGINS ?? '').split(',')";
 const SAFE_HTML = /^\s*(?:(?:esc|escape\w*|sanitize\w*|DOMPurify\.sanitize|purify\w*|encode\w*)\s*\(|[\w$.]*\.(?:length|size)\s*$|\d+\s*$)/;
@@ -845,7 +847,8 @@ export const RULES = [
             for (let p = el.parent; p && p !== wrapper; p = p.parent) if (ctx.box(p).positioned) return false;
             return !ctx.box(wrapper).positioned;
           };
-          if (inside.some((el) => ctx.box(el).overlay && !ctx.box(el).offLeft && escapes(el))) {
+          // A positioned caption stays at the table's top-left corner, so it cannot push past the viewport.
+          if (inside.some((el) => ctx.box(el).overlay && !ctx.box(el).offLeft && !tag(el, /^caption$/) && escapes(el))) {
             out.push(hit(wrapper.start, wrapper.openEnd, 'Absolutely positioned content in this table escapes its scroll wrapper, which is not positioned, and widens the page at 375px; add `position: relative` to the wrapper'));
           }
           continue;

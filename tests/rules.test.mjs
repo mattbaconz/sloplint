@@ -4,7 +4,7 @@ import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { RULES, DOMAINS, lint, findRule } from '../src/engine.mjs';
-import { parseDesign } from '../src/design.mjs';
+import { parseDesign, rgbaOf } from '../src/design.mjs';
 import { gridMin, holdsAt } from '../src/style.mjs';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
@@ -84,6 +84,12 @@ test('UI-011 and UI-012 accept DESIGN.md tokens in Tailwind arbitrary values', (
 `;
   const ids = ruleIds(tsx, 'src/Stat.tsx', { design: SAMPLE_DESIGN }).filter((id) => id === 'UI-011' || id === 'UI-012');
   assert.deepEqual(ids, []);
+});
+
+test('UI-011 skips color literals built from template placeholders', () => {
+  assert.equal(rgbaOf('oklch(${l}% ${chroma} ${hue})'), null);
+  const js = 'export const ramp = (chroma, hue) => [20, 32, 44].map((l) => `oklch(${l}% ${chroma} ${hue})`);\n';
+  assert.doesNotThrow(() => lint(js, 'scripts/live-browser.js', { design: SAMPLE_DESIGN }));
 });
 
 test('grid widths and media conditions resolve for a 375px screen', () => {
