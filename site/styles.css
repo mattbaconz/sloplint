@@ -401,28 +401,24 @@ kbd {
   flex: none;
 }
 
-.mark-tile {
-  fill: var(--ink);
-}
-
-.mark-glyph,
-.mark-squiggle {
+.mark-frame,
+.mark-s {
   fill: none;
-  stroke-linecap: round;
+  stroke: var(--bad);
 }
 
-.mark-glyph {
-  stroke: var(--bg);
-  stroke-width: 3;
+.mark-frame {
+  stroke-width: 2.4;
+  stroke-linejoin: round;
+}
+
+.mark-s {
+  stroke-width: 3.6;
+  stroke-linecap: square;
 }
 
 .mark-l {
-  fill: var(--bg);
-}
-
-.mark-squiggle {
-  stroke: var(--bad);
-  stroke-width: 2.6;
+  fill: var(--bad);
 }
 
 .nav {

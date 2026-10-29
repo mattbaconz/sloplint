@@ -6,7 +6,7 @@
 - [fixed] UI-015 no longer flags a visually hidden `<caption>` in an unpositioned scroll wrapper. A caption sits at the table's top-left corner, so it cannot widen the page; a hidden label in the last column still can, and is still flagged.
 - [fixed] `sloplint check` no longer stops with "UI-011 failed" on a color built from template placeholders, such as `` `oklch(${l}% ${chroma} ${hue})` ``. Literals it cannot parse are skipped.
 - [changed] The docs site has clean URLs: https://sloplint.xyz/, /score and /benchmark, with sections at /#grader and so on. Old /site/... links answer with a 308 redirect, and the GitHub Pages copy now forwards to sloplint.xyz, keeping the query and the #section.
-- [changed] The docs site has a logo (an "sl" tile with a red lint squiggle) in the masthead, a favicon, an Apple touch icon and an og:image, and the plugin icon uses the same mark. The hero, section headings and spacing were reworked in all four presets.
+- [changed] The docs site has a logo (a red rubber-stamp "sl", drawn by hand) in the masthead, a favicon, an Apple touch icon and an og:image, and the plugin icon uses the same mark. The hero, section headings and spacing were reworked in all four presets.
 - [fixed] The hero terminal on the docs site no longer scrolls sideways at desktop width, and the sections now keep their vertical padding (`.wrap` had reset it).
 - [added] The benchmark write-up on the docs site (`site/benchmark.html`): where sloplint lost to four design skills, what 0.3.0 changed, and the re-runs.
 - [added] The docs site is also served at https://sloplint.xyz/ from Vercel (`vercel.json` builds the same layout as the Pages workflow). The package, plugin and SARIF rule links point there, and the Score a page Worker accepts that origin.
