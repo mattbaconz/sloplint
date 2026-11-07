@@ -13,15 +13,40 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&family=Chivo+Mono:wght@400;500&family=Chivo:wght@400;600;800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Newsreader:opsz,wght@6..72,400;6..72,500&family=Public+Sans:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="stylesheet" href="styles.css">
 <script>
+  // Obsidian's families are in the stylesheet above. Every other preset fetches its own
+  // when it is applied or shown, so a first visit downloads one preset's fonts, not four.
+  window.presetFonts = function (id) {
+    var families = {
+      'editorial-serif': 'family=Newsreader:opsz,wght@6..72,400;6..72,500&family=Public+Sans:wght@400;600',
+      'swiss-brutalist': 'family=Archivo:wght@400;600;800&family=JetBrains+Mono:wght@400;600',
+      'tactile-hardware': 'family=Chivo:wght@400;600;800&family=Chivo+Mono:wght@400;500',
+    }[id];
+    if (!families) return Promise.resolve();
+    var link = document.getElementById('fonts-' + id);
+    if (!link) {
+      link = document.createElement('link');
+      link.id = 'fonts-' + id;
+      link.rel = 'stylesheet';
+      link.href = 'https://fonts.googleapis.com/css2?' + families + '&display=swap';
+      link.ready = new Promise(function (done) {
+        link.onload = link.onerror = done;
+      });
+      document.head.appendChild(link);
+    }
+    return link.ready;
+  };
   try {
     var saved = localStorage.getItem('sloplint:preset');
-    if (saved) document.documentElement.dataset.preset = saved;
+    if (saved) {
+      document.documentElement.dataset.preset = saved;
+      presetFonts(saved);
+    }
   } catch (e) {
     // Storage blocked: keep the default preset.
   }
@@ -76,6 +101,23 @@
 
   <section class="wrap facts" aria-label="Project facts">
     <dl class="fact-list" id="facts"></dl>
+    <template id="stamp">
+      <svg class="stamp" viewBox="0 0 220 100" aria-hidden="true" focusable="false">
+        <defs>
+          <filter id="stamp-ink" x="-6%" y="-6%" width="112%" height="112%">
+            <feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" seed="11" result="noise"/>
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="2.6" xChannelSelector="R" yChannelSelector="G" result="rough"/>
+            <feColorMatrix in="noise" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -3 0 0 0 2.25" result="wear"/>
+            <feComposite in="rough" in2="wear" operator="in"/>
+          </filter>
+        </defs>
+        <g filter="url(#stamp-ink)">
+          <path d="M7 10 214 5 216 92 9 95Z"/>
+          <text x="111" y="47">STUDIO</text>
+          <text x="111" y="79">GRADE</text>
+        </g>
+      </svg>
+    </template>
   </section>
 
   <section class="band" id="grader" aria-labelledby="grader-title">

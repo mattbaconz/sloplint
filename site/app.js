@@ -86,6 +86,59 @@ function applyPreset(id, remember) {
   }
 }
 
+// Motion only where it is cheap and wanted: never under reduced motion, Save-Data, few cores or little
+// memory, and nothing animates on touch screens (phones get the finished state).
+const STILL =
+  matchMedia('(prefers-reduced-motion: reduce), (pointer: coarse)').matches ||
+  navigator.connection?.saveData === true ||
+  (navigator.hardwareConcurrency || 8) <= 4 ||
+  (navigator.deviceMemory || 8) <= 4;
+
+const DISPLAY_FONT = {
+  'obsidian-telemetry': 'IBM Plex Sans',
+  'editorial-serif': 'Newsreader',
+  'swiss-brutalist': 'Archivo',
+  'tactile-hardware': 'Chivo',
+};
+
+// The new preset wipes in from the control that chose it. It waits up to half a second for the
+// preset's display font so the new frame is drawn in it. Without View Transitions, or with
+// reduced motion, it switches at once.
+async function switchPreset(id, origin) {
+  // Settles either way: a font that fails to load leaves the preset's fallback stack, which still reads.
+  const fonts = Promise.allSettled([
+    Promise.resolve(window.presetFonts?.(id)).then(() => document.fonts.load(`600 1em "${DISPLAY_FONT[id]}"`)),
+  ]);
+  if (!document.startViewTransition || STILL) {
+    applyPreset(id, true);
+    return;
+  }
+  const box = origin.getBoundingClientRect();
+  const x = box.left + box.width / 2;
+  const y = box.top + box.height / 2;
+  const radius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+  await Promise.race([fonts, new Promise((done) => setTimeout(done, 500))]);
+  const transition = document.startViewTransition(() => applyPreset(id, true));
+  // A skipped transition (another switch started first) still applies the preset; only the wipe is dropped.
+  const [ready] = await Promise.allSettled([transition.ready]);
+  if (ready.status !== 'fulfilled') return;
+  document.documentElement.animate(
+    { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`] },
+    { duration: 450, easing: 'cubic-bezier(0.2, 0, 0, 1)', pseudoElement: '::view-transition-new(root)' },
+  );
+}
+
+// Run once, the first time an element comes into view.
+function onFirstView(el, run, options) {
+  if (!('IntersectionObserver' in window)) return run();
+  const io = new IntersectionObserver((entries) => {
+    if (!entries.some((entry) => entry.isIntersecting)) return;
+    io.disconnect();
+    run();
+  }, options);
+  io.observe(el);
+}
+
 function initPresets() {
   let saved = null;
   try {
@@ -95,7 +148,7 @@ function initPresets() {
   }
   if (PRESETS.some((p) => p.id === saved)) applyPreset(saved, false);
   for (const input of document.querySelectorAll('input[name="preset"]')) {
-    input.addEventListener('change', () => applyPreset(input.value, true));
+    input.addEventListener('change', () => switchPreset(input.value, input.closest('label') || input));
   }
 
   const swatches = ['--surface', '--raised', '--line', '--ink-2', '--ink', '--accent', '--good', '--warn', '--bad'];
@@ -106,13 +159,15 @@ function initPresets() {
         h('p', {}, p.mood),
         h('div', { class: 'preset-sample' },
           h('div', { class: 'preset-figure' }, h('span', { class: 'label' }, p.figureLabel), h('strong', {}, p.figure)),
-          h('button', { type: 'button', class: 'btn btn-primary', onclick: () => applyPreset(p.id, true) }, `Use ${p.name}`),
+          h('button', { type: 'button', class: 'btn btn-primary', onclick: (event) => switchPreset(p.id, event.currentTarget) }, `Use ${p.name}`),
         ),
         h('div', { class: 'swatches', 'aria-hidden': 'true' }, swatches.map((v) => h('span', { style: `background-color: var(${v})` }))),
         h('div', { class: 'preset-foot' }, h('code', {}, `npx @sloplint/cli init --preset ${p.id}`)),
       ),
     ),
   );
+  // Each card is drawn in its own preset's fonts; fetch them just before the cards scroll in.
+  onFirstView($('#preset-grid'), () => PRESETS.forEach((p) => window.presetFonts?.(p.id)), { rootMargin: '800px 0px' });
 }
 
 // ─── Copy buttons ────────────────────────────────────────────────────────────
@@ -181,6 +236,14 @@ function initFacts() {
     ['0/100', 'Slop Score on its own source'],
   ];
   $('#facts').replaceChildren(...facts.map(([value, label]) => h('div', {}, h('dt', {}, label), h('dd', {}, value))));
+  // The logo's rubber stamp marks the score, landing once when the facts come into view.
+  const scored = $('#facts').lastElementChild;
+  scored.classList.add('is-stamped');
+  scored.append($('#stamp').content.cloneNode(true));
+  if (STILL) return;
+  const section = $('.facts');
+  section.classList.add('stamp-ready');
+  onFirstView(section, () => section.classList.add('stamped'), { threshold: 0.6 });
 }
 
 // ─── Grader ──────────────────────────────────────────────────────────────────
@@ -235,7 +298,14 @@ function renderReport(text, result, s) {
   const report = $('.report');
   report.dataset.band = empty ? '' : s.score === 0 ? 'clean' : s.score < 40 ? 'minor' : 'heavy';
   $('#score-number').textContent = String(s.score);
-  $('#score-grade').textContent = empty ? 'Waiting for code' : s.grade;
+  const grade = $('#score-grade');
+  grade.textContent = empty ? 'Waiting for code' : s.grade;
+  if (!empty && !STILL && grade.dataset.stamped !== s.grade) {
+    grade.dataset.stamped = s.grade;
+    grade.classList.remove('thud');
+    void grade.offsetWidth;
+    grade.classList.add('thud');
+  }
   $('#score-fill').style.width = `${s.score}%`;
   $('#score-meta').textContent = empty
     ? 'Paste code to get a score.'
