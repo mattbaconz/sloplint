@@ -103,8 +103,11 @@ const DISPLAY_FONT = {
 
 // The new preset wipes in from the control that chose it. It waits up to half a second for the
 // preset's display font so the new frame is drawn in it. Without View Transitions, or with
-// reduced motion, it switches at once.
+// reduced motion, it switches at once. Only the latest pick applies: a pick still waiting for its
+// fonts is dropped when another one comes in.
+let latestPresetPick = 0;
 async function switchPreset(id, origin) {
+  const pick = ++latestPresetPick;
   // Settles either way: a font that fails to load leaves the preset's fallback stack, which still reads.
   const fonts = Promise.allSettled([
     Promise.resolve(window.presetFonts?.(id)).then(() => document.fonts.load(`600 1em "${DISPLAY_FONT[id]}"`)),
@@ -118,6 +121,7 @@ async function switchPreset(id, origin) {
   const y = box.top + box.height / 2;
   const radius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
   await Promise.race([fonts, new Promise((done) => setTimeout(done, 500))]);
+  if (pick !== latestPresetPick) return;
   const transition = document.startViewTransition(() => applyPreset(id, true));
   // A skipped transition (another switch started first) still applies the preset; only the wipe is dropped.
   const [ready] = await Promise.allSettled([transition.ready]);
